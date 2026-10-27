@@ -236,13 +236,36 @@ def mess(c: Company) -> dict:
     return done
 
 
+def tick(c: Company, day: dt.date = AS_OF) -> dict:
+    """A day of new business after the demo: used by the schedule and failure drills."""
+    rng, o = c.rng, c.o
+    customers = [c.customer(n) for n in CUSTOMERS]
+    log = {"deals": 0, "invoices": 0, "payments": 0}
+    for _ in range(rng.randint(2, 4)):
+        partner = rng.choice(customers)
+        deal = c.deal(partner, rng.choice([5000, 9600, 12000, 18000]), day)
+        log["deals"] += 1
+        if rng.random() < 0.6:
+            c.close(deal, True, day)
+            c.invoice_order(c.order(partner, deal, day), day)
+            log["invoices"] += 1
+    unpaid = o.execute("account.move", "search_read",
+                       [("move_type", "=", "out_invoice"), ("state", "=", "posted"),
+                        ("payment_state", "=", "not_paid"), ("currency_id.name", "=", "USD")],
+                       fields=["amount_residual"], limit=2, order="invoice_date asc")
+    for inv in unpaid:
+        c.pay(inv["id"], inv["amount_residual"], day)
+        log["payments"] += 1
+    return log
+
+
 def delete_draft(odoo: Odoo, draft: int) -> None:
     odoo.execute("account.move", "unlink", [draft])
 
 
 def main(argv=None):
     p = argparse.ArgumentParser(prog="edp-simulate")
-    p.add_argument("phase", choices=["year", "mess", "delete-draft"])
+    p.add_argument("phase", choices=["year", "mess", "tick", "delete-draft"])
     p.add_argument("--draft", type=int)
     p.add_argument("--seed", type=int, default=2026)
     args = p.parse_args(argv)
@@ -250,6 +273,9 @@ def main(argv=None):
                 os.environ.get("ODOO_USER", "admin"), os.environ.get("ODOO_PASSWORD", "admin"))
     if args.phase == "delete-draft":
         delete_draft(odoo, args.draft)
+        return
+    if args.phase == "tick":
+        print(json.dumps(tick(Company(odoo, random.Random()))))
         return
     c = Company(odoo, random.Random(args.seed if args.phase == "year" else args.seed + 1))
     print(json.dumps(year(c) if args.phase == "year" else mess(c), indent=2))
