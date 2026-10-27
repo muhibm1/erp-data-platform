@@ -357,6 +357,26 @@ def _ancestors(node, stop):
         parent = parent.parent
 
 
+def reads_people(sql: str, counted: set, columns: dict | None) -> bool:
+    """Whether a query reads any table with a people count column. True when unsure: a table
+    the schema does not list, or a query that does not parse."""
+    if not columns:
+        return True
+    try:
+        tree = sqlglot.parse_one(sql, read="postgres")
+    except Exception:  # noqa: BLE001 - fails closed
+        return True
+    ctes = {c.alias_or_name.lower() for c in tree.find_all(exp.CTE)}
+    known = {t.lower(): {c.lower() for c, _ in cols} for t, cols in columns.items()}
+    for table in tree.find_all(exp.Table):
+        if not table.db and table.name.lower() in ctes:
+            continue  # a CTE: its own tables are checked where it is defined
+        cols = known.get(f"{table.db}.{table.name}".lower())
+        if cols is None or cols & counted:
+            return True
+    return False
+
+
 def apply_privacy(result: dict, rule: dict, sql: str | None = None, columns: dict | None = None) -> dict:
     """Suppress any result row built from too few people.
 
@@ -371,6 +391,8 @@ def apply_privacy(result: dict, rule: dict, sql: str | None = None, columns: dic
     handful of people. With `require_count`, any row with numbers needs a count column."""
     k = rule["min_count"]
     counted = {c.lower() for c in rule["count_columns"]}
+    if sql and not reads_people(sql, counted, columns):
+        return {**result, "suppressed": 0}  # no table it reads holds a people count
     names = list(result["rows"][0]) if result["rows"] else []
     kinds = dict.fromkeys(names)
     traced = people_columns(sql, counted, columns) if sql and names else None

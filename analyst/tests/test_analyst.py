@@ -351,3 +351,12 @@ def test_chat_model_route_turns_a_bad_reply_into_a_model_error():
 
     with pytest.raises(ModelError):
         ChatModel(llm=_StructuredStub(None))("s", "p", {"type": "object", "properties": {}})
+
+
+def test_a_query_over_tables_with_no_people_counts_is_left_alone(ads):
+    """Found by the explore test set: a lookup over keywords with a whole-row reference was refused."""
+    dom, conn = ads
+    out = sql.run(dom, conn, "select * from reporting.keywords k where lower(k::text) like '%alltrails%'")
+    assert out["ok"] and out["rows"] and out.get("suppressed") == 0
+    assert sql.reads_people("select * from reporting.keyword_daily", {"installs"}, dom.columns)
+    assert sql.reads_people("select * from reporting.mystery", {"installs"}, dom.columns)

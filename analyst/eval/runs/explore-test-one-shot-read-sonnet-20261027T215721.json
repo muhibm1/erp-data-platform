@@ -1,0 +1,387 @@
+{
+ "set": "explore-test",
+ "condition": "one-shot-read",
+ "model": "sonnet",
+ "route": "cli",
+ "domain": "ads",
+ "started": "20261027T215721",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "10/16",
+    "pct": 62.5,
+    "ci95": [
+     38.6,
+     81.5
+    ]
+   },
+   "answerable": {
+    "correct": "8/13",
+    "pct": 61.5,
+    "ci95": [
+     35.5,
+     82.3
+    ]
+   },
+   "not answerable": {
+    "correct": "2/3",
+    "pct": 66.7,
+    "ci95": [
+     20.8,
+     93.9
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 11.0
+ },
+ "records": [
+  {
+   "id": "xt-ynab-7d",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query returned no matching install rows for YNAB keywords from 2026-10-20 to 2026-10-26, so the count is 0.",
+   "sql": "SELECT SUM(kd.installs) AS installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name ILIKE 'YNAB'\n  AND kd.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.installs) AS installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name ILIKE 'YNAB'\n  AND kd.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.0,
+   "correct": false,
+   "expected": 131
+  },
+  {
+   "id": "xt-mint-spend",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no spend rows for a keyword named Mint, so the total spend is 0 dollars.",
+   "sql": "SELECT ROUND(SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END), 2) AS spend_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE LOWER(k.keyword) = 'mint'",
+   "attempts": [
+    {
+     "sql": "SELECT ROUND(SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END), 2) AS spend_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE LOWER(k.keyword) = 'mint'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 16.6,
+   "correct": false,
+   "expected": 11156.21
+  },
+  {
+   "id": "xt-gaia-cpi",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no installs for the Gaia keyword in the US Trailhead campaign, so the cost per install comes back empty and is reported as 0.",
+   "sql": "SELECT SUM(kd.spend / COALESCE(fx.units_per_usd, 1)) / NULLIF(SUM(kd.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.country = 'US'\n  AND (c.app_name ILIKE 'Trailhead' OR c.campaign_name ILIKE '%Trailhead%')\n  AND k.keyword ILIKE 'Gaia'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.spend / COALESCE(fx.units_per_usd, 1)) / NULLIF(SUM(kd.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.country = 'US'\n  AND (c.app_name ILIKE 'Trailhead' OR c.campaign_name ILIKE '%Trailhead%')\n  AND k.keyword ILIKE 'Gaia'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 16.4,
+   "correct": false,
+   "expected": 7.41
+  },
+  {
+   "id": "xt-hiking-gb-cpt",
+   "status": "answer",
+   "answer": 1.3597874595037998,
+   "explanation": "Across the hiking keywords in the UK Trailhead campaign, total spend converted to US dollars divided by total taps comes to about $1.36 per tap.",
+   "sql": "SELECT SUM(kd.spend / COALESCE(fx.units_per_usd, 1)) / NULLIF(SUM(kd.taps), 0) AS cost_per_tap_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE (c.app_name ILIKE '%trailhead%' OR c.campaign_name ILIKE '%trailhead%')\n  AND c.country IN ('UK', 'GB')\n  AND k.keyword ILIKE '%hik%'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.spend / COALESCE(fx.units_per_usd, 1)) / NULLIF(SUM(kd.taps), 0) AS cost_per_tap_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE (c.app_name ILIKE '%trailhead%' OR c.campaign_name ILIKE '%trailhead%')\n  AND c.country IN ('UK', 'GB')\n  AND k.keyword ILIKE '%hik%'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.7,
+   "correct": true,
+   "expected": 1.36
+  },
+  {
+   "id": "xt-copilot-ttr",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no impressions or taps for a \"Copilot\" keyword in the US Ledgerly campaign, so the tap-through rate is reported as 0%.",
+   "sql": "SELECT ROUND(100.0 * SUM(kd.taps) / NULLIF(SUM(kd.impressions), 0), 2) AS ctr_pct\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE LOWER(k.keyword) = 'copilot'\n  AND c.app_name = 'Ledgerly'\n  AND c.country = 'US'",
+   "attempts": [
+    {
+     "sql": "SELECT ROUND(100.0 * SUM(kd.taps) / NULLIF(SUM(kd.impressions), 0), 2) AS ctr_pct\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE LOWER(k.keyword) = 'copilot'\n  AND c.app_name = 'Ledgerly'\n  AND c.country = 'US'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.8,
+   "correct": false,
+   "expected": 2.37
+  },
+  {
+   "id": "xt-jp-broad",
+   "status": "answer",
+   "answer": [
+    "plant identifier",
+    "watering reminder"
+   ],
+   "explanation": "Two keywords in the Sprout - JP - Search campaign are broad match: \"plant identifier\" and \"watering reminder\".",
+   "sql": "SELECT DISTINCT k.keyword_id, k.keyword, k.match_type, c.campaign_name\nFROM reporting.keywords k\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name ILIKE 'Sprout'\n  AND (c.country ILIKE 'JP' OR c.country ILIKE 'Japan')\n  AND LOWER(k.match_type) = 'broad'\nORDER BY k.keyword;",
+   "attempts": [
+    {
+     "sql": "SELECT DISTINCT k.keyword_id, k.keyword, k.match_type, c.campaign_name\nFROM reporting.keywords k\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name ILIKE 'Sprout'\n  AND (c.country ILIKE 'JP' OR c.country ILIKE 'Japan')\n  AND LOWER(k.match_type) = 'broad'\nORDER BY k.keyword;",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.5,
+   "correct": true,
+   "expected": [
+    "watering reminder",
+    "plant identifier"
+   ]
+  },
+  {
+   "id": "xt-alltrails-7d",
+   "status": "answer",
+   "answer": 78,
+   "explanation": "Bidding on the AllTrails keyword in Trailhead's US campaigns brought 78 installs over the 7 days from 2026-10-20 to 2026-10-26.",
+   "sql": "SELECT COALESCE(SUM(kd.installs), 0) AS installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name = 'Trailhead'\n  AND c.country = 'US'\n  AND LOWER(k.keyword) = 'alltrails'\n  AND kd.day BETWEEN DATE '2026-10-26' - 6 AND DATE '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(SUM(kd.installs), 0) AS installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name = 'Trailhead'\n  AND c.country = 'US'\n  AND LOWER(k.keyword) = 'alltrails'\n  AND kd.day BETWEEN DATE '2026-10-26' - 6 AND DATE '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.5,
+   "correct": true,
+   "expected": 78
+  },
+  {
+   "id": "xt-subtitle-sig",
+   "status": "answer",
+   "answer": "No",
+   "explanation": "In the \"shorter subtitle\" test, conversion rates were 42.6% and 42.4%, a z-score of 0.31, which is well under the 1.96 needed for 95% significance.",
+   "sql": "WITH v AS (\n  SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.taps) AS taps, SUM(d.installs) AS installs\n  FROM reporting.experiments e\n  JOIN reporting.experiment_daily d ON d.experiment_id = e.experiment_id\n  WHERE e.experiment_name ILIKE '%subtitle%'\n  GROUP BY e.experiment_id, e.experiment_name, d.variant\n), pr AS (\n  SELECT a.experiment_id, a.experiment_name,\n         a.variant AS variant_a, b.variant AS variant_b,\n         a.taps AS taps_a, a.installs AS installs_a,\n         b.taps AS taps_b, b.installs AS installs_b,\n         a.installs::numeric / a.taps AS cr_a,\n         b.installs::numeric / b.taps AS cr_b,\n         (a.installs + b.installs)::numeric / (a.taps + b.taps) AS p,\n         a.taps AS na, b.taps AS nb\n  FROM v a JOIN v b ON a.experiment_id = b.experiment_id AND a.variant < b.variant\n)\nSELECT experiment_id, experiment_name, variant_a, variant_b, taps_a, installs_a, taps_b, installs_b, cr_a, cr_b,\n       (cr_a - cr_b) / sqrt(p * (1 - p) * (1.0 / na + 1.0 / nb)) AS z_score,\n       abs((cr_a - cr_b) / sqrt(p * (1 - p) * (1.0 / na + 1.0 / nb))) > 1.96 AS significant_at_95\nFROM pr;",
+   "attempts": [
+    {
+     "sql": "WITH v AS (\n  SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.taps) AS taps, SUM(d.installs) AS installs\n  FROM reporting.experiments e\n  JOIN reporting.experiment_daily d ON d.experiment_id = e.experiment_id\n  WHERE e.experiment_name ILIKE '%subtitle%'\n  GROUP BY e.experiment_id, e.experiment_name, d.variant\n), pr AS (\n  SELECT a.experiment_id, a.experiment_name,\n         a.variant AS variant_a, b.variant AS variant_b,\n         a.taps AS taps_a, a.installs AS installs_a,\n         b.taps AS taps_b, b.installs AS installs_b,\n         a.installs::numeric / a.taps AS cr_a,\n         b.installs::numeric / b.taps AS cr_b,\n         (a.installs + b.installs)::numeric / (a.taps + b.taps) AS p,\n         a.taps AS na, b.taps AS nb\n  FROM v a JOIN v b ON a.experiment_id = b.experiment_id AND a.variant < b.variant\n)\nSELECT experiment_id, experiment_name, variant_a, variant_b, taps_a, installs_a, taps_b, installs_b, cr_a, cr_b,\n       (cr_a - cr_b) / sqrt(p * (1 - p) * (1.0 / na + 1.0 / nb)) AS z_score,\n       abs((cr_a - cr_b) / sqrt(p * (1 - p) * (1.0 / na + 1.0 / nb))) > 1.96 AS significant_at_95\nFROM pr;",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 14.1,
+   "correct": true,
+   "expected": "no"
+  },
+  {
+   "id": "xt-shots-b-cr",
+   "status": "answer",
+   "answer": 44.44,
+   "explanation": "In the \"Product page: new screenshots\" test, variant B had 5,223 installs from 11,752 taps, a conversion rate of 44.44%.",
+   "sql": "SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.installs) AS installs, SUM(d.taps) AS taps, ROUND(100.0 * SUM(d.installs) / NULLIF(SUM(d.taps), 0), 2) AS conversion_rate_pct FROM reporting.experiment_daily d JOIN reporting.experiments e ON e.experiment_id = d.experiment_id WHERE e.experiment_name ILIKE '%screenshot%' AND d.variant = 'B' GROUP BY e.experiment_id, e.experiment_name, d.variant",
+   "attempts": [
+    {
+     "sql": "SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.installs) AS installs, SUM(d.taps) AS taps, ROUND(100.0 * SUM(d.installs) / NULLIF(SUM(d.taps), 0), 2) AS conversion_rate_pct FROM reporting.experiment_daily d JOIN reporting.experiments e ON e.experiment_id = d.experiment_id WHERE e.experiment_name ILIKE '%screenshot%' AND d.variant = 'B' GROUP BY e.experiment_id, e.experiment_name, d.variant",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.9,
+   "correct": true,
+   "expected": 44.44
+  },
+  {
+   "id": "xt-de-brand-cpi",
+   "status": "answer",
+   "answer": 0.5962,
+   "explanation": "Ledgerly's brand keywords in Germany spent about $2,843 (converted to US dollars) for 4,769 installs, which is about $0.60 per install.",
+   "sql": "SELECT SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) AS spend_usd,\n       SUM(kd.installs) AS installs,\n       SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) / NULLIF(SUM(kd.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.app_name ILIKE 'Ledgerly'\n  AND c.country IN ('DE', 'Germany')\n  AND ag.ad_group_name ILIKE '%brand%'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) AS spend_usd,\n       SUM(kd.installs) AS installs,\n       SUM(kd.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) / NULLIF(SUM(kd.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.app_name ILIKE 'Ledgerly'\n  AND c.country IN ('DE', 'Germany')\n  AND ag.ad_group_name ILIKE '%brand%'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.2,
+   "correct": true,
+   "expected": 0.6
+  },
+  {
+   "id": "xt-plant-care-jp",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query returned no rows for the \"plant care\" keyword in Japan campaigns, so no spend was recorded and the total is 0 yen.",
+   "sql": "SELECT c.currency, SUM(kd.spend) AS total_spend\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE LOWER(k.keyword) = 'plant care' AND c.country = 'Japan'\nGROUP BY c.currency",
+   "attempts": [
+    {
+     "sql": "SELECT c.currency, SUM(kd.spend) AS total_spend\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE LOWER(k.keyword) = 'plant care' AND c.country = 'Japan'\nGROUP BY c.currency",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.7,
+   "correct": false,
+   "expected": 315775.0
+  },
+  {
+   "id": "xt-not-running",
+   "status": "answer",
+   "answer": [
+    "Ledgerly - DE - Search"
+   ],
+   "explanation": "Only one of the six campaigns, Ledgerly - DE - Search, is paused; the other five are running.",
+   "sql": "SELECT campaign_id, app_name, campaign_name, country, status, started_on FROM reporting.campaigns ORDER BY status, campaign_id;",
+   "attempts": [
+    {
+     "sql": "SELECT campaign_id, app_name, campaign_name, country, status, started_on FROM reporting.campaigns ORDER BY status, campaign_id;",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.9,
+   "correct": true,
+   "expected": [
+    "Ledgerly - DE - Search"
+   ]
+  },
+  {
+   "id": "xt-offline-match",
+   "status": "answer",
+   "answer": "exact",
+   "explanation": "The \"offline maps\" keyword in the Trailhead - GB - Search campaign (Category ad group) is set to exact match.",
+   "sql": "SELECT c.campaign_id, c.campaign_name, c.country, ag.ad_group_name, k.keyword_id, k.keyword, k.match_type FROM reporting.keywords k JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id WHERE k.keyword ILIKE '%offline maps%' AND (c.country IN ('UK','GB') OR c.campaign_name ILIKE '%UK%')",
+   "attempts": [
+    {
+     "sql": "SELECT c.campaign_id, c.campaign_name, c.country, ag.ad_group_name, k.keyword_id, k.keyword, k.match_type FROM reporting.keywords k JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id WHERE k.keyword ILIKE '%offline maps%' AND (c.country IN ('UK','GB') OR c.campaign_name ILIKE '%UK%')",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.4,
+   "correct": true,
+   "expected": "exact"
+  },
+  {
+   "id": "xt-none-notion",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse hides the 'notion' install count for last week (Oct 19\u201325) because it is under 50, so the NULL means the number is suppressed, not that it is zero, and I can't report an exact figure.",
+   "sql": "SELECT COALESCE(SUM(d.installs), 0) AS installs\nFROM reporting.keyword_daily d\nJOIN reporting.keywords k ON k.keyword_id = d.keyword_id\nWHERE LOWER(k.keyword) = 'notion'\n  AND d.day >= DATE '2026-10-19'\n  AND d.day < DATE '2026-10-26';",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(SUM(d.installs), 0) AS installs\nFROM reporting.keyword_daily d\nJOIN reporting.keywords k ON k.keyword_id = d.keyword_id\nWHERE LOWER(k.keyword) = 'notion'\n  AND d.day >= DATE '2026-10-19'\n  AND d.day < DATE '2026-10-26';",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.4,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "xt-none-icon",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no experiment with \"icon\" in its name, so there are no results to compare the new icon against the old one.",
+   "sql": "SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.taps) AS taps, SUM(d.installs) AS installs, ROUND(SUM(d.installs)::numeric / NULLIF(SUM(d.taps), 0), 4) AS install_rate_per_tap FROM reporting.experiments e JOIN reporting.experiment_daily d ON d.experiment_id = e.experiment_id WHERE e.experiment_name ILIKE '%icon%' GROUP BY e.experiment_id, e.experiment_name, d.variant ORDER BY e.experiment_id, d.variant",
+   "attempts": [
+    {
+     "sql": "SELECT e.experiment_id, e.experiment_name, d.variant, SUM(d.taps) AS taps, SUM(d.installs) AS installs, ROUND(SUM(d.installs)::numeric / NULLIF(SUM(d.taps), 0), 4) AS install_rate_per_tap FROM reporting.experiments e JOIN reporting.experiment_daily d ON d.experiment_id = e.experiment_id WHERE e.experiment_name ILIKE '%icon%' GROUP BY e.experiment_id, e.experiment_name, d.variant ORDER BY e.experiment_id, d.variant",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.8,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "xt-none-canada",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query matched no spend rows for a Canadian Trailhead campaign, so the total is 0 US dollars.",
+   "sql": "SELECT SUM(kd.spend / fx.units_per_usd) AS spend_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nJOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.app_name ILIKE '%Trailhead%'\n  AND c.country IN ('CA', 'Canada')",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.spend / fx.units_per_usd) AS spend_usd\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nJOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency\nWHERE c.app_name ILIKE '%Trailhead%'\n  AND c.country IN ('CA', 'Canada')",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.3,
+   "correct": false,
+   "expected": null
+  }
+ ]
+}

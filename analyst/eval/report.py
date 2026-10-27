@@ -11,8 +11,8 @@ from pathlib import Path
 from .run import compare
 
 RUNS = Path(__file__).parent / "runs"
-SCORED = ["test", "hard-test", "ads-test"]
-CONDITIONS = ["full", "no-context", "one-shot-read", "one-shot"]
+SCORED = ["test", "hard-test", "ads-test", "explore-test"]
+CONDITIONS = ["full-v2", "full", "no-context", "one-shot-read", "one-shot"]
 
 
 def latest() -> dict:
@@ -46,19 +46,20 @@ def main():
                 cells.append(f"{sc['correct']} ({sc['ci95'][0]:.0f}-{sc['ci95'][1]:.0f}%)")
             print(f"| {s} | " + " | ".join(cells) + " |")
         for s in SCORED:
-            for other in ("no-context", "one-shot-read"):
-                a, b = runs.get((s, other, model)), runs.get((s, "full", model))
+            for best, other in (("full", "no-context"), ("full", "one-shot-read"),
+                                ("full-v2", "full"), ("full-v2", "one-shot-read")):
+                a, b = runs.get((s, other, model)), runs.get((s, best, model))
                 if a and b:
                     r = compare(a, b)
-                    print(f"- {s}: full vs {other}: full gained {r['b_gained']}, lost {r['b_lost']}, "
+                    print(f"- {s}: {best} vs {other}: {best} gained {r['b_gained']}, lost {r['b_lost']}, "
                           f"sign test p={r['sign_test_p']}")
-        for s in SCORED:
-            f = runs.get((s, "full", model))
+        for s, c in [(s, c) for s in SCORED for c in ("full", "full-v2")]:
+            f = runs.get((s, c, model))
             if f:
                 d = json.loads(Path(f).read_text())
                 calls, tin, tout = tokens(f)
                 n = len(d["records"])
-                print(f"- {s} full: {calls / n:.1f} model calls, {tin // n} input and {tout // n} output tokens "
+                print(f"- {s} {c}: {calls / n:.1f} model calls, {tin // n} input and {tout // n} output tokens "
                       f"per question; median {d['summary']['median_seconds']} s")
 
 
