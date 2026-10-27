@@ -58,6 +58,7 @@ Billed in total: $1,379,155.41. Still owed: $362,891.89, of which $118,375.00 is
 | A real bug the checks caught | Partners with no email were being merged into one customer; recorded as `fathom/incidents/INC-001.md` |
 | Model on the question set | Claude Sonnet: 47 of 47 on test with or without being told how the records are messy; answering 0 to everything gets 23 ([details](eval/RESULTS.md)) |
 | Agent with tools | Sonnet given only the questions and the tools: 46 of 47 correct, and all 73 of its citations real and current. The miss cited a real record and still had the wrong number, which is why answers are graded and cited separately ([details](eval/RESULTS.md)) |
+| Analyst agent | A question-to-SQL agent that works on this warehouse and a second, ads dataset: 102 of 103 held-out questions right with Sonnet, and all 18 requests that would expose small groups refused by the tool ([analyst/](analyst/README.md)) |
 | Rebuilt from nothing | A fresh Odoo, a fresh warehouse, the same seed: all 184 answers came out identical |
 | Hand-off test | A fresh agent given only the docs fixed a broken morning (a failed run plus two invoices lost from the warehouse) in seven commands; its six complaints about the runbook were fixed ([write-up](docs/handoff-test.md)) |
 | CI | Every push builds Odoo from source, simulates the year, loads it, runs every check, test and drill, and rebuilds the dataset; green on the first run, about 8 minutes |

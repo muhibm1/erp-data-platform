@@ -37,7 +37,7 @@ templates, and two prompt variants. "Hints" tells the model how the ERP
 records are messy; "plain" gives the same records and question with no
 warning.
 
-The model was Claude Sonnet, run on a Claude subscription (no API credit).
+The model was Claude Sonnet.
 For each variant it got one file holding every test question, grouped by
 customer with that customer's records once per group, built from the same
 records and wording `build.prompt` uses. It read that one file and used no
