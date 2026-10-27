@@ -1,0 +1,1504 @@
+{
+ "set": "test",
+ "condition": "full",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T161053",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "47/47",
+    "pct": 100.0,
+    "ci95": [
+     92.4,
+     100.0
+    ]
+   },
+   "billed": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "deal_collected": {
+    "correct": "7/7",
+    "pct": 100.0,
+    "ci95": [
+     64.6,
+     100.0
+    ]
+   },
+   "late30": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "oldest_late": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "owed": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "unpaid_refs": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 8.2
+ },
+ "records": [
+  {
+   "id": "billed-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The marts.revenue_by_customer table shows Azure Interior with 0.0 invoiced, so nothing has been billed net of credit notes. I couldn't check from here whether that column is already in US dollars and net of credit notes.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%azure interior%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%azure interior%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "marts.receivables_aging",
+    "example-0",
+    "example-2",
+    "currency",
+    "staging.stg_invoice_versions",
+    "won deal",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.2,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "owed-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The marts.revenue_by_customer table shows an open balance of 0.0 for Azure Interior, so it owes nothing right now.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%azure interior%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%azure interior%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "marts.revenue_by_customer",
+    "example-0",
+    "intermediate.int_invoices",
+    "currency",
+    "staging.stg_deals",
+    "example-3",
+    "owed",
+    "billed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.4,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The receivables aging table shows Azure Interior has nothing in the 31-60, 61-90 or over-90 days past due buckets, so $0 is more than 30 days late.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due_usd from marts.receivables_aging where customer_name ilike '%azure interior%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due_usd from marts.receivables_aging where customer_name ilike '%azure interior%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "as of",
+    "past due",
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-0",
+    "billed",
+    "marts.deal_to_cash",
+    "currency",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.8,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-14",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00001"
+   ],
+   "explanation": "Only one Azure Interior invoice (not a credit note) still has an open balance: INV/2026/00001, with the full 36,512.50 unpaid.",
+   "sql": "select i.invoice_ref, i.amount, i.amount_open from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%azure interior%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref, i.amount, i.amount_open from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%azure interior%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-2",
+    "marts.receivables_aging",
+    "marts.deal_to_cash",
+    "credit note",
+    "billed",
+    "example-3",
+    "currency",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.2,
+   "correct": true,
+   "expected": [
+    "INV/2026/00001"
+   ]
+  },
+  {
+   "id": "oldest_late-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no unpaid Azure Interior customer invoices that are past due as of 2026-10-27, so the answer is 0 days.",
+   "sql": "select coalesce(max(days_past_due), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Azure Interior' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select coalesce(max(days_past_due), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Azure Interior' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "staging.stg_invoices",
+    "example-1",
+    "example-3",
+    "staging.stg_invoice_versions",
+    "as of",
+    "currency",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.2,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "billed-41",
+   "status": "answer",
+   "answer": 49490,
+   "explanation": "The marts.revenue_by_customer table shows Northwind Logistics invoiced at 49,490 US dollars in total. I did not check whether that figure already subtracts credit notes.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%northwind logistics%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%northwind logistics%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "example-0",
+    "intermediate.int_invoices",
+    "marts.receivables_aging",
+    "example-2",
+    "won deal",
+    "marts.deal_to_cash",
+    "credit note",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.8,
+   "correct": true,
+   "expected": 49490.0
+  },
+  {
+   "id": "owed-41",
+   "status": "answer",
+   "answer": 26835,
+   "explanation": "The marts.revenue_by_customer table shows Northwind Logistics has $26,835 in open (still unpaid) receivables.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%northwind logistics%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%northwind logistics%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "owed",
+    "intermediate.int_invoices",
+    "billed",
+    "example-3",
+    "staging.stg_deals",
+    "currency",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": 26835.0
+  },
+  {
+   "id": "late30-41",
+   "status": "answer",
+   "answer": 7425,
+   "explanation": "Northwind Logistics has $7,425 in receivables more than 30 days past due, which is the sum of its 31-60, 61-90 and over-90 day aging buckets in marts.receivables_aging.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as past_due_over_30 from marts.receivables_aging where customer_name ilike '%northwind logistics%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as past_due_over_30 from marts.receivables_aging where customer_name ilike '%northwind logistics%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "as of",
+    "example-0",
+    "intermediate.int_invoices",
+    "owed",
+    "marts.revenue_by_customer",
+    "billed",
+    "marts.deal_to_cash",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": 7425.0
+  },
+  {
+   "id": "unpaid_refs-41",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00036",
+    "INV/2026/00077"
+   ],
+   "explanation": "Two Northwind Logistics invoices (excluding credit notes) still have an open balance: INV/2026/00036 and INV/2026/00077.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%northwind logistics%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%northwind logistics%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-2",
+    "marts.receivables_aging",
+    "marts.deal_to_cash",
+    "billed",
+    "credit note",
+    "example-0",
+    "owed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.7,
+   "correct": true,
+   "expected": [
+    "INV/2026/00036",
+    "INV/2026/00077"
+   ]
+  },
+  {
+   "id": "oldest_late-41",
+   "status": "answer",
+   "answer": 126,
+   "explanation": "Northwind Logistics's most overdue unpaid customer invoice is 126 days past its due date as of 2026-10-27.",
+   "sql": "select coalesce(greatest(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Northwind Logistics' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select coalesce(greatest(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Northwind Logistics' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "example-1",
+    "staging.stg_invoices",
+    "as of",
+    "example-3",
+    "staging.stg_invoice_versions",
+    "owed",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.3,
+   "correct": true,
+   "expected": 126
+  },
+  {
+   "id": "deal_collected-41",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The warehouse shows Northwind Logistics's \"Deal Sep 210\" (deal 190) with $0 collected so far.",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Sep 210%' and customer_name ilike '%northwind logistics%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Sep 210%' and customer_name ilike '%northwind logistics%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.revenue_by_customer",
+    "marts.deal_to_cash",
+    "collected",
+    "intermediate.int_invoices",
+    "staging.stg_deals",
+    "won deal",
+    "example-3",
+    "billed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.7,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "billed-44",
+   "status": "answer",
+   "answer": 16020,
+   "explanation": "The marts.revenue_by_customer table shows Summit Roofing invoiced at $16,020. I took that figure as net of credit notes, but I did not check how the table calculates it.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%summit roofing%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%summit roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "marts.receivables_aging",
+    "example-2",
+    "won deal",
+    "marts.deal_to_cash",
+    "currency",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.7,
+   "correct": true,
+   "expected": 16020.0
+  },
+  {
+   "id": "owed-44",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The warehouse shows Summit Roofing with an open balance of 0.00 dollars in marts.revenue_by_customer, so it owes nothing right now.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%summit roofing%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%summit roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "example-0",
+    "owed",
+    "intermediate.int_invoices",
+    "billed",
+    "staging.stg_deals",
+    "example-3",
+    "currency",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-44",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The receivables aging table has no Summit Roofing row with balances more than 30 days past due, so the amount is 0.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%summit roofing%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%summit roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "as of",
+    "example-0",
+    "intermediate.int_invoices",
+    "billed",
+    "owed",
+    "marts.revenue_by_customer",
+    "marts.deal_to_cash",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.9,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-44",
+   "status": "answer",
+   "answer": [],
+   "explanation": "The query found no Summit Roofing invoices (excluding credit notes) with an open balance, so none are unpaid.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%summit roofing%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%summit roofing%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "example-2",
+    "marts.deal_to_cash",
+    "billed",
+    "example-3",
+    "credit note",
+    "past due",
+    "owed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.0,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-44",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no unpaid Summit Roofing customer invoices past their due date as of 2026-10-27, so the most overdue is 0 days.",
+   "sql": "select greatest(0, coalesce(max(days_past_due), 0)) as max_days_past_due from intermediate.int_invoices where customer_name ilike '%summit roofing%' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select greatest(0, coalesce(max(days_past_due), 0)) as max_days_past_due from intermediate.int_invoices where customer_name ilike '%summit roofing%' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "example-1",
+    "staging.stg_invoices",
+    "example-3",
+    "staging.stg_invoice_versions",
+    "as of",
+    "owed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.3,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-44",
+   "status": "answer",
+   "answer": 5250,
+   "explanation": "The marts.deal_to_cash table shows $5,250 paid so far on Summit Roofing's deal \"Deal Mar 228\".",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Mar 228%' and customer_name ilike '%summit roofing%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Mar 228%' and customer_name ilike '%summit roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "collected",
+    "staging.stg_orders",
+    "staging.stg_deals",
+    "won deal",
+    "example-3",
+    "billed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.3,
+   "correct": true,
+   "expected": 5250.0
+  },
+  {
+   "id": "billed-46",
+   "status": "answer",
+   "answer": 73090,
+   "explanation": "The marts.revenue_by_customer table shows Larkspur Foods invoiced 73,090 dollars in total; I assumed that figure is already net of credit notes and in US dollars, and I did not verify either.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%larkspur foods%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%larkspur foods%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "example-2",
+    "marts.receivables_aging",
+    "currency",
+    "staging.stg_invoice_versions",
+    "credit note",
+    "won deal"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.6,
+   "correct": true,
+   "expected": 73090.0
+  },
+  {
+   "id": "owed-46",
+   "status": "answer",
+   "answer": 47750,
+   "explanation": "Larkspur Foods has $47,750 in open (unpaid) balance according to marts.revenue_by_customer.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%larkspur foods%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%larkspur foods%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "example-0",
+    "intermediate.int_invoices",
+    "marts.receivables_aging",
+    "owed",
+    "currency",
+    "billed",
+    "example-3",
+    "staging.stg_deals",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.4,
+   "correct": true,
+   "expected": 47750.0
+  },
+  {
+   "id": "late30-46",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The receivables aging table (marts.receivables_aging) shows Larkspur Foods has $0 in the 31-60, 61-90 and over-90 day past-due buckets, so none of its balance is more than 30 days late.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%larkspur foods%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%larkspur foods%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "as of",
+    "example-0",
+    "marts.revenue_by_customer",
+    "billed",
+    "owed",
+    "marts.deal_to_cash",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.8,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-46",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00067",
+    "INV/2026/00070"
+   ],
+   "explanation": "Two Larkspur Foods invoices (excluding credit notes) still have an open balance: INV/2026/00067 and INV/2026/00070.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%larkspur%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%larkspur%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-2",
+    "marts.receivables_aging",
+    "marts.deal_to_cash",
+    "billed",
+    "credit note",
+    "example-3",
+    "past due",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.8,
+   "correct": true,
+   "expected": [
+    "INV/2026/00067",
+    "INV/2026/00070"
+   ]
+  },
+  {
+   "id": "oldest_late-46",
+   "status": "answer",
+   "answer": 17,
+   "explanation": "Larkspur Foods's most overdue unpaid customer invoice is 17 days past its due date as of 2026-10-27.",
+   "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Larkspur Foods' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Larkspur Foods' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "staging.stg_invoices",
+    "example-1",
+    "staging.stg_invoice_versions",
+    "example-3",
+    "as of",
+    "credit note",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.8,
+   "correct": true,
+   "expected": 17
+  },
+  {
+   "id": "deal_collected-46",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The warehouse shows Larkspur Foods's \"Deal Aug 750\" has had no payments collected so far, so the amount paid is 0 dollars.",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Aug 750%' and customer_name ilike '%larkspur%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Aug 750%' and customer_name ilike '%larkspur%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "collected",
+    "intermediate.int_invoices",
+    "staging.stg_orders",
+    "won deal",
+    "example-3",
+    "billed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "billed-57",
+   "status": "answer",
+   "answer": 20730,
+   "explanation": "The revenue-by-customer mart shows Copperleaf Apartments invoiced a total of 20,730 US dollars; I took that column as net of credit notes and did not check the mart's definition.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%copperleaf apartments%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%copperleaf apartments%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "example-2",
+    "marts.receivables_aging",
+    "marts.deal_to_cash",
+    "won deal",
+    "currency",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.0,
+   "correct": true,
+   "expected": 20730.0
+  },
+  {
+   "id": "owed-57",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The warehouse shows Copperleaf Apartments has an open balance of $0, so it owes nothing right now.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%copperleaf apartments%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%copperleaf apartments%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "example-0",
+    "owed",
+    "intermediate.int_invoices",
+    "billed",
+    "currency",
+    "staging.stg_deals",
+    "example-3",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.5,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-57",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "No receivables aging rows exist for Copperleaf Apartments, so nothing is more than 30 days past due and the amount is 0.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%copperleaf apartments%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%copperleaf apartments%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "as of",
+    "past due",
+    "intermediate.int_invoices",
+    "owed",
+    "marts.revenue_by_customer",
+    "example-0",
+    "billed",
+    "marts.deal_to_cash",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.9,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-57",
+   "status": "answer",
+   "answer": [],
+   "explanation": "The query returned no Copperleaf Apartments invoices with an open balance, so none are unpaid or partly paid.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%copperleaf apartments%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%copperleaf apartments%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-2",
+    "marts.deal_to_cash",
+    "marts.receivables_aging",
+    "billed",
+    "credit note",
+    "example-3",
+    "owed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.7,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-57",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no unpaid Copperleaf Apartments invoice past its due date as of 2026-10-27, so the most overdue is 0 days.",
+   "sql": "select coalesce(max(days_past_due), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Copperleaf Apartments' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select coalesce(max(days_past_due), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Copperleaf Apartments' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "intermediate.int_invoices",
+    "past due",
+    "example-1",
+    "staging.stg_invoices",
+    "as of",
+    "staging.stg_invoice_versions",
+    "example-3",
+    "owed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.0,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-57",
+   "status": "answer",
+   "answer": 20730,
+   "explanation": "The marts.deal_to_cash table shows $20,730 paid so far on Copperleaf Apartments' deal \"Deal Jul 903\".",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike 'Deal Jul 903' and customer_name ilike '%copperleaf apartments%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike 'Deal Jul 903' and customer_name ilike '%copperleaf apartments%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "example-0",
+    "collected",
+    "staging.stg_orders",
+    "staging.stg_deals",
+    "won deal",
+    "example-3",
+    "billed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": 20730.0
+  },
+  {
+   "id": "billed-60",
+   "status": "answer",
+   "answer": 40510,
+   "explanation": "marts.revenue_by_customer shows Foxglove Retail invoiced 40,510 in total. I took that column as already net of credit notes and in US dollars, but I did not check that against the column definitions.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%foxglove retail%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%foxglove retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "example-2",
+    "marts.receivables_aging",
+    "currency",
+    "staging.stg_orders",
+    "won deal",
+    "collected"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.7,
+   "correct": true,
+   "expected": 40510.0
+  },
+  {
+   "id": "owed-60",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The warehouse shows Foxglove Retail has an open balance of $0, so it owes nothing right now.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%foxglove retail%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%foxglove retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "example-0",
+    "owed",
+    "marts.receivables_aging",
+    "intermediate.int_invoices",
+    "example-3",
+    "currency",
+    "staging.stg_deals",
+    "billed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.4,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-60",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The receivables aging table has no rows for Foxglove Retail, so no amount is more than 30 days past due.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%foxglove retail%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%foxglove retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "as of",
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "owed",
+    "example-0",
+    "marts.deal_to_cash",
+    "example-1",
+    "billed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.3,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-60",
+   "status": "answer",
+   "answer": [],
+   "explanation": "The query found no Foxglove Retail customer invoices with an open balance, so none are unpaid.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%foxglove%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%foxglove%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "example-2",
+    "marts.deal_to_cash",
+    "marts.receivables_aging",
+    "billed",
+    "credit note",
+    "example-3",
+    "owed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.4,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-60",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no unpaid Foxglove Retail invoice past its due date as of 2026-10-27, so the answer is 0 days.",
+   "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Foxglove Retail' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Foxglove Retail' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "staging.stg_invoices",
+    "example-1",
+    "example-3",
+    "as of",
+    "marts.deal_to_cash",
+    "owed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.2,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-60",
+   "status": "answer",
+   "answer": 26550,
+   "explanation": "The marts.deal_to_cash table shows $26,550 paid so far on Foxglove Retail's \"Deal Aug 778\".",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike 'Deal Aug 778' and customer_name ilike '%foxglove retail%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike 'Deal Aug 778' and customer_name ilike '%foxglove retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "example-0",
+    "collected",
+    "staging.stg_orders",
+    "staging.stg_deals",
+    "won deal",
+    "example-3",
+    "billed",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.9,
+   "correct": true,
+   "expected": 26550.0
+  },
+  {
+   "id": "billed-69",
+   "status": "answer",
+   "answer": 71930,
+   "explanation": "The marts.revenue_by_customer table shows Pinecrest Realty invoiced at 71,930 dollars. I took that column as net of credit notes and in US dollars. I did not check either point against the table definition.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%pinecrest realty%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%pinecrest realty%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "marts.receivables_aging",
+    "example-2",
+    "marts.deal_to_cash",
+    "won deal",
+    "credit note",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.7,
+   "correct": true,
+   "expected": 71930.0
+  },
+  {
+   "id": "owed-69",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The marts.revenue_by_customer table shows Pinecrest Realty with an open balance of 0.00, so it owes nothing right now.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%pinecrest realty%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%pinecrest realty%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "example-0",
+    "owed",
+    "intermediate.int_invoices",
+    "staging.stg_deals",
+    "example-3",
+    "currency",
+    "billed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.0,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-69",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The receivables aging table has no row for Pinecrest Realty, so nothing is owed more than 30 days past due, and the amount is 0.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%pinecrest realty%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%pinecrest realty%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "as of",
+    "intermediate.int_invoices",
+    "owed",
+    "example-0",
+    "marts.revenue_by_customer",
+    "marts.deal_to_cash",
+    "example-1",
+    "billed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.6,
+   "correct": true,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-69",
+   "status": "answer",
+   "answer": [],
+   "explanation": "The query found no Pinecrest Realty invoices (excluding credit notes) with an open balance, so none are unpaid. I did not run any other checks, such as whether the customer name matches.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%pinecrest%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%pinecrest%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "marts.receivables_aging",
+    "example-2",
+    "marts.deal_to_cash",
+    "credit note",
+    "billed",
+    "example-3",
+    "owed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.5,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-69",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no unpaid Pinecrest Realty customer invoices that are past due as of 2026-10-27, so the answer is 0 days.",
+   "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name ilike '%Pinecrest Realty%' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+   "attempts": [
+    {
+     "sql": "select greatest(coalesce(max(days_past_due), 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name ilike '%Pinecrest Realty%' and move_type = 'out_invoice' and amount_open > 0 and days_past_due > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "staging.stg_invoices",
+    "example-1",
+    "marts.deal_to_cash",
+    "example-3",
+    "as of",
+    "owed",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.0,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-69",
+   "status": "answer",
+   "answer": 17620,
+   "explanation": "The warehouse shows $17,620 collected so far on Pinecrest Realty's \"Deal Jul 131\" (deal 138)",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Jul 131%' and customer_name ilike '%pinecrest%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Jul 131%' and customer_name ilike '%pinecrest%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "collected",
+    "staging.stg_orders",
+    "staging.stg_deals",
+    "won deal",
+    "example-3",
+    "billed",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.7,
+   "correct": true,
+   "expected": 17620.0
+  },
+  {
+   "id": "billed-70",
+   "status": "answer",
+   "answer": 51520,
+   "explanation": "The marts.revenue_by_customer table shows Quarry Lane Fitness invoiced at 51,520 US dollars. I did not check the table definition, so I'm assuming that figure is already net of credit notes and in US dollars.",
+   "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%quarry lane fitness%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, invoiced from marts.revenue_by_customer where customer_name ilike '%quarry lane fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.revenue_by_customer",
+    "billed",
+    "intermediate.int_invoices",
+    "example-0",
+    "example-2",
+    "marts.receivables_aging",
+    "won deal",
+    "marts.deal_to_cash",
+    "credit note",
+    "currency"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.8,
+   "correct": true,
+   "expected": 51520.0
+  },
+  {
+   "id": "owed-70",
+   "status": "answer",
+   "answer": 16520,
+   "explanation": "Quarry Lane Fitness has $16,520 in open (unpaid) balance according to marts.revenue_by_customer.",
+   "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%quarry lane fitness%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, open from marts.revenue_by_customer where customer_name ilike '%quarry lane fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.receivables_aging",
+    "marts.revenue_by_customer",
+    "intermediate.int_invoices",
+    "owed",
+    "staging.stg_deals",
+    "example-3",
+    "billed",
+    "currency",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.5,
+   "correct": true,
+   "expected": 16520.0
+  },
+  {
+   "id": "late30-70",
+   "status": "answer",
+   "answer": 16520,
+   "explanation": "Quarry Lane Fitness has $16,520 in receivables more than 30 days past due, which is the sum of its 31-60, 61-90 and over-90-day buckets in marts.receivables_aging.",
+   "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%quarry lane fitness%'",
+   "attempts": [
+    {
+     "sql": "select customer_name, coalesce(late_31_60, 0) + coalesce(late_61_90, 0) + coalesce(late_over_90, 0) as over_30_days_past_due from marts.receivables_aging where customer_name ilike '%quarry lane fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "as of",
+    "example-0",
+    "intermediate.int_invoices",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "billed",
+    "owed",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.8,
+   "correct": true,
+   "expected": 16520.0
+  },
+  {
+   "id": "unpaid_refs-70",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00008",
+    "INV/2026/00015"
+   ],
+   "explanation": "Two Quarry Lane Fitness invoices (excluding credit notes) still have an open balance: INV/2026/00008 and INV/2026/00015.",
+   "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%quarry lane%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+   "attempts": [
+    {
+     "sql": "select i.invoice_ref from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%quarry lane%' and i.move_type = 'out_invoice' and i.amount_open > 0 order by i.invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "example-2",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "credit note",
+    "marts.receivables_aging",
+    "billed",
+    "example-3",
+    "owed",
+    "past due"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.2,
+   "correct": true,
+   "expected": [
+    "INV/2026/00008",
+    "INV/2026/00015"
+   ]
+  },
+  {
+   "id": "oldest_late-70",
+   "status": "answer",
+   "answer": 235,
+   "explanation": "Quarry Lane Fitness's most overdue unpaid customer invoice is 235 days past its due date as of 2026-10-27.",
+   "sql": "select coalesce(max(days_past_due) filter (where days_past_due > 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Quarry Lane Fitness' and move_type = 'out_invoice' and amount_open > 0",
+   "attempts": [
+    {
+     "sql": "select coalesce(max(days_past_due) filter (where days_past_due > 0), 0) as max_days_past_due from intermediate.int_invoices where customer_name = 'Quarry Lane Fitness' and move_type = 'out_invoice' and amount_open > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "past due",
+    "intermediate.int_invoices",
+    "example-1",
+    "staging.stg_invoices",
+    "marts.deal_to_cash",
+    "example-3",
+    "credit note",
+    "as of",
+    "owed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": true,
+   "expected": 235
+  },
+  {
+   "id": "deal_collected-70",
+   "status": "answer",
+   "answer": 24320,
+   "explanation": "The warehouse shows $24,320 collected so far on Quarry Lane Fitness's deal \"Deal Jul 721\" (deal 136).\"",
+   "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Jul 721%' and customer_name ilike '%quarry lane fitness%'",
+   "attempts": [
+    {
+     "sql": "select deal_id, deal_name, customer_name, paid from marts.deal_to_cash where deal_name ilike '%Deal Jul 721%' and customer_name ilike '%quarry lane fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "collected",
+    "staging.stg_deals",
+    "staging.stg_orders",
+    "won deal",
+    "example-3",
+    "credit note",
+    "billed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.4,
+   "correct": true,
+   "expected": 24320.0
+  }
+ ]
+}

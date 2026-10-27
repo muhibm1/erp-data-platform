@@ -86,7 +86,8 @@ def _system(dom: Domain) -> str:
     )
 
 
-def build(dom: Domain, model, *, context: bool = True, retriever: Retriever | None = None, checkpointer=None):
+def build(dom: Domain, model, *, context: bool = True, retriever: Retriever | None = None, checkpointer=None,
+          max_tries: int = MAX_TRIES):
     """Compile the graph for one domain. `model(system, prompt, schema) -> dict`."""
     from .domain import documents
 
@@ -128,7 +129,7 @@ def build(dom: Domain, model, *, context: bool = True, retriever: Retriever | No
             result = sqltool.run(dom, conn, state["sql"])
         if not result["ok"]:
             attempts = state.get("attempts", []) + [{"sql": state["sql"], "error": result["error"]}]
-            failed = len(attempts) >= MAX_TRIES
+            failed = len(attempts) >= max_tries
             return {"attempts": attempts, "rows": [], "status": "failed" if failed else "repair",
                     "explanation": result["error"] if failed else ""}
         return {"rows": result["rows"], "status": "ran",

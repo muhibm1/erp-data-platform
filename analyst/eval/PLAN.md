@@ -51,5 +51,14 @@ Claude Sonnet through the subscription, one headless call per model step. $0 API
 - not answerable: right only if the agent declines. Declining an answerable question is wrong.
 - A query that never runs, or an answer step that fails, is wrong.
 
+## Added after the first test run
+
+**One-shot with a reader.** Condition 1 takes the first column of the result as
+the answer, so a correct query that also selects the customer id is scored
+wrong. That understates a real one-shot system. This condition writes one query
+with the bare schema, gets no retry, and then the same answer step as the agent
+reads the rows. It was added after seeing the test results, and it can only make
+the baseline look better, never the agent.
+
 Results are reported per set with a 95% Wilson interval, and as paired
 differences between conditions on the same questions.

@@ -31,7 +31,7 @@
     ]
    }
   },
-  "repaired": 1,
+  "repaired": 0,
   "queries_per_question": 1.0,
   "median_seconds": 5.5
  },
@@ -190,7 +190,7 @@
    "attempts": [
     {
      "sql": "",
-     "error": "The warehouse has no product or line-item data (no product, SKU, or quantity columns); orders and invoices are only at header level with amounts, so units sold by product can't be determined."
+     "error": null
     }
    ],
    "retrieved": [],

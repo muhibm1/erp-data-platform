@@ -34,7 +34,7 @@ SETS = {
     "ads-dev": ("ads", HERE / "data" / "ads-dev.jsonl"),
     "ads-test": ("ads", HERE / "data" / "ads-test.jsonl"),
 }
-CONDITIONS = ("one-shot", "no-context", "full")
+CONDITIONS = ("one-shot", "one-shot-read", "no-context", "full")
 
 
 def load(name: str) -> tuple[str, list[dict]]:
@@ -83,8 +83,10 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 
 def kind_of(row: dict) -> str:
-    return row["id"].rsplit("-", 1)[0] if row["id"][-1].isdigit() else ("not answerable" if row["answer_type"] == "none"
-                                                                        else "answerable")
+    """The platform's per-customer questions group by template; the others by answerable or not."""
+    if "messy" in row:
+        return row["id"].rsplit("-", 1)[0]
+    return "not answerable" if row["answer_type"] == "none" else "answerable"
 
 
 def run_one(dom, model, condition, retriever, row) -> dict:
@@ -92,9 +94,11 @@ def run_one(dom, model, condition, retriever, row) -> dict:
     try:
         if condition == "one-shot":
             out = one_shot(dom, model, row["question"])
-            out["attempts"] = [{"sql": out.get("sql"), "error": out.get("explanation") or None}]
+            out["attempts"] = [{"sql": out.get("sql"),
+                                "error": out.get("explanation") if out["status"] == "failed" else None}]
         else:
-            app = build(dom, model, context=condition == "full", retriever=retriever)
+            app = build(dom, model, context=condition == "full", retriever=retriever,
+                        max_tries=1 if condition == "one-shot-read" else 3)
             out = ask(app, row["question"], thread=row["id"])
     except ModelError as exc:
         out = {"status": "failed", "answer": None, "explanation": str(exc)}
@@ -156,6 +160,22 @@ def compare(a_path: str, b_path: str) -> dict:
     return {"questions": len(both), "a_correct": sum(a[i]["correct"] for i in both),
             "b_correct": sum(b[i]["correct"] for i in both), "b_gained": gained, "b_lost": lost,
             "sign_test_p": round(p, 4)}
+
+
+def resummarise(path: Path) -> dict:
+    """Recompute a saved run's summary with the current grading code (no model calls)."""
+    report = json.loads(path.read_text())
+    _, rows = load(report["set"])
+    by_id = {r["id"]: r for r in rows}
+    rows = [by_id[r["id"]] for r in report["records"]]
+    for row, rec in zip(rows, report["records"]):
+        if report["condition"] == "one-shot" and rec["status"] != "failed":
+            for a in rec["attempts"]:
+                a["error"] = None
+        rec["correct"] = correct(row, rec)
+    report["summary"] = summarise(rows, report["records"])
+    path.write_text(json.dumps(report, indent=1, default=str) + "\n")
+    return report["summary"]
 
 
 def main():
