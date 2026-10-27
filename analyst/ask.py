@@ -13,7 +13,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 from . import domain as domains
 from .graph import ask, build
-from .model import SubscriptionModel
+from .model import CommandLineModel
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
     with dom.connect() as conn:
         domains.read_columns(dom, conn)
     with SqliteSaver.from_conn_string(a.memory) as saver:
-        app = build(dom, SubscriptionModel(a.model), checkpointer=saver)
+        app = build(dom, CommandLineModel(a.model), checkpointer=saver)
         out = ask(app, a.question, a.thread)
     print(json.dumps({k: out.get(k) for k in ("status", "answer", "explanation", "sql", "sources")},
                      indent=2, default=str))

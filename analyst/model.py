@@ -1,10 +1,9 @@
-"""The language model behind the agent, reached through a Claude subscription.
+"""The language model behind the agent, reached through the `claude` command line.
 
 Each step that needs judgement (write a query, read its result) is one call to
 `claude -p` with tools off and a JSON schema for the reply, so the agent gets
-structured output without an API key and without spending API credit. Any API
-key variable is removed from the child process, so a call can never fall back
-to paid usage by accident.
+structured output from a signed-in command line. API key variables are removed
+from the child process, so every call uses that sign-in.
 
 `FakeModel` replays scripted replies, so the graph is tested without a model.
 """
@@ -30,7 +29,7 @@ class ModelError(RuntimeError):
     """A model call failed after every attempt."""
 
 
-class SubscriptionModel:
+class CommandLineModel:
     """One `claude -p` call per step. Tokens of every call go to `usage_log`."""
 
     def __init__(self, model: str = "sonnet", usage_log: str | Path | None = None):
@@ -58,7 +57,7 @@ class SubscriptionModel:
                 attempt += 1
                 continue
             if "hit your session limit" in str(result.get("result") or "").lower():
-                time.sleep(LIMIT_WAIT)  # the subscription window is spent: wait, don't fail
+                time.sleep(LIMIT_WAIT)  # the usage window is spent: wait, don't fail
                 continue
             attempt += 1
             out = result.get("structured_output")
