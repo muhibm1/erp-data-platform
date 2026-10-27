@@ -50,7 +50,7 @@ def _plain(v):
 
 def _rows(conn, sql, args=()):
     with conn.cursor() as cur:
-        cur.execute(sql, args)
+        cur.execute(sql, args or None)  # no params: a literal % in agent SQL stays literal
         cols = [c.name for c in cur.description]
         return [{k: _plain(v) for k, v in zip(cols, r)} for r in cur.fetchall()]
 

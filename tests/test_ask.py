@@ -39,6 +39,12 @@ def test_query_reads_the_models(conn):
     assert out["ok"] and out["rows"][0]["n"] > 0
 
 
+def test_query_keeps_a_literal_percent_sign(conn):
+    out = ask.query(conn, "select customer_name from marts.revenue_by_customer where customer_name ilike '%northwind%'")
+    assert out["ok"], out
+    assert [r["customer_name"] for r in out["rows"]] == ["Northwind Logistics"]
+
+
 @pytest.mark.parametrize("sql", [
     "select * from raw.account_move",
     "delete from marts.revenue_by_customer",
