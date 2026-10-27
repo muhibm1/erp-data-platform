@@ -1,0 +1,281 @@
+{
+ "set": "ads-dev",
+ "condition": "full",
+ "model": "sonnet",
+ "domain": "ads",
+ "started": "20261027T162544",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "answerable": {
+    "correct": "6/6",
+    "pct": 100.0,
+    "ci95": [
+     61.0,
+     100.0
+    ]
+   },
+   "not answerable": {
+    "correct": "2/2",
+    "pct": 100.0,
+    "ci95": [
+     34.2,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.88,
+  "median_seconds": 9.6
+ },
+ "records": [
+  {
+   "id": "ad-installs-7d",
+   "status": "answer",
+   "answer": 8667,
+   "explanation": "All campaigns together got 8,667 installs over the 7 days from 2026-10-20 to 2026-10-26, summed from reporting.keyword_daily.",
+   "sql": "select sum(installs) as installs from reporting.keyword_daily where day between '2026-10-20' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(installs) as installs from reporting.keyword_daily where day between '2026-10-20' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "reporting.audience_daily",
+    "last 7 days",
+    "reporting.campaigns",
+    "example-0",
+    "privacy",
+    "reporting.keyword_daily",
+    "reporting.experiment_daily",
+    "conversion rate",
+    "spend in dollars",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.8,
+   "correct": true,
+   "expected": 8667
+  },
+  {
+   "id": "ad-spend-gb",
+   "status": "answer",
+   "answer": 16134.35,
+   "explanation": "Trailhead - GB - Search spent about $16,134.35 over the whole period, with daily keyword spend converted to US dollars at each day's exchange rate.",
+   "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - GB - Search'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - GB - Search'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-0",
+    "reporting.campaigns",
+    "reporting.fx_rates",
+    "spend in dollars",
+    "cost per tap",
+    "over budget",
+    "cost per install",
+    "reporting.keyword_daily",
+    "reporting.audience_daily",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.5,
+   "correct": true,
+   "expected": 16134.35
+  },
+  {
+   "id": "ad-ttr-all",
+   "status": "answer",
+   "answer": 5.35,
+   "explanation": "Across all campaigns from 2026-08-28 to 2026-10-26, total taps divided by total impressions gives an overall tap-through rate of about 5.35%.",
+   "sql": "select 100.0 * sum(taps) / sum(impressions) as ttr_pct from reporting.keyword_daily where day between '2026-08-28' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select 100.0 * sum(taps) / sum(impressions) as ttr_pct from reporting.keyword_daily where day between '2026-08-28' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-1",
+    "tap-through rate",
+    "reporting.keyword_daily",
+    "conversion rate",
+    "reporting.campaigns",
+    "spend in dollars",
+    "whole period",
+    "reporting.audience_daily",
+    "reporting.experiments",
+    "example-0"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.6,
+   "correct": true,
+   "expected": 5.35
+  },
+  {
+   "id": "ad-top-app",
+   "status": "answer",
+   "answer": "Trailhead",
+   "explanation": "Trailhead had the most installs over the whole period, with 34,706 installs from 2026-08-28 to 2026-10-26.",
+   "sql": "select c.app_name, sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where d.day between '2026-08-28' and '2026-10-26' group by 1 order by installs desc limit 1",
+   "attempts": [
+    {
+     "sql": "select c.app_name, sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where d.day between '2026-08-28' and '2026-10-26' group by 1 order by installs desc limit 1",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "reporting.audience_daily",
+    "conversion rate",
+    "reporting.campaigns",
+    "whole period",
+    "reporting.experiment_daily",
+    "reporting.keyword_daily",
+    "cost per install",
+    "tap-through rate",
+    "example-1",
+    "example-0"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": true,
+   "expected": "Trailhead"
+  },
+  {
+   "id": "ad-experiments",
+   "status": "answer",
+   "answer": [
+    "Product page: new screenshots",
+    "Product page: shorter subtitle"
+   ],
+   "explanation": "The warehouse lists two experiments, ordered by start date: \"Product page: new screenshots\" and \"Product page: shorter subtitle\".",
+   "sql": "select experiment_name from reporting.experiments order by started_on, experiment_id",
+   "attempts": [
+    {
+     "sql": "select experiment_name from reporting.experiments order by started_on, experiment_id",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "reporting.experiments",
+    "reporting.ad_groups",
+    "reporting.experiment_daily",
+    "reporting.campaigns",
+    "spend in dollars",
+    "conversion rate",
+    "example-0",
+    "statistically significant",
+    "cost per tap",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.7,
+   "correct": true,
+   "expected": [
+    "Product page: new screenshots",
+    "Product page: shorter subtitle"
+   ]
+  },
+  {
+   "id": "ad-cpi-brand",
+   "status": "answer",
+   "answer": 0.72,
+   "explanation": "Across all campaigns, Brand ad groups cost about $0.72 per install, after converting each day's spend to US dollars and dividing by total installs.",
+   "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where g.ad_group_name = 'Brand'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where g.ad_group_name = 'Brand'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "reporting.ad_groups",
+    "cost per install",
+    "reporting.keyword_daily",
+    "reporting.keywords",
+    "spend in dollars",
+    "example-0",
+    "reporting.campaigns",
+    "example-1",
+    "cost per tap",
+    "conversion rate"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.2,
+   "correct": true,
+   "expected": 0.72
+  },
+  {
+   "id": "ad-u-private-1",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse hides this figure because the segment (women aged 18-24 on Ledgerly - DE - Search on 2026-10-05) had fewer than 50 installs, so the exact count isn't available, and the empty result doesn't mean zero.",
+   "sql": "select sum(a.installs) as installs from reporting.audience_daily a join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Ledgerly - DE - Search' and a.day = '2026-10-05' and a.age_band = '18-24' and lower(a.gender) in ('f', 'female')",
+   "attempts": [
+    {
+     "sql": "select sum(a.installs) as installs from reporting.audience_daily a join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Ledgerly - DE - Search' and a.day = '2026-10-05' and a.age_band = '18-24' and lower(a.gender) in ('f', 'female')",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "reporting.audience_daily",
+    "example-0",
+    "conversion rate",
+    "last 7 days",
+    "reporting.experiments",
+    "reporting.keyword_daily",
+    "reporting.experiment_daily",
+    "whole period",
+    "cost per install",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.9,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "ad-u-uninstalls",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no uninstall data, and user-level data is not available to analysts; it only tracks impressions, taps, installs and spend.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "reporting.experiments",
+    "example-0",
+    "reporting.audience_daily",
+    "example-1",
+    "last 7 days",
+    "privacy",
+    "conversion rate",
+    "statistically significant"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.6,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}
