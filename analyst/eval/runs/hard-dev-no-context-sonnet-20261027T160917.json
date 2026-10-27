@@ -1,0 +1,197 @@
+{
+ "set": "hard-dev",
+ "condition": "no-context",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T160917",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "answerable": {
+    "correct": "7/7",
+    "pct": 100.0,
+    "ci95": [
+     64.6,
+     100.0
+    ]
+   },
+   "not answerable": {
+    "correct": "1/1",
+    "pct": 100.0,
+    "ci95": [
+     20.7,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.88,
+  "median_seconds": 9.1
+ },
+ "records": [
+  {
+   "id": "d-not-yet-due",
+   "status": "answer",
+   "answer": 102043.47,
+   "explanation": "The receivables aging mart shows $102,043.47 in total receivables that are not yet due.",
+   "sql": "SELECT SUM(not_yet_due) AS not_yet_due_usd FROM marts.receivables_aging",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(not_yet_due) AS not_yet_due_usd FROM marts.receivables_aging",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.4,
+   "correct": true,
+   "expected": 102043.47
+  },
+  {
+   "id": "d-owe-nothing",
+   "status": "answer",
+   "answer": 17,
+   "explanation": "17 customers in marts.revenue_by_customer have an open balance of zero, so they owe us nothing.",
+   "sql": "SELECT COUNT(*) AS customers_owing_nothing FROM marts.revenue_by_customer WHERE open = 0;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS customers_owing_nothing FROM marts.revenue_by_customer WHERE open = 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.9,
+   "correct": true,
+   "expected": 17
+  },
+  {
+   "id": "d-euro-customers",
+   "status": "answer",
+   "answer": [
+    "Juniper Architecture",
+    "Kestrel Aviation Services",
+    "Silverline Hotels"
+   ],
+   "explanation": "Three customers have customer invoices (out_invoice) in EUR in intermediate.int_invoices: Juniper Architecture, Kestrel Aviation Services and Silverline Hotels.",
+   "sql": "SELECT DISTINCT customer_key, customer_name FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice' ORDER BY customer_name;",
+   "attempts": [
+    {
+     "sql": "SELECT DISTINCT customer_key, customer_name FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice' ORDER BY customer_name;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": true,
+   "expected": [
+    "Juniper Architecture",
+    "Kestrel Aviation Services",
+    "Silverline Hotels"
+   ]
+  },
+  {
+   "id": "d-lost-value",
+   "status": "answer",
+   "answer": 781300,
+   "explanation": "Using the latest version of each deal, the lost deals add up to 781,300 in expected revenue.",
+   "sql": "SELECT SUM(expected_revenue) AS total_lost_expected_revenue\nFROM (\n  SELECT DISTINCT ON (deal_id) deal_id, expected_revenue, is_lost\n  FROM staging.stg_deals\n  ORDER BY deal_id, source_version DESC\n) d\nWHERE is_lost;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(expected_revenue) AS total_lost_expected_revenue\nFROM (\n  SELECT DISTINCT ON (deal_id) deal_id, expected_revenue, is_lost\n  FROM staging.stg_deals\n  ORDER BY deal_id, source_version DESC\n) d\nWHERE is_lost;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.4,
+   "correct": true,
+   "expected": 781300.0
+  },
+  {
+   "id": "d-paid-deals",
+   "status": "answer",
+   "answer": 53,
+   "explanation": "53 won deals have been invoiced and have nothing open, with payments covering the full invoiced amount.",
+   "sql": "SELECT COUNT(DISTINCT d.deal_id) AS won_fully_paid_deals\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND d.invoiced > 0\n  AND d.open = 0\n  AND d.paid >= d.invoiced;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT d.deal_id) AS won_fully_paid_deals\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND d.invoiced > 0\n  AND d.open = 0\n  AND d.paid >= d.invoiced;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.4,
+   "correct": true,
+   "expected": 53
+  },
+  {
+   "id": "d-avg-invoice",
+   "status": "answer",
+   "answer": 19029.130125,
+   "explanation": "The average invoice amount, excluding customer and vendor credit notes, is about $19,029.13.",
+   "sql": "SELECT AVG(amount) AS avg_invoice_amount_usd FROM intermediate.int_invoices WHERE move_type NOT IN ('out_refund', 'in_refund')",
+   "attempts": [
+    {
+     "sql": "SELECT AVG(amount) AS avg_invoice_amount_usd FROM intermediate.int_invoices WHERE move_type NOT IN ('out_refund', 'in_refund')",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.1,
+   "correct": true,
+   "expected": 19029.13
+  },
+  {
+   "id": "d-top-billed",
+   "status": "answer",
+   "answer": "Maple Street Bakery",
+   "explanation": "After subtracting credit notes from invoices, Maple Street Bakery has the highest net billing at 178,520.",
+   "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name\nORDER BY net_billed DESC\nLIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name\nORDER BY net_billed DESC\nLIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.5,
+   "correct": true,
+   "expected": [
+    "Maple Street Bakery"
+   ]
+  },
+  {
+   "id": "d-u-product",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no product or unit-quantity data: orders and invoices are only at header level with monetary totals, and there are no line-item or product tables.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.6,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

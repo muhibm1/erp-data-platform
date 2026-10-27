@@ -1,0 +1,193 @@
+{
+ "set": "ads-dev",
+ "condition": "one-shot-read",
+ "model": "sonnet",
+ "domain": "ads",
+ "started": "20261027T162633",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "7/8",
+    "pct": 87.5,
+    "ci95": [
+     52.9,
+     97.8
+    ]
+   },
+   "answerable": {
+    "correct": "5/6",
+    "pct": 83.3,
+    "ci95": [
+     43.6,
+     97.0
+    ]
+   },
+   "not answerable": {
+    "correct": "2/2",
+    "pct": 100.0,
+    "ci95": [
+     34.2,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.88,
+  "median_seconds": 10.5
+ },
+ "records": [
+  {
+   "id": "ad-installs-7d",
+   "status": "answer",
+   "answer": 8494,
+   "explanation": "Summing installs in reporting.audience_daily for 2026-10-20 through 2026-10-26 (the last 7 days) gives 8,494 installs.",
+   "sql": "SELECT SUM(installs) AS installs FROM reporting.audience_daily WHERE day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(installs) AS installs FROM reporting.audience_daily WHERE day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.6,
+   "correct": false,
+   "expected": 8667
+  },
+  {
+   "id": "ad-spend-gb",
+   "status": "answer",
+   "answer": 16134.35,
+   "explanation": "Trailhead - GB - Search spent about $16,134.35 over the whole period, after converting its daily GBP spend to US dollars at each day's exchange rate.",
+   "sql": "SELECT c.campaign_name, c.currency, SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE f.units_per_usd END) AS spend_usd FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id LEFT JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency WHERE c.campaign_name = 'Trailhead - GB - Search' GROUP BY c.campaign_name, c.currency",
+   "attempts": [
+    {
+     "sql": "SELECT c.campaign_name, c.currency, SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE f.units_per_usd END) AS spend_usd FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id LEFT JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency WHERE c.campaign_name = 'Trailhead - GB - Search' GROUP BY c.campaign_name, c.currency",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.8,
+   "correct": true,
+   "expected": 16134.35
+  },
+  {
+   "id": "ad-ttr-all",
+   "status": "answer",
+   "answer": 5.35,
+   "explanation": "Across all campaigns and the whole period, total taps divided by total impressions gives an overall tap-through rate of 5.35%.",
+   "sql": "SELECT ROUND(100.0 * SUM(taps) / NULLIF(SUM(impressions), 0), 2) AS ttr_pct FROM reporting.keyword_daily",
+   "attempts": [
+    {
+     "sql": "SELECT ROUND(100.0 * SUM(taps) / NULLIF(SUM(impressions), 0), 2) AS ttr_pct FROM reporting.keyword_daily",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.5,
+   "correct": true,
+   "expected": 5.35
+  },
+  {
+   "id": "ad-top-app",
+   "status": "answer",
+   "answer": "Trailhead",
+   "explanation": "Trailhead had the most installs over the whole period, with 34,706 installs summed across all of its campaigns' keywords.",
+   "sql": "SELECT c.app_name, SUM(kd.installs) AS total_installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nGROUP BY c.app_name\nORDER BY total_installs DESC\nLIMIT 1",
+   "attempts": [
+    {
+     "sql": "SELECT c.app_name, SUM(kd.installs) AS total_installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nGROUP BY c.app_name\nORDER BY total_installs DESC\nLIMIT 1",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.5,
+   "correct": true,
+   "expected": "Trailhead"
+  },
+  {
+   "id": "ad-experiments",
+   "status": "answer",
+   "answer": [
+    "Product page: new screenshots",
+    "Product page: shorter subtitle"
+   ],
+   "explanation": "The warehouse lists two experiments: \"Product page: new screenshots\" and \"Product page: shorter subtitle\".",
+   "sql": "SELECT experiment_name FROM reporting.experiments ORDER BY experiment_name;",
+   "attempts": [
+    {
+     "sql": "SELECT experiment_name FROM reporting.experiments ORDER BY experiment_name;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.6,
+   "correct": true,
+   "expected": [
+    "Product page: new screenshots",
+    "Product page: shorter subtitle"
+   ]
+  },
+  {
+   "id": "ad-cpi-brand",
+   "status": "answer",
+   "answer": 0.7156,
+   "explanation": "Across all campaigns, Brand ad groups (excluding Non-Brand ones) spent about $0.72 per install, with spend converted to US dollars at each day's exchange rate.",
+   "sql": "SELECT SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE f.units_per_usd END) / NULLIF(SUM(k.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency\nWHERE ag.ad_group_name ILIKE '%brand%' AND ag.ad_group_name NOT ILIKE '%non%brand%'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE f.units_per_usd END) / NULLIF(SUM(k.installs), 0) AS cost_per_install_usd\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency\nWHERE ag.ad_group_name ILIKE '%brand%' AND ag.ad_group_name NOT ILIKE '%non%brand%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.4,
+   "correct": true,
+   "expected": 0.72
+  },
+  {
+   "id": "ad-u-private-1",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse hid this figure because the group had fewer than 50 installs, so the NULL means the count was suppressed and not that nothing matched, and the exact number can't be given.",
+   "sql": "SELECT COALESCE(SUM(a.installs), 0) AS installs\nFROM reporting.audience_daily a\nJOIN reporting.campaigns c ON c.campaign_id = a.campaign_id\nWHERE c.campaign_name = 'Ledgerly - DE - Search'\n  AND a.day = DATE '2026-10-05'\n  AND a.age_band = '18-24'\n  AND LOWER(a.gender) IN ('f', 'female', 'woman', 'women')",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(SUM(a.installs), 0) AS installs\nFROM reporting.audience_daily a\nJOIN reporting.campaigns c ON c.campaign_id = a.campaign_id\nWHERE c.campaign_name = 'Ledgerly - DE - Search'\n  AND a.day = DATE '2026-10-05'\n  AND a.age_band = '18-24'\n  AND LOWER(a.gender) IN ('f', 'female', 'woman', 'women')",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.7,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "ad-u-uninstalls",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse tracks installs but has no uninstall or retention data in any table, so uninstalls can't be calculated.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.7,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

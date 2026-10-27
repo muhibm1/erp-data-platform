@@ -1,0 +1,204 @@
+{
+ "set": "hard-dev",
+ "condition": "one-shot",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T160938",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "6/8",
+    "pct": 75.0,
+    "ci95": [
+     40.9,
+     92.9
+    ]
+   },
+   "answerable": {
+    "correct": "5/7",
+    "pct": 71.4,
+    "ci95": [
+     35.9,
+     91.8
+    ]
+   },
+   "not answerable": {
+    "correct": "1/1",
+    "pct": 100.0,
+    "ci95": [
+     20.7,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 5.5
+ },
+ "records": [
+  {
+   "id": "d-not-yet-due",
+   "status": "answer",
+   "answer": 102043.47,
+   "explanation": "",
+   "sql": "SELECT SUM(not_yet_due) AS not_yet_due_total FROM marts.receivables_aging;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(not_yet_due) AS not_yet_due_total FROM marts.receivables_aging;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.5,
+   "correct": true,
+   "expected": 102043.47
+  },
+  {
+   "id": "d-owe-nothing",
+   "status": "answer",
+   "answer": 17,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS customers_owing_nothing FROM marts.revenue_by_customer WHERE open = 0;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS customers_owing_nothing FROM marts.revenue_by_customer WHERE open = 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.8,
+   "correct": true,
+   "expected": 17
+  },
+  {
+   "id": "d-euro-customers",
+   "status": "answer",
+   "answer": [
+    "63",
+    "64",
+    "51"
+   ],
+   "explanation": "",
+   "sql": "SELECT DISTINCT customer_key, customer_name FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice' ORDER BY customer_name;",
+   "attempts": [
+    {
+     "sql": "SELECT DISTINCT customer_key, customer_name FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice' ORDER BY customer_name;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.5,
+   "correct": false,
+   "expected": [
+    "Juniper Architecture",
+    "Kestrel Aviation Services",
+    "Silverline Hotels"
+   ]
+  },
+  {
+   "id": "d-lost-value",
+   "status": "answer",
+   "answer": 781300.0,
+   "explanation": "",
+   "sql": "SELECT SUM(expected_revenue) AS total_expected_revenue_lost FROM (SELECT DISTINCT ON (deal_id) deal_id, expected_revenue, is_lost FROM staging.stg_deals ORDER BY deal_id, source_version DESC) d WHERE is_lost;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(expected_revenue) AS total_expected_revenue_lost FROM (SELECT DISTINCT ON (deal_id) deal_id, expected_revenue, is_lost FROM staging.stg_deals ORDER BY deal_id, source_version DESC) d WHERE is_lost;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.8,
+   "correct": true,
+   "expected": 781300.0
+  },
+  {
+   "id": "d-paid-deals",
+   "status": "answer",
+   "answer": 53,
+   "explanation": "",
+   "sql": "SELECT COUNT(DISTINCT d.deal_id) AS fully_paid_won_deals\nFROM staging.stg_deals d\nJOIN marts.deal_to_cash c ON c.deal_id = d.deal_id\nWHERE d.is_won\n  AND c.invoiced > 0\n  AND c.open = 0;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT d.deal_id) AS fully_paid_won_deals\nFROM staging.stg_deals d\nJOIN marts.deal_to_cash c ON c.deal_id = d.deal_id\nWHERE d.is_won\n  AND c.invoiced > 0\n  AND c.open = 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.1,
+   "correct": true,
+   "expected": 53
+  },
+  {
+   "id": "d-avg-invoice",
+   "status": "answer",
+   "answer": 19029.130125,
+   "explanation": "",
+   "sql": "SELECT AVG(amount) AS avg_invoice_amount_usd FROM intermediate.int_invoices WHERE move_type NOT IN ('out_refund','in_refund');",
+   "attempts": [
+    {
+     "sql": "SELECT AVG(amount) AS avg_invoice_amount_usd FROM intermediate.int_invoices WHERE move_type NOT IN ('out_refund','in_refund');",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.9,
+   "correct": true,
+   "expected": 19029.13
+  },
+  {
+   "id": "d-top-billed",
+   "status": "answer",
+   "answer": [
+    "66"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name\nORDER BY net_billed DESC\nLIMIT 1",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name\nORDER BY net_billed DESC\nLIMIT 1",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.9,
+   "correct": false,
+   "expected": [
+    "Maple Street Bakery"
+   ]
+  },
+  {
+   "id": "d-u-product",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no product or line-item data (no product, SKU, or quantity columns); orders and invoices are only at header level with amounts, so units sold by product can't be determined.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.8,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

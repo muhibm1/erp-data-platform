@@ -1,0 +1,1025 @@
+{
+ "set": "test",
+ "condition": "one-shot",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T161441",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "19/47",
+    "pct": 40.4,
+    "ci95": [
+     27.6,
+     54.7
+    ]
+   },
+   "billed": {
+    "correct": "3/8",
+    "pct": 37.5,
+    "ci95": [
+     13.7,
+     69.4
+    ]
+   },
+   "deal_collected": {
+    "correct": "0/7",
+    "pct": 0.0,
+    "ci95": [
+     0.0,
+     35.4
+    ]
+   },
+   "late30": {
+    "correct": "0/8",
+    "pct": 0.0,
+    "ci95": [
+     0.0,
+     32.4
+    ]
+   },
+   "oldest_late": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "owed": {
+    "correct": "0/8",
+    "pct": 0.0,
+    "ci95": [
+     0.0,
+     32.4
+    ]
+   },
+   "unpaid_refs": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 5.4
+ },
+ "records": [
+  {
+   "id": "billed-14",
+   "status": "answer",
+   "answer": [
+    "Azure Interior"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_name, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd FROM intermediate.int_invoices WHERE customer_name ILIKE 'Azure Interior' AND move_type IN ('out_invoice','out_refund') GROUP BY customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd FROM intermediate.int_invoices WHERE customer_name ILIKE 'Azure Interior' AND move_type IN ('out_invoice','out_refund') GROUP BY customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.7,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "owed-14",
+   "status": "answer",
+   "answer": [
+    "Azure Interior"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_name, SUM(total_open) AS open_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Azure Interior%' GROUP BY customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, SUM(total_open) AS open_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Azure Interior%' GROUP BY customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.6,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-14",
+   "status": "answer",
+   "answer": [
+    "Azure Interior"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS over_30_days_past_due_usd, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Azure Interior%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS over_30_days_past_due_usd, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Azure Interior%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.6,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-14",
+   "status": "answer",
+   "answer": "INV/2026/00001",
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Azure Interior' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref;",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Azure Interior' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.1,
+   "correct": true,
+   "expected": [
+    "INV/2026/00001"
+   ]
+  },
+  {
+   "id": "oldest_late-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Azure Interior'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Azure Interior'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.6,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "billed-41",
+   "status": "answer",
+   "answer": [
+    "41"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Northwind Logistics%'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Northwind Logistics%'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.5,
+   "correct": false,
+   "expected": 49490.0
+  },
+  {
+   "id": "owed-41",
+   "status": "answer",
+   "answer": [
+    "41"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Northwind Logistics%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Northwind Logistics%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": false,
+   "expected": 26835.0
+  },
+  {
+   "id": "late30-41",
+   "status": "answer",
+   "answer": [
+    "None"
+   ],
+   "explanation": "",
+   "sql": "SELECT SUM(late_31_60 + late_61_90 + late_over_90) AS overdue_over_30_days_usd, SUM(total_open) AS total_owed_usd FROM marts.receivables_aging WHERE customer_name = 'Northwind Logistics'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(late_31_60 + late_61_90 + late_over_90) AS overdue_over_30_days_usd, SUM(total_open) AS total_owed_usd FROM marts.receivables_aging WHERE customer_name = 'Northwind Logistics'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.2,
+   "correct": false,
+   "expected": 7425.0
+  },
+  {
+   "id": "unpaid_refs-41",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00036",
+    "INV/2026/00077"
+   ],
+   "explanation": "",
+   "sql": "SELECT invoice_ref, invoice_date, due_date, amount, amount_paid, amount_open FROM intermediate.int_invoices WHERE customer_name = 'Northwind Logistics' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref;",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref, invoice_date, due_date, amount, amount_paid, amount_open FROM intermediate.int_invoices WHERE customer_name = 'Northwind Logistics' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": true,
+   "expected": [
+    "INV/2026/00036",
+    "INV/2026/00077"
+   ]
+  },
+  {
+   "id": "oldest_late-41",
+   "status": "answer",
+   "answer": 126,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Northwind Logistics'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Northwind Logistics'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": true,
+   "expected": 126
+  },
+  {
+   "id": "deal_collected-41",
+   "status": "answer",
+   "answer": [
+    "190"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Sep 210' AND customer_name = 'Northwind Logistics'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Sep 210' AND customer_name = 'Northwind Logistics'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "billed-44",
+   "status": "answer",
+   "answer": 16020.0,
+   "explanation": "",
+   "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%Summit Roofing%'\n  AND move_type IN ('out_invoice', 'out_refund')",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%Summit Roofing%'\n  AND move_type IN ('out_invoice', 'out_refund')",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.8,
+   "correct": true,
+   "expected": 16020.0
+  },
+  {
+   "id": "owed-44",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Summit Roofing%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Summit Roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.1,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-44",
+   "status": "answer",
+   "answer": null,
+   "explanation": "",
+   "sql": "SELECT SUM(late_31_60 + late_61_90 + late_over_90) AS over_30_days_past_due_usd FROM marts.receivables_aging WHERE customer_name ILIKE '%Summit Roofing%'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(late_31_60 + late_61_90 + late_over_90) AS over_30_days_past_due_usd FROM marts.receivables_aging WHERE customer_name ILIKE '%Summit Roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.3,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-44",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE '%Summit Roofing%' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE '%Summit Roofing%' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-44",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COALESCE(GREATEST(MAX(DATE '2026-10-27' - due_date), 0), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%summit roofing%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27';",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(GREATEST(MAX(DATE '2026-10-27' - due_date), 0), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%summit roofing%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.1,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-44",
+   "status": "answer",
+   "answer": [
+    "88"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Mar 228' AND customer_name ILIKE '%Summit Roofing%'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Mar 228' AND customer_name ILIKE '%Summit Roofing%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": false,
+   "expected": 5250.0
+  },
+  {
+   "id": "billed-46",
+   "status": "answer",
+   "answer": [
+    "46"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Larkspur Foods%'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Larkspur Foods%'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.9,
+   "correct": false,
+   "expected": 73090.0
+  },
+  {
+   "id": "owed-46",
+   "status": "answer",
+   "answer": [
+    "46"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Larkspur Foods%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Larkspur Foods%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": false,
+   "expected": 47750.0
+  },
+  {
+   "id": "late30-46",
+   "status": "answer",
+   "answer": [
+    "Larkspur Foods"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_name, SUM(late_31_60 + late_61_90 + late_over_90) AS owed_over_30_days_past_due, SUM(total_open) AS total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Larkspur Foods%' GROUP BY customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, SUM(late_31_60 + late_61_90 + late_over_90) AS owed_over_30_days_past_due, SUM(total_open) AS total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Larkspur Foods%' GROUP BY customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-46",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00067",
+    "INV/2026/00070"
+   ],
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name = 'Larkspur Foods' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref;",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name = 'Larkspur Foods' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": true,
+   "expected": [
+    "INV/2026/00067",
+    "INV/2026/00070"
+   ]
+  },
+  {
+   "id": "oldest_late-46",
+   "status": "answer",
+   "answer": 17,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due FROM intermediate.int_invoices WHERE customer_name ILIKE '%larkspur foods%' AND amount_open > 0 AND due_date < DATE '2026-10-27';",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due FROM intermediate.int_invoices WHERE customer_name ILIKE '%larkspur foods%' AND amount_open > 0 AND due_date < DATE '2026-10-27';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.3,
+   "correct": true,
+   "expected": 17
+  },
+  {
+   "id": "deal_collected-46",
+   "status": "answer",
+   "answer": [
+    "158"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Aug 750' AND customer_name ILIKE 'Larkspur Foods%'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Aug 750' AND customer_name ILIKE 'Larkspur Foods%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.5,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "billed-57",
+   "status": "answer",
+   "answer": [
+    "57"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Copperleaf Apartments'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name,\n       SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Copperleaf Apartments'\n  AND move_type IN ('out_invoice', 'out_refund')\nGROUP BY customer_key, customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.3,
+   "correct": false,
+   "expected": 20730.0
+  },
+  {
+   "id": "owed-57",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_name, SUM(total_open) AS total_open_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Copperleaf Apartments' GROUP BY customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, SUM(total_open) AS total_open_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Copperleaf Apartments' GROUP BY customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.5,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-57",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS open_over_30_days_past_due, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Copperleaf Apartments%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS open_over_30_days_past_due, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Copperleaf Apartments%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.2,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-57",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name = 'Copperleaf Apartments' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name = 'Copperleaf Apartments' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.3,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-57",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Copperleaf Apartments'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name = 'Copperleaf Apartments'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.2,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-57",
+   "status": "answer",
+   "answer": [
+    "149"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 903' AND customer_name = 'Copperleaf Apartments'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 903' AND customer_name = 'Copperleaf Apartments'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.5,
+   "correct": false,
+   "expected": 20730.0
+  },
+  {
+   "id": "billed-60",
+   "status": "answer",
+   "answer": 40510.0,
+   "explanation": "",
+   "sql": "SELECT SUM(CASE WHEN move_type = 'out_invoice' THEN ABS(amount) WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE 0 END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name = 'Foxglove Retail'\n  AND move_type IN ('out_invoice', 'out_refund');",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(CASE WHEN move_type = 'out_invoice' THEN ABS(amount) WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE 0 END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name = 'Foxglove Retail'\n  AND move_type IN ('out_invoice', 'out_refund');",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.2,
+   "correct": true,
+   "expected": 40510.0
+  },
+  {
+   "id": "owed-60",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Foxglove Retail%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Foxglove Retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.9,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-60",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS open_over_30_days_past_due_usd, total_open FROM marts.receivables_aging WHERE customer_name = 'Foxglove Retail';",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, late_31_60 + late_61_90 + late_over_90 AS open_over_30_days_past_due_usd, total_open FROM marts.receivables_aging WHERE customer_name = 'Foxglove Retail';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.7,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-60",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Foxglove Retail' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Foxglove Retail' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-60",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE customer_name ILIKE 'Foxglove Retail%')\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS max_days_past_due\nFROM intermediate.int_invoices\nWHERE customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE customer_name ILIKE 'Foxglove Retail%')\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-60",
+   "status": "answer",
+   "answer": [
+    "168"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Aug 778' AND customer_name ILIKE 'Foxglove Retail%'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Aug 778' AND customer_name ILIKE 'Foxglove Retail%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": false,
+   "expected": 26550.0
+  },
+  {
+   "id": "billed-69",
+   "status": "answer",
+   "answer": 71930.0,
+   "explanation": "",
+   "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Pinecrest Realty%'\n  AND move_type IN ('out_invoice', 'out_refund');",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Pinecrest Realty%'\n  AND move_type IN ('out_invoice', 'out_refund');",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.8,
+   "correct": true,
+   "expected": 71930.0
+  },
+  {
+   "id": "owed-69",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Pinecrest Realty%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Pinecrest Realty%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.9,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "late30-69",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT customer_name, SUM(late_31_60 + late_61_90 + late_over_90) AS open_more_than_30_days_past_due_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Pinecrest Realty%' GROUP BY customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, SUM(late_31_60 + late_61_90 + late_over_90) AS open_more_than_30_days_past_due_usd FROM marts.receivables_aging WHERE customer_name ILIKE 'Pinecrest Realty%' GROUP BY customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.5,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "unpaid_refs-69",
+   "status": "answer",
+   "answer": [],
+   "explanation": "",
+   "sql": "SELECT invoice_ref, invoice_date, due_date, amount, amount_paid, amount_open\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Pinecrest Realty%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\nORDER BY invoice_date, invoice_ref;",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref, invoice_date, due_date, amount, amount_paid, amount_open\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE 'Pinecrest Realty%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\nORDER BY invoice_date, invoice_ref;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": true,
+   "expected": []
+  },
+  {
+   "id": "oldest_late-69",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%pinecrest realty%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27';",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices\nWHERE customer_name ILIKE '%pinecrest realty%'\n  AND move_type = 'out_invoice'\n  AND amount_open > 0\n  AND due_date < DATE '2026-10-27';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.2,
+   "correct": true,
+   "expected": 0
+  },
+  {
+   "id": "deal_collected-69",
+   "status": "answer",
+   "answer": [
+    "138"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 131' AND customer_name ILIKE '%Pinecrest Realty%'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 131' AND customer_name ILIKE '%Pinecrest Realty%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": false,
+   "expected": 17620.0
+  },
+  {
+   "id": "billed-70",
+   "status": "answer",
+   "answer": [
+    "70"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd FROM intermediate.int_invoices WHERE customer_name ILIKE '%Quarry Lane Fitness%' AND move_type IN ('out_invoice','out_refund') GROUP BY customer_key, customer_name",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd FROM intermediate.int_invoices WHERE customer_name ILIKE '%Quarry Lane Fitness%' AND move_type IN ('out_invoice','out_refund') GROUP BY customer_key, customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.2,
+   "correct": false,
+   "expected": 51520.0
+  },
+  {
+   "id": "owed-70",
+   "status": "answer",
+   "answer": [
+    "70"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Quarry Lane Fitness%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, total_open FROM marts.receivables_aging WHERE customer_name ILIKE '%Quarry Lane Fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.9,
+   "correct": false,
+   "expected": 16520.0
+  },
+  {
+   "id": "late30-70",
+   "status": "answer",
+   "answer": [
+    "70"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, late_31_60 + late_61_90 + late_over_90 AS over_30_days_past_due, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Quarry Lane Fitness%'",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, late_31_60 + late_61_90 + late_over_90 AS over_30_days_past_due, total_open FROM marts.receivables_aging WHERE customer_name ILIKE 'Quarry Lane Fitness%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.3,
+   "correct": false,
+   "expected": 16520.0
+  },
+  {
+   "id": "unpaid_refs-70",
+   "status": "answer",
+   "answer": [
+    "INV/2026/00008",
+    "INV/2026/00015"
+   ],
+   "explanation": "",
+   "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Quarry Lane Fitness' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref",
+   "attempts": [
+    {
+     "sql": "SELECT invoice_ref FROM intermediate.int_invoices WHERE customer_name ILIKE 'Quarry Lane Fitness' AND move_type = 'out_invoice' AND amount_open > 0 ORDER BY invoice_date, invoice_ref",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": true,
+   "expected": [
+    "INV/2026/00008",
+    "INV/2026/00015"
+   ]
+  },
+  {
+   "id": "oldest_late-70",
+   "status": "answer",
+   "answer": 235,
+   "explanation": "",
+   "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - i.due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices i\nWHERE i.customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE customer_name ILIKE 'Quarry Lane Fitness')\n  AND i.move_type = 'out_invoice'\n  AND i.amount_open > 0\n  AND i.due_date < DATE '2026-10-27'",
+   "attempts": [
+    {
+     "sql": "SELECT COALESCE(MAX(GREATEST(DATE '2026-10-27' - i.due_date, 0)), 0) AS days_past_due\nFROM intermediate.int_invoices i\nWHERE i.customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE customer_name ILIKE 'Quarry Lane Fitness')\n  AND i.move_type = 'out_invoice'\n  AND i.amount_open > 0\n  AND i.due_date < DATE '2026-10-27'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.7,
+   "correct": true,
+   "expected": 235
+  },
+  {
+   "id": "deal_collected-70",
+   "status": "answer",
+   "answer": [
+    "136"
+   ],
+   "explanation": "",
+   "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 721' AND customer_name = 'Quarry Lane Fitness'",
+   "attempts": [
+    {
+     "sql": "SELECT deal_id, deal_name, customer_name, paid FROM marts.deal_to_cash WHERE deal_name = 'Deal Jul 721' AND customer_name = 'Quarry Lane Fitness'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.3,
+   "correct": false,
+   "expected": 24320.0
+  }
+ ]
+}

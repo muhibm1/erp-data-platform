@@ -1,0 +1,626 @@
+{
+ "set": "hard-test",
+ "condition": "one-shot",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T161753",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "28/30",
+    "pct": 93.3,
+    "ci95": [
+     78.7,
+     98.2
+    ]
+   },
+   "answerable": {
+    "correct": "23/25",
+    "pct": 92.0,
+    "ci95": [
+     75.0,
+     97.8
+    ]
+   },
+   "not answerable": {
+    "correct": "5/5",
+    "pct": 100.0,
+    "ci95": [
+     56.6,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 4.9
+ },
+ "records": [
+  {
+   "id": "total-owed",
+   "status": "answer",
+   "answer": 362891.89,
+   "explanation": "",
+   "sql": "SELECT SUM(total_open) AS total_owed_usd FROM marts.receivables_aging;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(total_open) AS total_owed_usd FROM marts.receivables_aging;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.0,
+   "correct": true,
+   "expected": 362891.89
+  },
+  {
+   "id": "total-paid",
+   "status": "answer",
+   "answer": 1016263.52,
+   "explanation": "",
+   "sql": "SELECT SUM(paid) AS total_paid_usd FROM marts.revenue_by_customer;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(paid) AS total_paid_usd FROM marts.revenue_by_customer;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.8,
+   "correct": true,
+   "expected": 1016263.52
+  },
+  {
+   "id": "total-billed",
+   "status": "answer",
+   "answer": 1379155.41,
+   "explanation": "",
+   "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund');",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billed_usd\nFROM intermediate.int_invoices\nWHERE move_type IN ('out_invoice', 'out_refund');",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.6,
+   "correct": true,
+   "expected": 1379155.41
+  },
+  {
+   "id": "over-90",
+   "status": "answer",
+   "answer": 118375.0,
+   "explanation": "",
+   "sql": "SELECT SUM(late_over_90) AS over_90_days_past_due_usd FROM marts.receivables_aging;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(late_over_90) AS over_90_days_past_due_usd FROM marts.receivables_aging;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.3,
+   "correct": true,
+   "expected": 118375.0
+  },
+  {
+   "id": "over-60-customers",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS customers FROM marts.receivables_aging WHERE late_61_90 + late_over_90 > 0",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS customers FROM marts.receivables_aging WHERE late_61_90 + late_over_90 > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.1,
+   "correct": false,
+   "expected": 9
+  },
+  {
+   "id": "top3-owed",
+   "status": "answer",
+   "answer": [
+    "Maple Street Bakery",
+    "Larkspur Foods",
+    "Glacier Water Co"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_name, total_open FROM marts.receivables_aging ORDER BY total_open DESC LIMIT 3",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, total_open FROM marts.receivables_aging ORDER BY total_open DESC LIMIT 3",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.8,
+   "correct": true,
+   "expected": [
+    "Maple Street Bakery",
+    "Larkspur Foods",
+    "Glacier Water Co"
+   ]
+  },
+  {
+   "id": "worst-90",
+   "status": "answer",
+   "answer": [
+    "10"
+   ],
+   "explanation": "",
+   "sql": "SELECT customer_key, customer_name, late_over_90 FROM marts.receivables_aging ORDER BY late_over_90 DESC LIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT customer_key, customer_name, late_over_90 FROM marts.receivables_aging ORDER BY late_over_90 DESC LIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.8,
+   "correct": false,
+   "expected": [
+    "Maple Street Bakery"
+   ]
+  },
+  {
+   "id": "collected-pct",
+   "status": "answer",
+   "answer": 73.69,
+   "explanation": "",
+   "sql": "SELECT ROUND(100.0 * SUM(paid) / NULLIF(SUM(invoiced), 0), 2) AS pct_collected FROM marts.revenue_by_customer;",
+   "attempts": [
+    {
+     "sql": "SELECT ROUND(100.0 * SUM(paid) / NULLIF(SUM(invoiced), 0), 2) AS pct_collected FROM marts.revenue_by_customer;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.9,
+   "correct": true,
+   "expected": 73.7
+  },
+  {
+   "id": "billed-customers",
+   "status": "answer",
+   "answer": 31,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS customers_billed FROM marts.revenue_by_customer WHERE invoice_count > 0",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS customers_billed FROM marts.revenue_by_customer WHERE invoice_count > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.7,
+   "correct": true,
+   "expected": 31
+  },
+  {
+   "id": "won-no-order",
+   "status": "answer",
+   "answer": 4,
+   "explanation": "",
+   "sql": "SELECT COUNT(DISTINCT d.deal_id) AS won_deals_without_order\nFROM staging.stg_deals d\nWHERE d.is_won\n  AND NOT EXISTS (SELECT 1 FROM staging.stg_orders o WHERE o.deal_id = d.deal_id)",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT d.deal_id) AS won_deals_without_order\nFROM staging.stg_deals d\nWHERE d.is_won\n  AND NOT EXISTS (SELECT 1 FROM staging.stg_orders o WHERE o.deal_id = d.deal_id)",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.5,
+   "correct": true,
+   "expected": 4
+  },
+  {
+   "id": "won-no-order-value",
+   "status": "answer",
+   "answer": 48800.0,
+   "explanation": "",
+   "sql": "SELECT SUM(d.expected_revenue) AS total_expected_revenue FROM staging.stg_deals d WHERE d.is_won AND NOT EXISTS (SELECT 1 FROM staging.stg_orders o WHERE o.deal_id = d.deal_id)",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(d.expected_revenue) AS total_expected_revenue FROM staging.stg_deals d WHERE d.is_won AND NOT EXISTS (SELECT 1 FROM staging.stg_orders o WHERE o.deal_id = d.deal_id)",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": true,
+   "expected": 48800.0
+  },
+  {
+   "id": "ordered-not-invoiced",
+   "status": "answer",
+   "answer": 21840.0,
+   "explanation": "",
+   "sql": "SELECT SUM(d.ordered) AS ordered_not_invoiced_usd\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND COALESCE(d.invoiced, 0) = 0;",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(d.ordered) AS ordered_not_invoiced_usd\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND COALESCE(d.invoiced, 0) = 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.0,
+   "correct": true,
+   "expected": 21840.0
+  },
+  {
+   "id": "partly-paid-deals",
+   "status": "answer",
+   "answer": 6,
+   "explanation": "",
+   "sql": "SELECT COUNT(DISTINCT d.deal_id) AS partly_paid_won_deals\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND d.paid > 0\n  AND d.open > 0;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT d.deal_id) AS partly_paid_won_deals\nFROM marts.deal_to_cash d\nJOIN staging.stg_deals s ON s.deal_id = d.deal_id\nWHERE s.is_won\n  AND d.paid > 0\n  AND d.open > 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.0,
+   "correct": true,
+   "expected": 6
+  },
+  {
+   "id": "paid-share",
+   "status": "answer",
+   "answer": 67.09,
+   "explanation": "",
+   "sql": "WITH d AS (SELECT DISTINCT ON (deal_id) deal_id, is_won FROM staging.stg_deals ORDER BY deal_id, source_version DESC), w AS (SELECT d.deal_id FROM d WHERE d.is_won) SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE t.invoiced > 0 AND t.open = 0) / COUNT(*), 2) AS pct_won_deals_fully_paid FROM w LEFT JOIN marts.deal_to_cash t ON t.deal_id = w.deal_id",
+   "attempts": [
+    {
+     "sql": "WITH d AS (SELECT DISTINCT ON (deal_id) deal_id, is_won FROM staging.stg_deals ORDER BY deal_id, source_version DESC), w AS (SELECT d.deal_id FROM d WHERE d.is_won) SELECT ROUND(100.0 * COUNT(*) FILTER (WHERE t.invoiced > 0 AND t.open = 0) / COUNT(*), 2) AS pct_won_deals_fully_paid FROM w LEFT JOIN marts.deal_to_cash t ON t.deal_id = w.deal_id",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.1,
+   "correct": true,
+   "expected": 67.1
+  },
+  {
+   "id": "won-open-total",
+   "status": "answer",
+   "answer": 350425.0,
+   "explanation": "",
+   "sql": "SELECT SUM(d.open) AS open_usd FROM marts.deal_to_cash d WHERE d.deal_id IN (SELECT deal_id FROM staging.stg_deals WHERE is_won)",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(d.open) AS open_usd FROM marts.deal_to_cash d WHERE d.deal_id IN (SELECT deal_id FROM staging.stg_deals WHERE is_won)",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.1,
+   "correct": true,
+   "expected": 350425.0
+  },
+  {
+   "id": "lost-deals",
+   "status": "answer",
+   "answer": 42,
+   "explanation": "",
+   "sql": "SELECT COUNT(DISTINCT deal_id) AS lost_deals FROM staging.stg_deals WHERE is_lost;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT deal_id) AS lost_deals FROM staging.stg_deals WHERE is_lost;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.0,
+   "correct": true,
+   "expected": 42
+  },
+  {
+   "id": "win-rate",
+   "status": "answer",
+   "answer": 65.2892561983471,
+   "explanation": "",
+   "sql": "WITH latest AS (\n  SELECT DISTINCT ON (deal_id) deal_id, is_won, is_lost\n  FROM staging.stg_deals\n  ORDER BY deal_id, source_version DESC\n)\nSELECT 100.0 * COUNT(*) FILTER (WHERE is_won) / COUNT(*) AS pct_won\nFROM latest\nWHERE is_won OR is_lost",
+   "attempts": [
+    {
+     "sql": "WITH latest AS (\n  SELECT DISTINCT ON (deal_id) deal_id, is_won, is_lost\n  FROM staging.stg_deals\n  ORDER BY deal_id, source_version DESC\n)\nSELECT 100.0 * COUNT(*) FILTER (WHERE is_won) / COUNT(*) AS pct_won\nFROM latest\nWHERE is_won OR is_lost",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.6,
+   "correct": true,
+   "expected": 65.3
+  },
+  {
+   "id": "best-month",
+   "status": "answer",
+   "answer": [
+    "2026-06"
+   ],
+   "explanation": "",
+   "sql": "SELECT to_char(date_trunc('month', invoice_date), 'YYYY-MM') AS month, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billing_usd FROM intermediate.int_invoices WHERE move_type IN ('out_invoice', 'out_refund') GROUP BY 1 ORDER BY net_billing_usd DESC LIMIT 1",
+   "attempts": [
+    {
+     "sql": "SELECT to_char(date_trunc('month', invoice_date), 'YYYY-MM') AS month, SUM(CASE WHEN move_type = 'out_refund' THEN -ABS(amount) ELSE ABS(amount) END) AS net_billing_usd FROM intermediate.int_invoices WHERE move_type IN ('out_invoice', 'out_refund') GROUP BY 1 ORDER BY net_billing_usd DESC LIMIT 1",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.9,
+   "correct": true,
+   "expected": "2026-06"
+  },
+  {
+   "id": "euro-invoices",
+   "status": "answer",
+   "answer": 3,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS eur_invoices FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice';",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS eur_invoices FROM intermediate.int_invoices WHERE currency = 'EUR' AND move_type = 'out_invoice';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.4,
+   "correct": true,
+   "expected": 3
+  },
+  {
+   "id": "credit-notes",
+   "status": "answer",
+   "answer": 5,
+   "explanation": "",
+   "sql": "SELECT COUNT(DISTINCT invoice_id) AS credit_notes_issued FROM intermediate.int_invoices WHERE move_type = 'out_refund'",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT invoice_id) AS credit_notes_issued FROM intermediate.int_invoices WHERE move_type = 'out_refund'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.3,
+   "correct": true,
+   "expected": 5
+  },
+  {
+   "id": "credit-note-total",
+   "status": "answer",
+   "answer": 143175.0,
+   "explanation": "",
+   "sql": "SELECT ABS(SUM(amount)) AS total_credit_notes_usd FROM intermediate.int_invoices WHERE move_type = 'out_refund'",
+   "attempts": [
+    {
+     "sql": "SELECT ABS(SUM(amount)) AS total_credit_notes_usd FROM intermediate.int_invoices WHERE move_type = 'out_refund'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.0,
+   "correct": true,
+   "expected": 143175.0
+  },
+  {
+   "id": "paid-invoices",
+   "status": "answer",
+   "answer": 54,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS fully_paid_invoices FROM intermediate.int_invoices WHERE move_type = 'out_invoice' AND amount > 0 AND amount_open = 0;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS fully_paid_invoices FROM intermediate.int_invoices WHERE move_type = 'out_invoice' AND amount > 0 AND amount_open = 0;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.0,
+   "correct": true,
+   "expected": 54
+  },
+  {
+   "id": "edited-invoices",
+   "status": "answer",
+   "answer": 3,
+   "explanation": "",
+   "sql": "SELECT COUNT(*) AS invoices_with_multiple_versions FROM (SELECT invoice_id FROM staging.stg_invoice_versions GROUP BY invoice_id HAVING COUNT(*) > 1) t",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS invoices_with_multiple_versions FROM (SELECT invoice_id FROM staging.stg_invoice_versions GROUP BY invoice_id HAVING COUNT(*) > 1) t",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.7,
+   "correct": true,
+   "expected": 3
+  },
+  {
+   "id": "merged-customers",
+   "status": "answer",
+   "answer": "Northwind Logistics",
+   "explanation": "",
+   "sql": "SELECT DISTINCT customer_name FROM intermediate.int_customers WHERE customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE merged_into_other) ORDER BY customer_name;",
+   "attempts": [
+    {
+     "sql": "SELECT DISTINCT customer_name FROM intermediate.int_customers WHERE customer_key IN (SELECT customer_key FROM intermediate.int_customers WHERE merged_into_other) ORDER BY customer_name;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 5.1,
+   "correct": true,
+   "expected": [
+    "Northwind Logistics"
+   ]
+  },
+  {
+   "id": "avg-open",
+   "status": "answer",
+   "answer": 25920.849285714285,
+   "explanation": "",
+   "sql": "SELECT AVG(total_open) AS avg_amount_owed_usd FROM marts.receivables_aging WHERE total_open > 0",
+   "attempts": [
+    {
+     "sql": "SELECT AVG(total_open) AS avg_amount_owed_usd FROM marts.receivables_aging WHERE total_open > 0",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.3,
+   "correct": true,
+   "expected": 25920.85
+  },
+  {
+   "id": "u-credit-score",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "No table or column in the warehouse holds credit scores or credit ratings. It only has invoices, payments, deals, orders, partners and receivables aging, so Northwind Logistics' credit score can't be answered.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.7,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "u-salesperson",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "No table has a salesperson or deal owner field (staging.stg_deals has only deal, partner, stage, won/lost and dates), so deals can't be attributed to a salesperson.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.7,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "u-margin",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "Gross margin needs cost of goods sold or product cost data, and the warehouse only holds revenue-side data (deals, orders, invoices, payments), so it can't be calculated.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.4,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "u-tickets",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no support ticket data (only deals, orders, invoices, payments, partners), so tickets opened by Acme Corporation can't be counted.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.8,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "u-forecast",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse holds only historical invoices, orders, payments and deals. It has no billing schedule, recurring-invoice plan or planned invoice dates, so next month's billing can't be derived without guessing.",
+   "sql": "",
+   "attempts": [
+    {
+     "sql": "",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.4,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

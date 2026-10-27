@@ -1,0 +1,285 @@
+{
+ "set": "hard-dev",
+ "condition": "full",
+ "model": "sonnet",
+ "domain": "finance",
+ "started": "20261027T155559",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "8/8",
+    "pct": 100.0,
+    "ci95": [
+     67.6,
+     100.0
+    ]
+   },
+   "answerable": {
+    "correct": "7/7",
+    "pct": 100.0,
+    "ci95": [
+     64.6,
+     100.0
+    ]
+   },
+   "not answerable": {
+    "correct": "1/1",
+    "pct": 100.0,
+    "ci95": [
+     20.7,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.88,
+  "median_seconds": 10.0
+ },
+ "records": [
+  {
+   "id": "d-not-yet-due",
+   "status": "answer",
+   "answer": 102043.47,
+   "explanation": "The total of receivables not yet due in marts.receivables_aging is 102,043.47 US dollars.",
+   "sql": "select coalesce(sum(coalesce(not_yet_due, 0)), 0) as not_yet_due_usd from marts.receivables_aging",
+   "attempts": [
+    {
+     "sql": "select coalesce(sum(coalesce(not_yet_due, 0)), 0) as not_yet_due_usd from marts.receivables_aging",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "marts.revenue_by_customer",
+    "currency",
+    "intermediate.int_invoices",
+    "example-0",
+    "past due",
+    "marts.deal_to_cash",
+    "owed",
+    "example-3",
+    "billed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.0,
+   "correct": true,
+   "expected": 102043.47
+  },
+  {
+   "id": "d-owe-nothing",
+   "status": "answer",
+   "answer": 17,
+   "explanation": "17 customers in marts.revenue_by_customer have an open balance of zero, counting customers with no open amount recorded as owing nothing.",
+   "sql": "select count(*) as customers_owing_nothing from marts.revenue_by_customer where coalesce(open, 0) = 0",
+   "attempts": [
+    {
+     "sql": "select count(*) as customers_owing_nothing from marts.revenue_by_customer where coalesce(open, 0) = 0",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "marts.receivables_aging",
+    "example-0",
+    "marts.revenue_by_customer",
+    "intermediate.int_invoices",
+    "example-3",
+    "owed",
+    "marts.deal_to_cash",
+    "billed",
+    "duplicate customer",
+    "collected"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.6,
+   "correct": true,
+   "expected": 17
+  },
+  {
+   "id": "d-euro-customers",
+   "status": "answer",
+   "answer": [
+    "Juniper Architecture",
+    "Kestrel Aviation Services",
+    "Silverline Hotels"
+   ],
+   "explanation": "Three customers have at least one invoice in EUR in intermediate.int_invoices: Juniper Architecture, Kestrel Aviation Services and Silverline Hotels.",
+   "sql": "select distinct customer_key, customer_name from intermediate.int_invoices where currency = 'EUR' order by customer_name",
+   "attempts": [
+    {
+     "sql": "select distinct customer_key, customer_name from intermediate.int_invoices where currency = 'EUR' order by customer_name",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "billed",
+    "marts.revenue_by_customer",
+    "staging.stg_invoices",
+    "intermediate.int_invoices",
+    "currency",
+    "marts.receivables_aging",
+    "example-1",
+    "duplicate customer",
+    "past due",
+    "example-0"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.5,
+   "correct": true,
+   "expected": [
+    "Juniper Architecture",
+    "Kestrel Aviation Services",
+    "Silverline Hotels"
+   ]
+  },
+  {
+   "id": "d-lost-value",
+   "status": "answer",
+   "answer": 781300,
+   "explanation": "Summing expected_revenue over deals flagged as lost in staging.stg_deals gives 781,300 US dollars.",
+   "sql": "select coalesce(sum(expected_revenue), 0) as lost_expected_revenue_usd from staging.stg_deals where is_lost",
+   "attempts": [
+    {
+     "sql": "select coalesce(sum(expected_revenue), 0) as lost_expected_revenue_usd from staging.stg_deals where is_lost",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "staging.stg_deals",
+    "marts.revenue_by_customer",
+    "marts.deal_to_cash",
+    "billed",
+    "example-3",
+    "marts.receivables_aging",
+    "example-0",
+    "currency",
+    "won deal",
+    "collected"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.5,
+   "correct": true,
+   "expected": 781300.0
+  },
+  {
+   "id": "d-paid-deals",
+   "status": "answer",
+   "answer": 53,
+   "explanation": "The query counted 53 rows in marts.deal_to_cash with status 'paid'. I'm assuming every row in that table is a won deal and that 'paid' means fully paid. I didn't check either assumption.",
+   "sql": "select count(*) from marts.deal_to_cash where status = 'paid'",
+   "attempts": [
+    {
+     "sql": "select count(*) from marts.deal_to_cash where status = 'paid'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "example-3",
+    "won deal",
+    "marts.deal_to_cash",
+    "staging.stg_deals",
+    "example-0",
+    "intermediate.int_invoices",
+    "collected",
+    "marts.revenue_by_customer",
+    "currency",
+    "owed"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.0,
+   "correct": true,
+   "expected": 53
+  },
+  {
+   "id": "d-avg-invoice",
+   "status": "answer",
+   "answer": 19029.13,
+   "explanation": "The average customer invoice (out_invoice, so credit notes are excluded) is about $19,029.13, assuming the amount column in intermediate.int_invoices is already in US dollars, which I could not confirm.",
+   "sql": "select avg(amount) as avg_invoice_amount_usd from intermediate.int_invoices where move_type = 'out_invoice'",
+   "attempts": [
+    {
+     "sql": "select avg(amount) as avg_invoice_amount_usd from intermediate.int_invoices where move_type = 'out_invoice'",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "intermediate.int_invoices",
+    "marts.revenue_by_customer",
+    "billed",
+    "currency",
+    "marts.deal_to_cash",
+    "marts.receivables_aging",
+    "example-2",
+    "owed",
+    "example-3",
+    "credit note"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.3,
+   "correct": true,
+   "expected": 19029.13
+  },
+  {
+   "id": "d-top-billed",
+   "status": "answer",
+   "answer": "Maple Street Bakery",
+   "explanation": "Maple Street Bakery has the highest invoiced total, 178,520, in marts.revenue_by_customer. I did not check whether that column already subtracts credit notes, so I'm assuming it does.",
+   "sql": "select customer_key, customer_name, invoiced from marts.revenue_by_customer order by invoiced desc nulls last limit 1",
+   "attempts": [
+    {
+     "sql": "select customer_key, customer_name, invoiced from marts.revenue_by_customer order by invoiced desc nulls last limit 1",
+     "error": null
+    }
+   ],
+   "retrieved": [
+    "billed",
+    "marts.revenue_by_customer",
+    "intermediate.int_invoices",
+    "example-2",
+    "marts.deal_to_cash",
+    "example-0",
+    "marts.receivables_aging",
+    "credit note",
+    "customer",
+    "collected"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": true,
+   "expected": [
+    "Maple Street Bakery"
+   ]
+  },
+  {
+   "id": "d-u-product",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no product or line-item quantity data: deals, invoices, orders and payments are only at header or total level, so units sold per product can't be determined.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [
+    "marts.deal_to_cash",
+    "marts.revenue_by_customer",
+    "staging.stg_invoices",
+    "staging.stg_deals",
+    "example-3",
+    "example-1",
+    "currency",
+    "duplicate customer",
+    "past due",
+    "collected"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 3.9,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

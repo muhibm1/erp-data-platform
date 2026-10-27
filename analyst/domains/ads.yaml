@@ -1,0 +1,82 @@
+# A simulated app-store search ads account (analyst/ads/simulate.py).
+#
+# The same agent answers questions about it with no code change: this file is
+# the whole onboarding. It differs from finance in three ways the agent has to
+# respect: spend is in each campaign's own currency, ratios must be rolled up
+# from totals, and a privacy rule blanks small audience groups.
+name: ads
+title: a search ads account (apps advertising on app-store search keywords, simulated)
+dsn_env: ANALYST_ADS_DSN
+dsn_default: host=/tmp dbname=adsdemo user=odoo
+# Queries run here with the same rules as the finance tool: one read-only
+# SELECT, a read-only transaction, 5 seconds, 200 rows, as a role that can read
+# only the reporting schema. User-level events are in another schema it cannot see.
+executor: readonly
+reader_role: ads_reader
+schemas: [reporting]
+as_of: "2026-10-26"
+privacy:
+  min_count: 50
+  count_columns: [installs]
+
+tables:
+  reporting.campaigns:
+    about: One row per campaign. A campaign advertises one app in one country, in that country's currency.
+    columns:
+      campaign_name: Shown as "App - Country - Search", for example "Trailhead - US - Search".
+      app_name: The app being advertised.
+      country: Two-letter country code.
+      currency: The currency the campaign spends and budgets in (USD, GBP, EUR, JPY).
+      daily_budget: Daily budget in the campaign's own currency.
+      status: running or paused.
+  reporting.ad_groups:
+    about: Each campaign has three ad groups, Brand, Category and Competitor, named by the kind of keyword they bid on.
+  reporting.keywords:
+    about: Keywords an ad group bids on. The same keyword text can appear in several campaigns.
+    columns:
+      match_type: exact or broad.
+      bid: Maximum cost per tap, in the campaign's currency.
+  reporting.keyword_daily:
+    about: The main performance table. One row per keyword per day, 2026-08-28 to 2026-10-26.
+    columns:
+      impressions: Times the ad was shown.
+      taps: Times it was tapped.
+      installs: Downloads that followed a tap.
+      spend: What the taps cost, in the CAMPAIGN'S OWN CURRENCY (not dollars).
+  reporting.fx_rates:
+    about: Daily exchange rates. units_per_usd is how many units of the currency buy one US dollar (USD is 1).
+    notes: "Spend in US dollars = spend / units_per_usd, joined on the same day and the campaign's currency."
+  reporting.audience_daily:
+    about: Impressions, taps and installs per campaign per day, split by age band (18-24, 25-34, 35-44, 45-54, 55+) and gender. No spend.
+    notes: Privacy rule. Any result row with fewer than 50 installs comes back blanked and marked _suppressed. Group over enough days or segments to reach 50, or report that the figure cannot be shared.
+  reporting.experiments:
+    about: Product page A/B tests, one row per experiment, with the campaign it ran on.
+  reporting.experiment_daily:
+    about: Taps and installs per experiment, variant (A or B) and day.
+
+terms:
+  spend in dollars: "Convert every row before adding: sum(spend / units_per_usd) with fx_rates joined on day and currency. Never add spend across campaigns in different currencies without converting."
+  tap-through rate: "TTR = taps / impressions, from totals (sum of taps over sum of impressions), never the average of daily rates."
+  conversion rate: "Installs per tap = sum(installs) / sum(taps). From totals, never averaged."
+  cost per tap: "CPT = spend in dollars / taps, from totals."
+  cost per install: "CPI (also cost per acquisition) = spend in dollars / installs, from totals."
+  last 7 days: The seven days ending on 2026-10-26, so 2026-10-20 to 2026-10-26 inclusive. "The 7 days before" is 2026-10-13 to 2026-10-19.
+  whole period: "Every day in the data, 2026-08-28 to 2026-10-26."
+  statistically significant: "For an A/B test, compare conversion rates p_A and p_B from total taps n. The difference is significant at 95% when |p_B - p_A| > 1.96 * sqrt(p_A(1-p_A)/n_A + p_B(1-p_B)/n_B); the 95% interval is the difference plus or minus that amount."
+  percentage points: "The plain difference between two percentages (44% - 40% = 4 points), not a relative change."
+  over budget: "A campaign day whose total spend, in the campaign's own currency, is above its daily_budget."
+  privacy: "Audience figures for fewer than 50 installs cannot be shared, and user-level data is not available to analysts at all."
+
+examples:
+  - question: How much did Sprout - US - Search spend last week in dollars?
+    sql: >-
+      select sum(d.spend / fx.units_per_usd) from reporting.keyword_daily d
+      join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id)
+      join reporting.campaigns c using (campaign_id)
+      join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency
+      where c.campaign_name = 'Sprout - US - Search' and d.day between '2026-10-20' and '2026-10-26'
+  - question: What is the tap-through rate of each ad group type?
+    sql: >-
+      select g.ad_group_name, 100.0 * sum(d.taps) / sum(d.impressions) as ttr_pct
+      from reporting.keyword_daily d join reporting.keywords k using (keyword_id)
+      join reporting.ad_groups g using (ad_group_id) group by 1
