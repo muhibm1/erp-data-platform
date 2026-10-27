@@ -149,7 +149,7 @@ set was scored once, on Claude Sonnet.
 
 `model.ChatModel` wraps a LangChain chat model (`ChatAnthropic` by default). It asks for each
 step's reply through `with_structured_output`. Under the graph's run, each step is then an
-ordinary LangChain call that LangSmith traces. Use `--route langchain` on the eval and on
+ordinary LangChain call that LangSmith can trace. Use `--route langchain` on the eval and on
 `analyst.ask`. Tests cover it with a stand-in model. The scored runs above used the `claude -p`
 route, so version 2's numbers do not depend on the new route.
 

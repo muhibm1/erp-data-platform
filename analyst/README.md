@@ -76,7 +76,7 @@ ANALYST_TESTS=1 .venv/bin/python -m pytest -q analyst     # no model needed
 .venv/bin/python -m analyst.eval.report                  # rebuild the results tables from runs/
 ```
 
-The model sits behind one interface, `model(system, prompt, schema) -> dict`, with two routes. The default makes one headless `claude -p` call per step; the scored runs used it. `--route langchain` (on `analyst.ask` and the eval) uses LangChain's `ChatAnthropic` with `with_structured_output`, so every step is an ordinary LangChain call that LangSmith traces under the graph's run; it reads an Anthropic API key from the environment. The platform's CI skips these tests unless `ANALYST_TESTS=1` is set, so they add no time to it.
+The model sits behind one interface, `model(system, prompt, schema) -> dict`, with two routes. The default makes one headless `claude -p` call per step; the scored runs used it. `--route langchain` (on `analyst.ask` and the eval) uses LangChain's `ChatAnthropic` with `with_structured_output`, so every step is an ordinary LangChain call that LangSmith can trace under the graph's run (tracing was off for the recorded runs; see the results' limits); it reads an Anthropic API key from the environment. The platform's CI skips these tests unless `ANALYST_TESTS=1` is set, so they add no time to it.
 
 ## Limits
 
