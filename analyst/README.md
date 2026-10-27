@@ -8,7 +8,7 @@ The same agent works on two datasets: the finance warehouse in this repository, 
 
 ## Results
 
-Held-out questions, scored once after the agent was frozen ([plan](eval/PLAN.md), [full results](eval/RESULTS.md)). No API credit was spent; every model call ran on a Claude subscription.
+Held-out questions, scored once after the agent was frozen ([plan](eval/PLAN.md), [full results](eval/RESULTS.md)).
 
 | | Claude Sonnet | Claude Haiku |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ ANALYST_TESTS=1 .venv/bin/python -m pytest -q analyst     # 18 tests, no model n
 .venv/bin/python -m analyst.eval.report                  # rebuild the results tables from runs/
 ```
 
-Model calls run `claude -p` signed in to a subscription, with any API key removed from the call's environment. The platform's CI skips these tests unless `ANALYST_TESTS=1` is set, so they add no time to it.
+Model calls run through the `claude` command-line tool (`claude -p`), one headless call per step. The platform's CI skips these tests unless `ANALYST_TESTS=1` is set, so they add no time to it.
 
 ## Limits
 

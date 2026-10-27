@@ -40,9 +40,9 @@ forecast); the right reply is to decline.
 2 against 3 shows what context retrieval adds. 1 against 2 shows what the
 loop adds.
 
-## Model and cost
+## Model
 
-Claude Sonnet through the subscription, one headless call per model step. $0 API.
+Claude Sonnet, one headless call per model step.
 
 ## Grading (code, no judge)
 
