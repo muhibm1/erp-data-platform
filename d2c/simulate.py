@@ -85,11 +85,12 @@ class Company:
         return self.o.execute("res.partner", "create", {
             "name": name, "is_company": True, "email": email, "customer_rank": 1})
 
-    def lines(self, n=None):
-        n = n or self.rng.randint(1, 3)
-        picks = self.rng.sample(self.products, n)
-        return [(0, 0, {"product_id": p, "product_uom_qty": self.rng.choice([1, 1, 2, 3, 5, 10])})
-                for p in picks]
+    def lines(self, target: float):
+        """Order lines that add up to roughly the deal's expected revenue."""
+        picks = self.rng.sample(range(len(PRODUCTS)), self.rng.randint(1, 3))
+        share = target * self.rng.uniform(0.85, 1.2) / len(picks)
+        return [(0, 0, {"product_id": self.products[i],
+                        "product_uom_qty": max(1, round(share / PRODUCTS[i][1]))}) for i in picks]
 
     def deal(self, partner, revenue, opened: dt.date):
         return self.o.execute("crm.lead", "create", {
@@ -98,12 +99,18 @@ class Company:
             "date_deadline": _d(opened + dt.timedelta(days=30))})
 
     def order(self, partner, deal, day: dt.date):
+        target = self.o.execute("crm.lead", "read", [deal], ["expected_revenue"])[0]["expected_revenue"]
         so = self.o.execute("sale.order", "create", {
-            "partner_id": partner, "opportunity_id": deal, "order_line": self.lines(),
+            "partner_id": partner, "opportunity_id": deal, "order_line": self.lines(target),
             "payment_term_id": self.term_30})
         self.o.execute("sale.order", "action_confirm", [so])
         self.o.execute("sale.order", "write", [so], {"date_order": f"{_d(day)} 15:00:00"})
         return so
+
+    def close(self, deal, won: bool, day: dt.date):
+        """Wins or loses a deal, dated on the business day it closed."""
+        self.o.execute("crm.lead", "action_set_won" if won else "action_set_lost", [deal])
+        self.o.execute("crm.lead", "write", [deal], {"date_closed": f"{_d(day)} 16:00:00"})
 
     def invoice_order(self, so, day: dt.date):
         ctx = {"active_model": "sale.order", "active_ids": [so], "active_id": so}
@@ -150,10 +157,10 @@ def year(c: Company) -> dict:
                 log["open"] += 1
                 continue
             if fate > 0.55:
-                c.o.execute("crm.lead", "action_set_lost", [deal])
+                c.close(deal, False, close)
                 log["lost"] += 1
                 continue
-            c.o.execute("crm.lead", "action_set_won", [deal])
+            c.close(deal, True, close)
             log["won"] += 1
             so = c.order(partner, deal, close)
             billed = close + dt.timedelta(days=rng.randint(0, 10))
@@ -189,7 +196,7 @@ def mess(c: Company) -> dict:
     o.execute("res.partner", "write",
               [c.customer("Northwind Logistics")], {"email": "ap@northwind-logistics.example.com"})
     deal = c.deal(dup, 18000, dt.date(2026, 9, 14))
-    o.execute("crm.lead", "action_set_won", [deal])
+    c.close(deal, True, dt.date(2026, 9, 18))
     inv = c.invoice_order(c.order(dup, deal, dt.date(2026, 9, 21)), dt.date(2026, 9, 22))
     done["duplicate_customer"] = {"partner": dup, "invoice": inv}
     # 2. A posted invoice reopened, changed and posted again.
@@ -214,7 +221,7 @@ def mess(c: Company) -> dict:
     done["euro_invoices"] = euro
     # 4. Won in the CRM, never turned into an order.
     ghost = c.deal(c.customer("Beacon Pharmacy"), 25000, dt.date(2026, 9, 28))
-    o.execute("crm.lead", "action_set_won", [ghost])
+    c.close(ghost, True, dt.date(2026, 10, 6))
     done["won_without_order"] = ghost
     # 5. A draft invoice that will be deleted after the next load.
     draft = c.direct_invoice(c.customer("Nimbus Print"), o.execute(

@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: revenue_by_customer
+    description: Billed, paid and still open per customer, in USD. One row per real customer after duplicates are merged.
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: invoiced
+        tests: [not_null]
+      - name: source_invoice_ids
+        description: The Odoo invoice ids behind this row. `d2c trace` expands them.
+        tests: [not_null]
+  - name: receivables_aging
+    description: Money still owed per customer, by days past due on the as_of date.
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+  - name: deal_to_cash
+    description: Every won deal, followed through order, invoice and payment.
+    columns:
+      - name: deal_id
+        tests: [unique, not_null]
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['won, no order', 'ordered, not invoiced', 'invoiced, unpaid', 'partly paid', 'paid']

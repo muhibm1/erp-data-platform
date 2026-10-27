@@ -1,0 +1,17 @@
+name: deal_to_cash
+version: "0.1.0"
+config-version: 2
+profile: deal_to_cash
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+vars:
+  # Receivables are aged as of this date. The simulation ends here, so the
+  # numbers stay the same whenever the project is rebuilt.
+  as_of: "2026-10-27"
+  company_currency: "USD"
+models:
+  deal_to_cash:
+    staging: {+materialized: view, +schema: staging}
+    intermediate: {+materialized: view, +schema: intermediate}
+    marts: {+materialized: table, +schema: marts}

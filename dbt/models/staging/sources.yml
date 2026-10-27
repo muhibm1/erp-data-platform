@@ -1,0 +1,16 @@
+version: 2
+sources:
+  - name: odoo
+    schema: raw
+    description: Append-only copies of Odoo records, one row per version, written by `d2c extract`.
+    tables:
+      - name: res_partner
+      - name: crm_stage
+      - name: crm_lead
+      - name: sale_order
+      - name: account_move
+      - name: account_payment
+      - name: res_currency
+      - name: deleted
+        description: Records seen in an earlier load that Odoo no longer has.
+      - name: load_runs
