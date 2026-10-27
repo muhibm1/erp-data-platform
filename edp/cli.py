@@ -19,7 +19,8 @@ def odoo():
     return Odoo(os.environ.get("ODOO_URL", "http://localhost:8069"),
                 os.environ.get("ODOO_DB", "acme"),
                 os.environ.get("ODOO_USER", "admin"),
-                os.environ.get("ODOO_PASSWORD", "admin"))
+                os.environ.get("ODOO_PASSWORD", "admin"),
+                retries=int(os.environ.get("EDP_ODOO_RETRIES", "4")))
 
 
 def main(argv=None):
@@ -49,8 +50,15 @@ def main(argv=None):
             sys.exit(run_once(conn, odoo, since=args.since))
     elif args.cmd == "monitor":
         from .monitor import render, run_checks
+        try:
+            client = odoo()
+        except Exception as exc:
+            client, down = None, f"{type(exc).__name__}: {exc}"
         with psycopg.connect(dsn()) as conn:
-            results = run_checks(conn)
+            results = run_checks(conn, odoo=client)
+        if client is None:
+            from .monitor import Result
+            results.append(Result("source_totals", "fail", f"Odoo unreachable, totals not compared ({down})"))
         print(render(results))
         sys.exit(1 if any(r.status == "fail" for r in results) else 0)
     elif args.cmd == "trace":

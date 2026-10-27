@@ -6,7 +6,7 @@ says so, instead of loading the same records twice in parallel. Then:
 
 1. extract from Odoo (the client retries a dropped connection with backoff);
 2. dbt build: models and every check;
-3. monitors: last run, freshness, volume, schema.
+3. monitors: last run, freshness, volume, schema, and totals against Odoo itself.
 
 Each run is recorded in raw.pipeline_runs with what each step returned. The
 exit code is 0 when everything passed, 1 when a step failed or a monitor
@@ -47,6 +47,8 @@ def dbt_build() -> tuple[bool, str]:
 
 def run_once(conn: psycopg.Connection, odoo_factory, since: dt.date | None = None, full: bool = False) -> int:
     with conn.cursor() as cur:
+        # Never wait silently on someone else's lock (INC-002): fail in 30 s with an error instead.
+        cur.execute("set lock_timeout = '30s'")
         cur.execute("select pg_try_advisory_lock(%s)", (LOCK_KEY,))
         if not cur.fetchone()[0]:
             print("another run holds the lock; nothing to do")
@@ -60,16 +62,25 @@ def run_once(conn: psycopg.Connection, odoo_factory, since: dt.date | None = Non
         conn.commit()
         steps: dict = {}
         status = "ok"
+        client = None
         try:
-            steps["extract"] = extract(odoo_factory(), conn, full=full, since=since, run_id=run_id)
+            client = odoo_factory()
+            steps["extract"] = extract(client, conn, full=full, since=since, run_id=run_id)
         except Exception as exc:  # recorded, then the monitors still run and report it
-            steps["extract"] = {"error": f"{type(exc).__name__}: {exc}"}
+            error = f"{type(exc).__name__}: {exc}"
+            steps["extract"] = {"error": error}
             status = "failed"
+            # A failure before the load started (Odoo unreachable at login) still counts as a failed load.
+            conn.rollback()
+            conn.execute("insert into raw.load_runs (run_id, started_at, finished_at, status, detail, mode) "
+                         "values (%s, now(), now(), 'failed', %s, %s) on conflict (run_id) do nothing",
+                         (run_id, json.dumps({"error": error}), "incremental"))
+            conn.commit()
         if status == "ok":
             built, summary = dbt_build()
             steps["dbt"] = {"ok": built, "summary": summary}
             status = "ok" if built else "failed"
-        results = run_checks(conn)
+        results = run_checks(conn, odoo=client if status == "ok" else None)
         steps["monitors"] = [{"check": r.check_name, "status": r.status, "message": r.message} for r in results]
         if any(r.status == "fail" for r in results):
             status = "failed"

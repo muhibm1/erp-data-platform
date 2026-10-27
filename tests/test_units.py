@@ -43,3 +43,19 @@ def test_lists_must_match_exactly():
     assert correct(row, ["INV/2", "INV/1"])
     assert not correct(row, ["INV/1"])
     assert not correct(row, "INV/1, INV/2")
+
+
+def test_a_missing_source_field_stops_the_load_and_names_it():
+    import pytest
+
+    from edp.load import SourceChanged, _fields
+    present = {f: True for f in SOURCES["crm.lead"] if f != "expected_revenue"}
+    with pytest.raises(SourceChanged, match="expected_revenue"):
+        _fields(present, "crm.lead")
+
+
+def test_custom_fields_are_loaded_too():
+    from edp.load import _fields
+    present = {**{f: True for f in SOURCES["account.move"]}, "x_po_number": True, "x_computed": False}
+    got = _fields(present, "account.move")
+    assert "x_po_number" in got and "x_computed" not in got

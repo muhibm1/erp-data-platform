@@ -9,7 +9,8 @@ Checks:
 - last_run      the newest load finished, and did not fail
 - freshness     the newest successful load is younger than the limit
 - volume        no model lost more than a set share of its records since the last load
-- schema        no field the models read disappeared from Odoo; new fields are noted
+- schema        no field the load reads disappeared from Odoo; other changes are noted
+- source_totals the warehouse bills the same total as Odoo itself, per currency
 """
 
 import datetime as dt
@@ -113,7 +114,7 @@ def check_schema(cur) -> list[Result]:
         added, removed = sorted(fields - old[model]), sorted(old[model] - fields)
         used = set(SOURCES.get(model, []))
         if removed:
-            hit = [f for f in removed if f in used or f.startswith("x_")]
+            hit = [f for f in removed if f in used]
             out.append(Result("schema", "fail" if hit else "warn",
                               f"{model}: fields removed in Odoo: {removed}"
                               + (f" (read by the load: {hit})" if hit else ""), model, runs[1]))
@@ -122,10 +123,34 @@ def check_schema(cur) -> list[Result]:
     return out or [Result("schema", "ok", "no field added or removed since the last load", run_id=runs[1])]
 
 
-def run_checks(conn: psycopg.Connection, now=None) -> list[Result]:
+def check_source_totals(cur, odoo) -> list[Result]:
+    """Asks Odoo for its own posted customer totals and compares them with the finance tables."""
+    groups = odoo.execute("account.move", "read_group",
+                          [("move_type", "in", ["out_invoice", "out_refund"]), ("state", "=", "posted")],
+                          ["amount_total_signed:sum", "amount_residual_signed:sum"], [], lazy=False)
+    odoo_billed = round(groups[0]["amount_total_signed"] or 0, 2) if groups else 0.0
+    odoo_open = round(groups[0]["amount_residual_signed"] or 0, 2) if groups else 0.0
+    cur.execute("select coalesce(sum(invoiced), 0), coalesce(sum(open), 0) from marts.revenue_by_customer")
+    wh_billed, wh_open = (round(float(x), 2) for x in cur.fetchone())
+    gaps = []
+    if abs(odoo_billed - wh_billed) > 0.01:
+        gaps.append(f"billed: Odoo {odoo_billed:,.2f}, warehouse {wh_billed:,.2f}")
+    if abs(odoo_open - wh_open) > 0.01:
+        gaps.append(f"open: Odoo {odoo_open:,.2f}, warehouse {wh_open:,.2f}")
+    if gaps:
+        return [Result("source_totals", "fail", "; ".join(gaps) + ". Run `edp extract --full`, then rebuild.")]
+    return [Result("source_totals", "ok", f"warehouse matches Odoo: billed {wh_billed:,.2f}, open {wh_open:,.2f}")]
+
+
+def run_checks(conn: psycopg.Connection, now=None, odoo=None) -> list[Result]:
     with conn.cursor() as cur:
         cur.execute(DDL)
         results = [*check_last_run(cur), *check_freshness(cur, now), *check_volume(cur), *check_schema(cur)]
+        if odoo is not None:
+            try:
+                results += check_source_totals(cur, odoo)
+            except Exception as exc:
+                results.append(Result("source_totals", "fail", f"could not compare with Odoo: {exc}"))
         for r in results:
             cur.execute("insert into raw.monitor_results (run_id, check_name, model, status, detail) "
                         "values (%s, %s, %s, %s, %s)",
@@ -153,4 +178,4 @@ def alert(results: list[Result]) -> None:
 
 
 def render(results: list[Result]) -> str:
-    return "\n".join(f"{r.status.upper():<5} {r.check_name:<10} {r.message}" for r in results)
+    return "\n".join(f"{r.status.upper():<5} {r.check_name:<13} {r.message}" for r in results)

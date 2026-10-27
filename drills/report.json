@@ -1,0 +1,74 @@
+{
+  "ran_at": "2026-10-27T09:13:35+00:00",
+  "drills": {
+    "odoo_outage": {
+      "passed": true,
+      "while_down": {
+        "exit": 1,
+        "seconds": 6.2,
+        "load_status": "failed",
+        "error": "OdooUnavailable: http://localhost:8069/jsonrpc: <urlopen error [Errno 111] Connection refused>"
+      },
+      "new_work_in_odoo": {
+        "deals": 3,
+        "invoices": 3,
+        "payments": 2
+      },
+      "after_restart": {
+        "exit": 0,
+        "seconds": 4.6,
+        "new_versions_loaded": 26
+      }
+    },
+    "overlapping_runs": {
+      "passed": true,
+      "exit_codes": [
+        0,
+        3
+      ],
+      "skipped_run_said": "another run holds the lock; nothing to do"
+    },
+    "schema_change": {
+      "passed": true,
+      "field_added": {
+        "exit": 0,
+        "value_loaded": "PO-48213",
+        "monitor": [
+          "WARN  schema        account.move: new fields in Odoo: ['x_po_number']"
+        ]
+      },
+      "field_removed": {
+        "exit": 0,
+        "monitor": [
+          "WARN  schema        account.move: fields removed in Odoo: ['x_po_number']"
+        ]
+      }
+    },
+    "lost_records": {
+      "passed": true,
+      "rows_deleted_for_invoices": [
+        179,
+        180,
+        181
+      ],
+      "detected": {
+        "status": "fail",
+        "message": "billed: Odoo 1,529,745.41, warehouse 1,505,635.41; open: Odoo 375,151.89, warehouse 351,041.89. Run `edp extract --full`, then rebuild."
+      },
+      "repair": {
+        "command": "edp extract --full",
+        "exit": 0,
+        "seconds": 0.8
+      },
+      "after_repair": {
+        "status": "ok",
+        "message": "warehouse matches Odoo: billed 1,529,745.41, open 375,151.89"
+      }
+    },
+    "stale_data": {
+      "passed": true,
+      "checked_as_if": "2026-10-27T12:14+00:00",
+      "monitor": "FAIL data through 2026-10-27 09:14 UTC (3.0 h old, limit 2 h)"
+    }
+  }
+}

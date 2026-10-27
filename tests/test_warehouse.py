@@ -41,7 +41,13 @@ def test_every_won_deal_traces(conn):
         assert "DOES NOT ADD UP" not in out, out
 
 
-def test_a_second_load_with_no_changes_adds_nothing(conn):
-    last = conn.execute("select detail from raw.load_runs where status = 'ok' "
-                        "order by started_at desc limit 1").fetchone()[0]
-    assert all(v == 0 for v in last.values()), last
+def test_loading_twice_in_a_row_stores_nothing_the_second_time(conn):
+    from edp.cli import odoo
+    from edp.load import extract
+    try:
+        client = odoo()
+    except Exception:
+        pytest.skip("Odoo is not running")
+    extract(client, conn)
+    again = extract(client, conn)
+    assert all(v == 0 for k, v in again.items() if k not in ("run_id", "mode")), again

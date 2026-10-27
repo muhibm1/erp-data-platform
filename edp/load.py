@@ -29,7 +29,6 @@ create table if not exists raw.load_runs (
     run_id text primary key, started_at timestamptz not null,
     finished_at timestamptz, status text not null, detail jsonb,
     mode text not null default 'incremental');
-alter table raw.load_runs add column if not exists mode text not null default 'incremental';
 create table if not exists raw.deleted (
     model text not null, odoo_id integer not null, seen_missing_at timestamptz not null,
     run_id text not null, primary key (model, odoo_id));
@@ -69,8 +68,13 @@ def _watermark(cur, table: str):
 
 
 def ensure_schema(conn: psycopg.Connection) -> None:
+    """Creates what is missing. Never alters a table that exists: that would wait on every reader."""
     with conn.cursor() as cur:
         cur.execute(DDL)
+        cur.execute("select 1 from information_schema.columns "
+                    "where table_schema = 'raw' and table_name = 'load_runs' and column_name = 'mode'")
+        if not cur.fetchone():
+            cur.execute("alter table raw.load_runs add column mode text not null default 'incremental'")
         for model in SOURCES:
             cur.execute(TABLE_DDL.format(t=table_name(model)))
     conn.commit()

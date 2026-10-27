@@ -1,0 +1,11 @@
+id: CON-103
+scope:
+  assets: [model:revenue_by_customer, model:receivables_aging]
+rule:
+  kind: freshness_sla
+  max_age_hours: 2
+severity: warn
+reason: The collections queue is worked from these tables during the day. Data older than two hours sends people after invoices that are already paid. The freshness monitor enforces it; a change that adds work upstream needs a check that the run still fits.
+source: INC-003
+approvers: [team/data-platform]
+expires: null
