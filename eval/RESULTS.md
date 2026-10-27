@@ -1,6 +1,35 @@
 # Results
 
-## Version 2, 2026-10-27 (current)
+## An agent with tools, 2026-10-27
+
+The runs below hand the model the records. A real assistant has to find them.
+Here Claude Sonnet got only the 47 test questions, with neutral ids (q01 to
+q47) so nothing in the id gave away a customer, and reached the warehouse only
+through the ask-the-warehouse tools (`edp tool ...`, the same functions `edp
+mcp` serves). Every answer had to cite the source records it rests on, and
+`eval/agent.py` graded it in code.
+
+| Test split, 47 questions | Result |
+| --- | --- |
+| Correct | 46 of 47 |
+| Grounded: every citation a real, current Odoo record version, and every non-zero answer cites at least one | 47 of 47 |
+| Citations given | 73, none invented, none pointing at an old version of an edited invoice |
+
+It ran 5 commands in all, batching customers, and checked its own
+citations before answering. Its answers are in
+`runs/v2-test-sonnet-agent-tools.json`, and its tool log was checked: it read
+only the question file and called only `edp tool`.
+
+**The miss is the useful part.** Asked how many days past due a customer's most
+overdue unpaid invoice is, it answered 189 and cited INV/2026/00015. The right
+answer is 235, INV/2026/00008, which is also unpaid. It never called
+`list_invoices`, the tool that shows days late for every invoice. Its citation
+was real and current, so the citation check passed: a citation proves where an
+answer came from, not that the answer is right. That is why grading checks
+both, and why a finance team should get both the number and the records behind
+it.
+
+## Version 2, 2026-10-27 (records in the prompt)
 
 The question set is described in `DATASET.md`: 184 questions over 31
 customers, split by customer into train (89), dev (48) and test (47), six

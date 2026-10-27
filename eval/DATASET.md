@@ -5,7 +5,7 @@ sit in the ERP (edited invoices in every saved version, a customer under two spe
 invoices, credit notes, a won deal with no order). Every answer is computed by SQL over the
 warehouse, never by a model, and the SQL is stored next to it.
 
-Built 2026-10-27T09:22:18+00:00 from 3 warehouse loads (last `20261027T092205-ce5f05`). Figures are as of 2026-10-27.
+Built 2026-10-27T15:35:50+00:00 from 3 warehouse loads (last `20261027T153544-fb547e`). Figures are as of 2026-10-27.
 
 | Split | Customers | Questions | Use |
 |---|---|---|---|
@@ -62,7 +62,7 @@ The build fails if any of these finds an overlap.
 
 | File | sha256 |
 |---|---|
-| `data/dev.jsonl` | `12bb4d2f44513eb3…` |
-| `data/test.jsonl` | `3f200812ee37e8f7…` |
-| `data/train.chat.jsonl` | `82e0e2ff65ba7e5d…` |
-| `data/train.jsonl` | `cf659d1386cdc7f9…` |
+| `data/dev.jsonl` | `c0e3d9850a496fb8…` |
+| `data/test.jsonl` | `2ff7ae5f2a89ee29…` |
+| `data/train.chat.jsonl` | `a50b0b964f7c417f…` |
+| `data/train.jsonl` | `8d55c5c244f050d8…` |

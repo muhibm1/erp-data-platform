@@ -134,6 +134,19 @@ See `docs/checks.md` for every check. In short:
   the record's `payload`. Nothing breaks; add it to a staging model when it is needed.
 - **Records are deleted.** The load notices (`raw.deleted`) and the models leave them out.
 
+## Connect an AI assistant
+
+```bash
+claude mcp add erp-warehouse -- /srv/erp-data-platform/.venv/bin/python -m edp.cli mcp
+.venv/bin/python -m edp.cli tool find_customers '{"name": "northwind"}'   # the same tools by hand
+```
+
+Any MCP client works the same way. The tools only read. `query` runs as the
+`edp_reader` role, which can select from `marts`, `intermediate` and
+`staging` and nothing else, inside a read-only transaction with a 5-second
+limit. If an assistant's answer is questioned, run `check_citations` on the
+references it gave: each must say `ok`.
+
 ## Before changing a model
 
 ```bash

@@ -1,0 +1,307 @@
+{
+ "billed-14": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/1@2026-10-27T15:32:39",
+   "account.move/8@2026-10-27T15:32:39",
+   "account.move/9@2026-10-27T15:32:39"
+  ]
+ },
+ "owed-14": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/1@2026-10-27T15:32:39",
+   "account.move/8@2026-10-27T15:32:39",
+   "account.move/9@2026-10-27T15:32:39"
+  ]
+ },
+ "late30-14": {
+  "answer": 0,
+  "sources": []
+ },
+ "unpaid_refs-14": {
+  "answer": [
+   "INV/2026/00001"
+  ],
+  "sources": [
+   "account.move/1@2026-10-27T15:32:39"
+  ]
+ },
+ "oldest_late-14": {
+  "answer": 0,
+  "sources": []
+ },
+ "billed-41": {
+  "answer": 49490.0,
+  "sources": [
+   "account.move/83@2026-10-27T15:35:39",
+   "account.move/109@2026-10-27T15:35:39",
+   "account.move/156@2026-10-27T15:35:42"
+  ]
+ },
+ "owed-41": {
+  "answer": 26835.0,
+  "sources": [
+   "account.move/83@2026-10-27T15:35:39",
+   "account.move/109@2026-10-27T15:35:39",
+   "account.move/156@2026-10-27T15:35:42"
+  ]
+ },
+ "late30-41": {
+  "answer": 7425.0,
+  "sources": [
+   "account.move/83@2026-10-27T15:35:39"
+  ]
+ },
+ "unpaid_refs-41": {
+  "answer": [
+   "INV/2026/00036",
+   "INV/2026/00077"
+  ],
+  "sources": [
+   "account.move/83@2026-10-27T15:35:39",
+   "account.move/156@2026-10-27T15:35:42"
+  ]
+ },
+ "oldest_late-41": {
+  "answer": 126,
+  "sources": [
+   "account.move/83@2026-10-27T15:35:39"
+  ]
+ },
+ "deal_collected-41": {
+  "answer": 0.0,
+  "sources": [
+   "sale.order/95@2026-10-27T15:35:41",
+   "account.move/156@2026-10-27T15:35:42"
+  ]
+ },
+ "billed-44": {
+  "answer": 16020.0,
+  "sources": [
+   "account.move/58@2026-10-27T15:33:44",
+   "account.move/64@2026-10-27T15:33:50"
+  ]
+ },
+ "owed-44": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/58@2026-10-27T15:33:44",
+   "account.move/64@2026-10-27T15:33:50"
+  ]
+ },
+ "late30-44": {
+  "answer": 0,
+  "sources": []
+ },
+ "unpaid_refs-44": {
+  "answer": [],
+  "sources": []
+ },
+ "oldest_late-44": {
+  "answer": 0,
+  "sources": []
+ },
+ "deal_collected-44": {
+  "answer": 5250.0,
+  "sources": [
+   "sale.order/42@2026-10-27T15:33:50",
+   "account.move/64@2026-10-27T15:33:50"
+  ]
+ },
+ "billed-46": {
+  "answer": 73090.0,
+  "sources": [
+   "account.move/142@2026-10-27T15:35:13",
+   "account.move/145@2026-10-27T15:35:17",
+   "account.move/147@2026-10-27T15:35:20"
+  ]
+ },
+ "owed-46": {
+  "answer": 47750.0,
+  "sources": [
+   "account.move/142@2026-10-27T15:35:13",
+   "account.move/145@2026-10-27T15:35:17",
+   "account.move/147@2026-10-27T15:35:20"
+  ]
+ },
+ "late30-46": {
+  "answer": 0,
+  "sources": [
+   "account.move/147@2026-10-27T15:35:20",
+   "account.move/142@2026-10-27T15:35:13"
+  ]
+ },
+ "unpaid_refs-46": {
+  "answer": [
+   "INV/2026/00070",
+   "INV/2026/00067"
+  ],
+  "sources": [
+   "account.move/147@2026-10-27T15:35:20",
+   "account.move/142@2026-10-27T15:35:13"
+  ]
+ },
+ "oldest_late-46": {
+  "answer": 17,
+  "sources": [
+   "account.move/147@2026-10-27T15:35:20"
+  ]
+ },
+ "deal_collected-46": {
+  "answer": 0.0,
+  "sources": [
+   "sale.order/83@2026-10-27T15:35:13",
+   "account.move/142@2026-10-27T15:35:13"
+  ]
+ },
+ "billed-57": {
+  "answer": 20730.0,
+  "sources": [
+   "account.move/135@2026-10-27T15:35:05"
+  ]
+ },
+ "owed-57": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/135@2026-10-27T15:35:05"
+  ]
+ },
+ "late30-57": {
+  "answer": 0,
+  "sources": []
+ },
+ "unpaid_refs-57": {
+  "answer": [],
+  "sources": []
+ },
+ "oldest_late-57": {
+  "answer": 0,
+  "sources": []
+ },
+ "deal_collected-57": {
+  "answer": 20730.0,
+  "sources": [
+   "sale.order/79@2026-10-27T15:35:05",
+   "account.move/135@2026-10-27T15:35:05"
+  ]
+ },
+ "billed-60": {
+  "answer": 40510.0,
+  "sources": [
+   "account.move/39@2026-10-27T15:33:19",
+   "account.move/60@2026-10-27T15:33:45",
+   "account.move/150@2026-10-27T15:35:29"
+  ]
+ },
+ "owed-60": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/39@2026-10-27T15:33:19",
+   "account.move/60@2026-10-27T15:33:45",
+   "account.move/150@2026-10-27T15:35:29"
+  ]
+ },
+ "late30-60": {
+  "answer": 0,
+  "sources": []
+ },
+ "unpaid_refs-60": {
+  "answer": [],
+  "sources": []
+ },
+ "oldest_late-60": {
+  "answer": 0,
+  "sources": []
+ },
+ "deal_collected-60": {
+  "answer": 26550.0,
+  "sources": [
+   "sale.order/88@2026-10-27T15:35:29",
+   "account.move/150@2026-10-27T15:35:29"
+  ]
+ },
+ "billed-69": {
+  "answer": 71930.0,
+  "sources": [
+   "account.move/37@2026-10-27T15:33:17",
+   "account.move/52@2026-10-27T15:33:37",
+   "account.move/123@2026-10-27T15:34:54",
+   "account.move/125@2026-10-27T15:34:55"
+  ]
+ },
+ "owed-69": {
+  "answer": 0.0,
+  "sources": [
+   "account.move/37@2026-10-27T15:33:17",
+   "account.move/52@2026-10-27T15:33:37",
+   "account.move/123@2026-10-27T15:34:54",
+   "account.move/125@2026-10-27T15:34:55"
+  ]
+ },
+ "late30-69": {
+  "answer": 0,
+  "sources": []
+ },
+ "unpaid_refs-69": {
+  "answer": [],
+  "sources": []
+ },
+ "oldest_late-69": {
+  "answer": 0,
+  "sources": []
+ },
+ "deal_collected-69": {
+  "answer": 17620.0,
+  "sources": [
+   "sale.order/73@2026-10-27T15:34:53",
+   "account.move/123@2026-10-27T15:34:54"
+  ]
+ },
+ "billed-70": {
+  "answer": 51520.0,
+  "sources": [
+   "account.move/31@2026-10-27T15:33:07",
+   "account.move/43@2026-10-27T15:33:27",
+   "account.move/121@2026-10-27T15:34:52"
+  ]
+ },
+ "owed-70": {
+  "answer": 16520.0,
+  "sources": [
+   "account.move/31@2026-10-27T15:33:07",
+   "account.move/43@2026-10-27T15:33:27",
+   "account.move/121@2026-10-27T15:34:52"
+  ]
+ },
+ "late30-70": {
+  "answer": 16520.0,
+  "sources": [
+   "account.move/31@2026-10-27T15:33:07",
+   "account.move/43@2026-10-27T15:33:27"
+  ]
+ },
+ "unpaid_refs-70": {
+  "answer": [
+   "INV/2026/00008",
+   "INV/2026/00015"
+  ],
+  "sources": [
+   "account.move/31@2026-10-27T15:33:07",
+   "account.move/43@2026-10-27T15:33:27"
+  ]
+ },
+ "oldest_late-70": {
+  "answer": 189,
+  "sources": [
+   "account.move/43@2026-10-27T15:33:27"
+  ]
+ },
+ "deal_collected-70": {
+  "answer": 24320.0,
+  "sources": [
+   "sale.order/72@2026-10-27T15:34:51",
+   "account.move/121@2026-10-27T15:34:52"
+  ]
+ }
+}

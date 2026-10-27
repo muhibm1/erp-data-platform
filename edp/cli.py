@@ -1,4 +1,4 @@
-"""edp: load Odoo into the warehouse, run it on a schedule, watch it, and trace any number."""
+"""edp: load Odoo into the warehouse, run it on a schedule, watch it, trace any number, and serve it to agents."""
 
 import argparse
 import datetime as dt
@@ -36,6 +36,10 @@ def main(argv=None):
     t = sub.add_parser("trace", help="show the source records behind a number")
     t.add_argument("table", choices=["revenue_by_customer", "receivables_aging", "deal_to_cash"])
     t.add_argument("key", help="customer name, or deal id for deal_to_cash")
+    k = sub.add_parser("tool", help="call one ask-the-warehouse tool with JSON arguments")
+    k.add_argument("name", help="find_customers, customer_summary, list_invoices, list_deals, query, check_citations")
+    k.add_argument("arguments", nargs="?", default="{}", help='JSON, for example \'{"name": "northwind"}\'')
+    sub.add_parser("mcp", help="serve the ask-the-warehouse tools over MCP on stdio")
     args = p.parse_args(argv)
 
     if args.cmd == "extract":
@@ -61,6 +65,14 @@ def main(argv=None):
             results.append(Result("source_totals", "fail", f"Odoo unreachable, totals not compared ({down})"))
         print(render(results))
         sys.exit(1 if any(r.status == "fail" for r in results) else 0)
+    elif args.cmd == "tool":
+        from .ask import TOOLS, call
+        if args.name not in TOOLS:
+            sys.exit(f"unknown tool {args.name}; one of {', '.join(TOOLS)}")
+        print(json.dumps(call(dsn(), args.name, json.loads(args.arguments)), indent=1, default=str))
+    elif args.cmd == "mcp":
+        from .ask import serve
+        serve(dsn())
     elif args.cmd == "trace":
         from .trace import trace
         with psycopg.connect(dsn()) as conn:

@@ -23,6 +23,7 @@ staging → intermediate → marts
                           deal_to_cash          won deal → order → invoice → payment
    │
    ├─ edp trace   any number → the records behind it, checked to add up
+   ├─ edp mcp     read-only, cited tools for AI agents: ask the warehouse
    ├─ monitors    fresh? complete? same totals as Odoo? → alerts file and webhook
    ├─ drills      five failures on purpose, each caught and recovered
    ├─ Fathom      lineage, owners, rules, incidents: what a change would break
@@ -37,7 +38,8 @@ staging → intermediate → marts
 6. **Guard changes.** [Fathom](https://github.com/muhibm1/fathom) reads the dbt project for column-level lineage, owners and rules. Proposing to drop a column from the aging table returns BLOCK: it names month-end close and the collections queue as the reports that would break, and finance as the team that must sign off ([example](docs/examples/preflight-drop-column.txt)).
 7. **Run and watch.** `edp run` does one load, build and check under a database lock, so a second run started at the same time skips instead of loading twice. Run it from cron or with `--every`. Five monitors follow each run: did the load succeed, is the data fresh, did any table shrink, did Odoo's fields change, and does the warehouse bill the same total as Odoo itself. Failures go to an alerts file and, if set, a Slack or Teams webhook.
 8. **Break it on purpose.** `edp.drills` takes Odoo down mid-schedule, starts two runs at once, adds then deletes a custom field in Odoo, deletes invoices from the warehouse, and lets the data go stale. Each is caught and recovered from ([report](drills/report.json)). Two drills found real problems, written up as postmortems in `fathom/incidents/`: a schema change that waited forever on a reader's lock (INC-002), and lost rows that every dbt check missed because the checks compare the warehouse with itself (INC-004). The fix for the second is the monitor that asks Odoo.
-9. **Evaluate and train.** `eval/` builds 184 finance questions over 31 customers, six kinds, from the same records retrieval would hand a model, mess included. Answers come from SQL. Train, dev and test never share a customer, and the build fails if any customer, question, invoice or record set crosses a split. Train is exported as chat examples for fine-tuning. See the [dataset card](eval/DATASET.md) and [results](eval/RESULTS.md).
+9. **Let an agent ask.** `edp mcp` serves six tools to any AI agent over MCP (the same tools run as `edp tool <name>` on the command line): find a customer, summarise what they owe, list invoices, follow won deals to cash, run one read-only query, and check citations. Every row carries the exact Odoo record version it came from, `query` runs as a database role that can only read the modelled tables, and `check_citations` confirms a cited record is real and current. An agent cannot cite what it was not shown, and a person can check any answer without trusting the agent.
+10. **Evaluate and train.** `eval/` builds 184 finance questions over 31 customers, six kinds, from the same records retrieval would hand a model, mess included. Answers come from SQL. Train, dev and test never share a customer, and the build fails if any customer, question, invoice or record set crosses a split. Train is exported as chat examples for fine-tuning. See the [dataset card](eval/DATASET.md) and [results](eval/RESULTS.md).
 
 ## The data
 
@@ -55,6 +57,8 @@ Billed in total: $1,379,155.41. Still owed: $362,891.89, of which $118,375.00 is
 | Traceability | Every customer and every won deal traces to records that add up (`tests/test_warehouse.py`) |
 | A real bug the checks caught | Partners with no email were being merged into one customer; recorded as `fathom/incidents/INC-001.md` |
 | Model on the question set | Claude Sonnet: 47 of 47 on test with or without being told how the records are messy; answering 0 to everything gets 23 ([details](eval/RESULTS.md)) |
+| Agent with tools | Sonnet given only the questions and the tools: 46 of 47 correct, and all 73 of its citations real and current. The miss cited a real record and still had the wrong number, which is why answers are graded and cited separately ([details](eval/RESULTS.md)) |
+| Rebuilt from nothing | A fresh Odoo, a fresh warehouse, the same seed: all 184 answers came out identical |
 | Hand-off test | A fresh agent given only the docs fixed a broken morning (a failed run plus two invoices lost from the warehouse) in seven commands; its six complaints about the runbook were fixed ([write-up](docs/handoff-test.md)) |
 | CI | Every push builds Odoo from source, simulates the year, loads it, runs every check, test and drill, and rebuilds the dataset; green on the first run, about 8 minutes |
 
