@@ -1,0 +1,6 @@
+# The analyst agent's own pins, installed on top of ../requirements.txt. Licences in comments.
+langgraph==1.2.12        # MIT, the agent's graph and its saved conversation state
+sqlglot==25.24.5         # MIT, parses each query before it runs
+pyyaml==6.0.2            # MIT, the domain files
+fastembed==0.4.2         # Apache-2.0, local embeddings for context retrieval (ONNX, no GPU)
+langgraph-checkpoint-sqlite==3.1.1  # MIT, saves conversations so follow-up questions work

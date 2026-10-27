@@ -1,0 +1,109 @@
+# The finance domain: what the analyst agent knows about this warehouse.
+#
+# This file is the whole difference between pointing the agent at one dataset
+# and another. Tables and columns are read live from the database; this file
+# adds what the schema cannot say: what each table means, which columns to
+# trust, the business terms people use, and a few worked examples.
+name: finance
+title: Deal-to-cash finance warehouse (Odoo ERP)
+dsn_env: EDP_DSN
+dsn_default: host=/tmp dbname=warehouse user=odoo
+# Queries go through edp.ask.query: a read-only role over these schemas only,
+# a read-only transaction, a 5 second limit and at most 200 rows.
+executor: edp
+schemas: [marts, intermediate, staging]
+as_of: "2026-10-27"
+citations: edp
+
+tables:
+  marts.revenue_by_customer:
+    about: One row per real customer (duplicates already merged). Billed, paid and still owed, all in US dollars. The first place to look for any per-customer or company-wide money total.
+    columns:
+      customer_key: The customer's id after duplicates are merged. Join every other table on this, never on a name or partner_id.
+      customer_name: The customer's name.
+      invoiced: Total billed in USD, net of credit notes ("billed", "invoiced", "revenue").
+      paid: Total collected in USD ("paid", "collected").
+      open: Still owed in USD ("owed", "outstanding", "open", "balance").
+      invoice_count: Number of posted invoices and credit notes.
+      source_invoice_ids: Odoo invoice ids behind the row.
+  marts.receivables_aging:
+    about: Money still owed per customer, split by how many days past its due date, as of 2026-10-27. Only customers that owe something have a row.
+    columns:
+      not_yet_due: Owed but not yet due.
+      late_1_30: Owed and 1 to 30 days past due.
+      late_31_60: 31 to 60 days past due.
+      late_61_90: 61 to 90 days past due.
+      late_over_90: More than 90 days past due.
+      total_open: Everything this customer owes.
+    notes: Empty buckets are NULL, not 0. Wrap every bucket in coalesce(x, 0) before adding or comparing, or the sum is NULL and rows drop out.
+  marts.deal_to_cash:
+    about: Every won CRM deal, followed through to its sales order, invoices and payments. Use it for questions about won deals and what they turned into.
+    columns:
+      deal_id: The CRM deal id.
+      deal_name: The deal's name, as sales entered it.
+      expected_revenue: What sales expected to win, USD.
+      ordered: Value of the sales orders confirmed from the deal, USD.
+      invoiced: Invoiced on those orders, USD.
+      paid: Collected on those invoices, USD.
+      open: Invoiced but not yet paid, USD.
+      status: "One of: 'won, no order', 'ordered, not invoiced', 'invoiced, unpaid', 'partly paid', 'paid'."
+  intermediate.int_invoices:
+    about: Every posted invoice and credit note, newest version only, with its customer, order and deal. Use it for invoice-level questions (which invoice, how many, by month, by currency, days late).
+    columns:
+      invoice_ref: The invoice number people see, such as INV/2026/00012 (RINV/... for credit notes).
+      move_type: out_invoice is an invoice, out_refund is a credit note.
+      invoice_date: Date the invoice was issued.
+      due_date: Date payment was due.
+      currency: The currency the invoice was billed in (USD or EUR).
+      amount_in_invoice_currency: Amount in the invoice's own currency.
+      amount: Amount in USD. Credit notes are negative.
+      amount_open: Still unpaid, USD. 0 when fully paid. Credit notes are negative.
+      amount_paid: Paid so far, USD.
+      days_past_due: Days past the due date on 2026-10-27; negative when not yet due.
+      source_ref: The exact Odoo record version this row came from, for citations.
+  intermediate.int_customers:
+    about: Maps each Odoo partner (a contact record) to the real customer. One customer can be several partners when it was entered twice.
+    columns:
+      partner_id: The Odoo partner id.
+      customer_key: The customer it belongs to.
+      merged_into_other: True when this partner is a duplicate merged into another partner's customer.
+  staging.stg_deals:
+    about: Every CRM deal, won, lost or still open, newest version only. Use it for win and loss counts and rates.
+    columns:
+      stage: The pipeline stage, such as New, Qualified, Proposition, Won.
+      is_won: True for won deals.
+      is_lost: True for lost deals. A deal that is neither is still open.
+      expected_revenue: What sales expected, USD.
+      closed_on: Date the deal was won or lost.
+  staging.stg_invoice_versions:
+    about: One row per saved version of each invoice. An invoice changed after it was first loaded has more than one row. Use only for questions about edits or history.
+  staging.stg_invoices:
+    about: Invoices per Odoo partner, before duplicate customers are merged. Prefer intermediate.int_invoices, which is already per real customer.
+  staging.stg_payments:
+    about: Payments per Odoo partner, before duplicates are merged. Prefer marts.revenue_by_customer.paid for totals.
+  staging.stg_partners:
+    about: Raw Odoo contacts. Names here can be duplicates; look customers up in marts.revenue_by_customer or intermediate.int_customers instead.
+  staging.stg_orders:
+    about: Sales orders, with the deal they came from.
+
+terms:
+  owed: What a customer still owes. marts.revenue_by_customer.open per customer; intermediate.int_invoices.amount_open per invoice.
+  billed: Invoiced amount net of credit notes, in USD. marts.revenue_by_customer.invoiced.
+  collected: Money received. marts.revenue_by_customer.paid, or marts.deal_to_cash.paid for a deal.
+  past due: days_past_due > 0 in intermediate.int_invoices, or the aging buckets in marts.receivables_aging. "More than 30 days past due" means days_past_due > 30, which equals late_31_60 + late_61_90 + late_over_90.
+  credit note: An invoice reversal (move_type out_refund). Its amounts are negative. "Invoices" on their own means move_type = 'out_invoice'.
+  customer: A real company after duplicates are merged. Find one by name with customer_name ILIKE '%name%' in marts.revenue_by_customer, then use its customer_key.
+  duplicate customer: A company entered more than once in Odoo. intermediate.int_customers.merged_into_other marks the extra partner.
+  won deal: A CRM deal marked won. Every won deal has one row in marts.deal_to_cash; win and loss counts come from staging.stg_deals.
+  currency: Every amount column named amount, invoiced, paid or open is already in USD. Only amount_in_invoice_currency is in the original currency.
+  as of: The warehouse is aged as of 2026-10-27; "today" and "right now" mean that date.
+
+examples:
+  - question: How much has Harbor Freight Partners paid us so far?
+    sql: select customer_name, paid from marts.revenue_by_customer where customer_name ilike '%harbor freight%'
+  - question: Which customers have anything 1 to 60 days late?
+    sql: select customer_name from marts.receivables_aging where coalesce(late_1_30, 0) + coalesce(late_31_60, 0) > 0
+  - question: List Silverline Hotels' credit notes.
+    sql: select invoice_ref, amount from intermediate.int_invoices i join marts.revenue_by_customer c using (customer_key) where c.customer_name ilike '%silverline%' and i.move_type = 'out_refund'
+  - question: How many deals are still open in the pipeline?
+    sql: select count(*) from staging.stg_deals where not is_won and not is_lost
