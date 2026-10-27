@@ -1,0 +1,15 @@
+{"t": 1793140114.8, "model": "claude-sonnet-5-5", "input": 1963, "output": 159, "route": "langchain"}
+{"t": 1793140115.6, "model": "claude-sonnet-5-5", "input": 2048, "output": 326, "route": "langchain"}
+{"t": 1793140116.2, "model": "claude-sonnet-5-5", "input": 2063, "output": 156, "route": "langchain"}
+{"t": 1793140118.4, "model": "claude-sonnet-5-5", "input": 3632, "output": 367, "route": "langchain"}
+{"t": 1793140121.5, "model": "claude-sonnet-5-5", "input": 1015, "output": 550, "route": "langchain"}
+{"t": 1793140123.2, "model": "claude-sonnet-5-5", "input": 1139, "output": 549, "route": "langchain"}
+{"t": 1793140123.5, "model": "claude-sonnet-5-5", "input": 1992, "output": 203, "route": "langchain"}
+{"t": 1793140125.5, "model": "claude-sonnet-5-5", "input": 2009, "output": 279, "route": "langchain"}
+{"t": 1793140125.6, "model": "claude-sonnet-5-5", "input": 2123, "output": 294, "route": "langchain"}
+{"t": 1793140128.2, "model": "claude-sonnet-5-5", "input": 2169, "output": 358, "route": "langchain"}
+{"t": 1793140130.6, "model": "claude-sonnet-5-5", "input": 1140, "output": 236, "route": "langchain"}
+{"t": 1793140132.0, "model": "claude-sonnet-5-5", "input": 1171, "output": 534, "route": "langchain"}
+{"t": 1793140137.6, "model": "claude-sonnet-5-5", "input": 1926, "output": 324, "route": "langchain"}
+{"t": 1793140141.8, "model": "claude-sonnet-5-5", "input": 1979, "output": 280, "route": "langchain"}
+{"t": 1793140144.2, "model": "claude-sonnet-5-5", "input": 2129, "output": 212, "route": "langchain"}

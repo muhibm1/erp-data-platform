@@ -44,7 +44,8 @@ class ChatModel:
         model = MODEL_IDS.get(model, model)
         if llm is None:
             from langchain_anthropic import ChatAnthropic  # imported here: the CLI route needs no SDK
-            llm = ChatAnthropic(model=model, temperature=0, max_tokens=2048, max_retries=ATTEMPTS)
+            # No temperature: the 5.5 models accept only the default, and the client refuses any other.
+            llm = ChatAnthropic(model=model, max_tokens=2048, max_retries=ATTEMPTS)
         self.llm = llm
         self.model = model
         self.usage_log = Path(usage_log) if usage_log else None
