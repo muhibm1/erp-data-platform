@@ -1,5 +1,7 @@
 # ERP data platform
 
+[![ci](https://github.com/muhibm1/erp-data-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/muhibm1/erp-data-platform/actions/workflows/ci.yml)
+
 **Gets a company's sales and accounting data out of its ERP, makes it trustworthy, and traces every finance number back to the records behind it.**
 
 A company runs on Odoo, an open-source ERP (enterprise resource planning: the system that holds orders, invoices and the books) with a CRM built in (the system that tracks customers and deals). Finance wants three answers: what each customer was billed and has paid, who is late and by how much, and whether every deal sales won actually turned into cash. This project answers them, and can show its work for any number. Ask why Northwind Logistics owes $26,835.00, and you get the three invoices and two payments behind it, with their Odoo ids and the exact version of each, plus the note that Northwind exists twice in Odoo and was merged ([example](docs/examples/trace-northwind.txt)).
@@ -54,7 +56,7 @@ Billed in total: $1,379,155.41. Still owed: $362,891.89, of which $118,375.00 is
 | A real bug the checks caught | Partners with no email were being merged into one customer; recorded as `fathom/incidents/INC-001.md` |
 | Model on the question set | Claude Sonnet: 47 of 47 on test with or without being told how the records are messy; answering 0 to everything gets 23 ([details](eval/RESULTS.md)) |
 | Hand-off test | A fresh agent given only the docs fixed a broken morning (a failed run plus two invoices lost from the warehouse) in seven commands; its six complaints about the runbook were fixed ([write-up](docs/handoff-test.md)) |
-| CI | Every push builds Odoo from source, simulates the year, loads it, runs every check, test and drill, and rebuilds the dataset |
+| CI | Every push builds Odoo from source, simulates the year, loads it, runs every check, test and drill, and rebuilds the dataset; green on the first run, about 8 minutes |
 
 ## Run it
 
