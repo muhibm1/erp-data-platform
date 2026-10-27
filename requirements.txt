@@ -1,0 +1,7 @@
+# Exact pins. Licences in comments.
+psycopg[binary]==3.2.3   # LGPL-3.0
+dbt-core==1.8.8          # Apache-2.0
+dbt-postgres==1.8.2      # Apache-2.0
+pytest==8.3.3            # MIT
+# Fathom (Apache-2.0) for lineage and change checks, pinned to a commit
+fathom @ git+https://github.com/muhibm1/fathom@d22c097bae8d3878e1a6022b79e30540a862a9b3

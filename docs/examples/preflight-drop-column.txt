@@ -1,0 +1,37 @@
+BLOCK  risk 72/100  pf_53fc2efbc419272a  graph as of 2026-10-27T08:33:56.356746+00:00  (reused)
+Drop column on receivables_aging.late_over_90 reaches 2 downstream assets, 2 of them tier 1 
+(collections_queue, month_end_close). Fires CON-101 (block). Earlier incidents on these assets (INC-001) are 
+not from this kind of change. Before merging: run tests for receivables_aging+; get sign-off from 
+team/finance; tell Finance; tell Revenue ops. Severity block.
+change
+  drop_column        model:receivables_aging.late_over_90   (from intent)
+affected (2)
+  report:collections_queue tier 1, Revenue ops, 1 hop via asset  [edge:e_46be93cc2772]
+  report:month_end_close tier 1, Finance, 1 hop via asset  [edge:e_13a8c3223d76]
+constraints
+  CON-101 columns_locked (block): drop_column on receivables_aging.late_over_90 reaches a locked asset 
+directly
+history
+╭──────────────────────────────────── Traceback (most recent call last) ─────────────────────────────────────╮
+│ /home/user/fathom/src/fathom/cli.py:225 in preflight                                                       │
+│                                                                                                            │
+│   222 │   elif fmt == "markdown":                                                                          │
+│   223 │   │   typer.echo(to_markdown(v))                                                                   │
+│   224 │   else:                                                                                            │
+│ ❱ 225 │   │   _print_verdict(v)                                                                            │
+│   226 │   for p in problems:                                                                               │
+│   227 │   │   console.print(f"[yellow]constraint file problem:[/] {p}")                                    │
+│   228                                                                                                      │
+│                                                                                                            │
+│ /home/user/fathom/src/fathom/cli.py:260 in _print_verdict                                                  │
+│                                                                                                            │
+│   257 │   if v["history"]:                                                                                 │
+│   258 │   │   console.print("[bold]history[/]")                                                            │
+│   259 │   │   for h in v["history"][:5]:                                                                   │
+│ ❱ 260 │   │   │   console.print(f"  {h['occurred_at']:%Y-%m-%d} {h['kind']:<17} {h['ref'] or '':<9}        │
+│       {h['title'] or ''}  ({h['relevance']})  {escape('[' + h['event'] + ']')}")                           │
+│   261 │   if v["checks"]:                                                                                  │
+│   262 │   │   console.print("[bold]checks[/]")                                                             │
+│   263 │   │   for c in v["checks"]:                                                                        │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+ValueError: Invalid format specifier '%Y-%m-%d' for object of type 'str'
