@@ -1,29 +1,91 @@
 {
-  "built_at": "2026-10-27T08:35:18+00:00",
+  "built_at": "2026-10-27T09:22:18+00:00",
   "as_of": "2026-10-27",
-  "warehouse_load_runs": [
-    "20261027T083259-aeb3d8",
-    "20261027T083305-2aa124",
-    "20261027T083305-61bdae"
-  ],
+  "warehouse_load_runs": 3,
+  "last_load_run": "20261027T092205-ce5f05",
   "questions": {
-    "dev": 92,
-    "test": 32
+    "train": 89,
+    "dev": 48,
+    "test": 47
   },
   "customers": {
-    "dev": 23,
-    "test": 8,
-    "in_both": 0
+    "train": 15,
+    "dev": 8,
+    "test": 8
   },
   "templates": [
     "billed",
     "owed",
     "late30",
-    "unpaid_refs"
+    "unpaid_refs",
+    "oldest_late",
+    "deal_collected"
+  ],
+  "zero_answers": {
+    "billed": "2/31",
+    "owed": "17/31",
+    "late30": "22/31",
+    "unpaid_refs": "15/31",
+    "oldest_late": "19/31",
+    "deal_collected": "13/29"
+  },
+  "messy": {
+    "train": {
+      "edited_invoice": 6,
+      "foreign_currency": 17
+    },
+    "dev": {
+      "credit_note": 6,
+      "won_deal_without_order": 12
+    },
+    "test": {
+      "credit_note": 5,
+      "duplicate_customer": 6,
+      "edited_invoice": 6
+    }
+  },
+  "leakage_checks": [
+    {
+      "check": "customers in more than one split",
+      "shared": {
+        "train/dev": 0,
+        "train/test": 0,
+        "dev/test": 0
+      },
+      "passed": true
+    },
+    {
+      "check": "question text in more than one split",
+      "shared": {
+        "train/dev": 0,
+        "train/test": 0,
+        "dev/test": 0
+      },
+      "passed": true
+    },
+    {
+      "check": "identical record sets in more than one split",
+      "shared": {
+        "train/dev": 0,
+        "train/test": 0,
+        "dev/test": 0
+      },
+      "passed": true
+    },
+    {
+      "check": "invoices in more than one split",
+      "shared": {
+        "train/dev": 0,
+        "train/test": 0,
+        "dev/test": 0
+      },
+      "passed": true
+    }
   ],
   "sha256": {
-    "dev.chat.jsonl": "34c10f6332fb9221b5927ccd068ad084b20e9b93c0193523f67ee005c02548cf",
-    "dev.jsonl": "062846c54ae7e4cf7e4d9ef7b0a8f9ab1094b05b23825ac05114013de1e75219",
-    "test.jsonl": "268b5d7f9bcd12deebbb6cc110df855cb949713ff024f17d2532a23bc1714db7"
+    "dev.jsonl": "12bb4d2f44513eb37813ffc9f4442eb1ddf3b68a21f123844847c4bbe66cbe0e",
+    "test.jsonl": "3f200812ee37e8f7da808750aea324992392a7a5e9aa794e52ad54fc88eb4680",
+    "train.chat.jsonl": "82e0e2ff65ba7e5dedf8ec4d41a8efa9efa98f34b50a60e9b99cb743d3b11d5f",
+    "train.jsonl": "cf659d1386cdc7f991ca0b75b20fd8fd1ad8c250ae20e14749c16e3f8080f64d"
   }
 }

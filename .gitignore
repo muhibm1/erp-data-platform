@@ -7,3 +7,5 @@ dbt/dbt_packages/
 .env*
 .fathom/
 .odoo/
+alerts.jsonl
+eval/runs/*-stub-*.json

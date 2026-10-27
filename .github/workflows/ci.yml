@@ -1,0 +1,73 @@
+# The whole platform end to end on every push: a fresh Odoo with a simulated
+# year of business, the load, every dbt model and check, the unit and warehouse
+# tests, the five failure drills, and the dataset build with its leakage checks.
+# No model is called and no secret is read.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  end-to-end:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo-ci
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U odoo" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # A throwaway password for the throwaway database above.
+      PGHOST: localhost
+      PGUSER: odoo
+      PGPASSWORD: odoo-ci
+      EDP_PGHOST: localhost
+      EDP_PGPASSWORD: odoo-ci
+      EDP_DSN: host=localhost dbname=warehouse user=odoo
+      EDP_DRILL_ODOO_STOP: scripts/odoo-local.sh stop
+      EDP_DRILL_ODOO_START: scripts/odoo-local.sh start
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Install the platform
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -q -r requirements.txt
+      - name: Install Odoo 17 from source and create the demo company
+        run: |
+          scripts/odoo-local.sh install
+          scripts/odoo-local.sh reset
+      - name: Simulate a year of business, load it, build every model and check
+        run: |
+          createdb warehouse
+          .venv/bin/python -m edp.demo
+      - name: Tests
+        run: .venv/bin/python -m pytest -q
+      - name: Monitors
+        run: .venv/bin/python -m edp.cli monitor
+      - name: Failure drills
+        run: .venv/bin/python -m edp.drills
+      - name: Dataset build, with leakage checks
+        run: |
+          .venv/bin/python eval/build.py > /dev/null
+          .venv/bin/python eval/run.py ask --split test --provider stub
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "## Drills"; echo '```json'; cat drills/report.json 2>/dev/null; echo '```'
+            cat eval/DATASET.md 2>/dev/null
+          } >> "$GITHUB_STEP_SUMMARY"
+          tail -50 .odoo/server.log || true

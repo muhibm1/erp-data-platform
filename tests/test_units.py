@@ -20,9 +20,15 @@ def test_every_domain_is_for_a_known_source():
     assert set(DOMAINS) <= set(SOURCES)
 
 
-def test_split_is_stable_and_two_way():
+def test_split_is_stable_and_three_way():
     assert split_of(41) == split_of(41)
-    assert {split_of(k) for k in range(1, 60)} == {"dev", "test"}
+    assert {split_of(k) for k in range(1, 60)} == {"train", "dev", "test"}
+
+
+def test_counts_must_be_exact():
+    row = {"answer_type": "count", "answer": 126}
+    assert correct(row, 126) and correct(row, "126")
+    assert not correct(row, 125.99)
 
 
 def test_parse_reads_json_answers():

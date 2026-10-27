@@ -1,37 +1,58 @@
 # Results
 
-## First scored run, 2026-10-27
+## Version 2, 2026-10-27 (current)
 
-The model was Claude Sonnet, run on a Claude subscription (no API credit). It
-got one batch with every question, grouped by customer, built from the same
-prompt `run.py` sends one question at a time (`build.prompt`). It read the
-batch file and used no other tool. Its answers are in
-`runs/all-sonnet-subagent.json`; `run.py grade` scored them.
+The question set is described in `DATASET.md`: 184 questions over 31
+customers, split by customer into train (89), dev (48) and test (47), six
+templates, and two prompt variants. "Hints" tells the model how the ERP
+records are messy; "plain" gives the same records and question with no
+warning.
 
-| Split | Correct | Floor (answer 0 or an empty list) |
-| --- | --- | --- |
-| test (8 customers) | 30 of 32 | 15 of 32 |
-| dev (23 customers) | 92 of 92 | not run |
+The model was Claude Sonnet, run on a Claude subscription (no API credit).
+For each variant it got one file holding every test question, grouped by
+customer with that customer's records once per group, built from the same
+records and wording `build.prompt` uses. It read that one file and used no
+other tool (checked in the run's tool log). `run.py grade` scored the answers,
+which are in `runs/v2-test-*.json`.
 
-By slice, across both splits: edited invoices 8 of 8, the duplicated customer
-4 of 4, euro invoices 12 of 12, customers with credit notes 6 of 8.
+| Test split, 8 customers | Correct |
+| --- | --- |
+| Sonnet, hints | 47 of 47 |
+| Sonnet, plain | 47 of 47 |
+| Floor: answer 0 or an empty list to everything | 23 of 47 |
 
-**The two misses are a fault in the question, not the model.** Both ask
-"which invoices are not fully paid?" for a customer that also has open credit
-notes. The SQL answer counts credit notes as invoices, the model did not, and
-in everyday speech the model is right. The question set needs either the
-wording "invoices or credit notes" or SQL that excludes credit notes. That is
-the next change, and it gets a fresh run rather than a regrade of these answers.
+The floor by template: billed 1 of 8, deal collected 2 of 7, invoices not
+fully paid 4 of 8, owed 5 of 8, oldest late 5 of 8, late over 30 days 6 of 8.
+By data problem, the floor gets 1 of 6 on the edited invoice and 1 of 6 on the
+duplicated customer, where Sonnet got 6 of 6 on both.
 
-## How to read this
+**What this says.** On records this size, Sonnet reads ERP mess correctly
+without being told about it: it used the newest invoice version, joined both
+spellings of the customer, netted credit notes and followed a deal through its
+orders to its payments. The hints added nothing measurable here. The value of
+the set is the method, ready to point at harder records: SQL answers, splits
+no customer crosses, a floor, slices by data problem, code grading, and a
+variant that measures what the prompt's rules are worth.
 
-- **The set is small and made from a simulation.** 124 questions over 31
-  customers, from ten simulated months in a real Odoo. It shows the method
-  works end to end: SQL answers, customer-disjoint splits, slices by data
-  problem, code grading. It is not a benchmark of the model.
-- **The floor is high.** Half the test answers are 0 or empty because many
-  customers owe nothing. Questions about customers who owe money are the
-  ones that separate a good model from a guess.
-- **The prompt names the mess.** It tells the model that an invoice can have
-  several versions and a customer several spellings. A harder variant would
-  leave that out and measure the difference.
+**The v1 fault is fixed.** Version 1 counted credit notes as unpaid invoices,
+which made the model's two "misses" faults in the question. The question now
+says "invoices (not credit notes)" and the SQL agrees. This is a fresh run on
+a rebuilt set, not a regrade of the old answers.
+
+## Version 1, 2026-10-27 (superseded)
+
+Two splits (dev 92, test 32), four templates, hinted prompt only. Sonnet got
+30 of 32 on test and 92 of 92 on dev; the two misses were the credit-note
+fault above.
+
+## Limits
+
+- One model, one run per variant, on simulated records. 47 test questions
+  can show a method working; they cannot rank models.
+- Answers came from one file per variant rather than one call per question,
+  so a model could in principle carry reasoning from one question to the next
+  within a customer. `run.py ask --provider claude-code` asks one question per
+  call for a stricter run.
+- Harder tests are the next step: more customers per question, longer
+  histories, partial payments across several invoices, and records from a
+  second system (a CRM export next to the ERP).

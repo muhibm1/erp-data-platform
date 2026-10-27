@@ -2,16 +2,39 @@
 
 For the team that runs this after hand-off. Each section says what to do, then why.
 
-## Run a load
+## Run the pipeline
 
 ```bash
-.venv/bin/python -m edp.cli extract
-.venv/bin/dbt build --project-dir dbt --profiles-dir dbt
+.venv/bin/python -m edp.cli run                 # one run: load, dbt build, monitors
+.venv/bin/python -m edp.cli run --every 900     # keep running, every 15 minutes
+```
+
+Or from cron, which is what a single server needs:
+
+```cron
+*/15 * * * * cd /srv/erp-data-platform && .venv/bin/python -m edp.cli run >> run.log 2>&1
 ```
 
 A load only fetches records whose `write_date` is at or after the newest one
 already stored, so it takes seconds. Running it twice in a row is safe: the
 second run stores nothing new (`raw.load_runs` shows zero for every model).
+Two runs at once are safe too: the second finds the lock taken, says
+"another run holds the lock; nothing to do" and exits with code 3.
+
+Exit codes: 0 everything passed, 1 a step or a monitor failed, 3 skipped
+because another run was going. Each run is in `raw.pipeline_runs` with what
+every step returned.
+
+## Alerts
+
+Every warning and failure is appended to `alerts.jsonl` (set `EDP_ALERT_FILE`
+to move it) and, when `EDP_ALERT_WEBHOOK` is set, posted to that URL as
+`{"text": ...}`, which Slack and Teams incoming webhooks accept. Thresholds:
+`EDP_FRESHNESS_HOURS` (default 2) and `EDP_VOLUME_DROP` (default 0.2).
+
+```bash
+.venv/bin/python -m edp.cli monitor     # the monitors on their own; exit 1 on a failure
+```
 
 ## Check that the data is fresh
 
@@ -24,15 +47,30 @@ wrong" reports are a load that failed or did not run. A failed run has
 `status = 'failed'` and the error in `detail`, and nothing from it is half-written:
 each model's records commit together.
 
-## Reload from scratch
+## Reload from scratch, or backfill
 
 ```bash
-.venv/bin/python -m edp.cli extract --full
+.venv/bin/python -m edp.cli extract --full            # every record
+.venv/bin/python -m edp.cli run --since 2026-09-01    # records changed since a date, then build and check
 ```
 
-Re-reads every record. Versions already stored are skipped, so this adds only
-what is missing. Use it after a load was down for a long time, or to check
-nothing was missed.
+Both re-read from Odoo. Versions already stored are skipped, so they add only
+what is missing and are safe to repeat. Use `--full` when the `source_totals`
+monitor fails (rows are missing from the warehouse), and `--since` after a
+known gap, such as a weekend outage.
+
+## When a monitor fails
+
+| Monitor | What it means | Do this |
+|---|---|---|
+| `last_run` | The newest load failed or is stuck. The error is in the message. | If Odoo was down, wait for it and run again; the client already retried with backoff. |
+| `freshness` | Nothing has loaded successfully for longer than the limit. | Check the scheduler is running, then `edp run`. |
+| `volume` | A model lost more than 20% of its records between loads. | Ask the Odoo admin whether records were archived or deleted on purpose before anyone uses the tables. |
+| `schema` | Fields were added to or removed from Odoo. A fail means a field the load reads is gone. | Warn: nothing to do. Fail: update `edp/sources.py` and the staging model. |
+| `source_totals` | The warehouse bills a different total than Odoo itself. | `edp extract --full`, then `edp run`. If it still fails, `trace` the biggest customers. |
+
+Every failure the drills produced, and what was done, is written up in
+`fathom/incidents/`.
 
 ## Explain a number
 
@@ -78,6 +116,20 @@ who owns it, and which rule applies. Changing `revenue_by_customer` or
 `receivables_aging` columns, or the customer matching rule, needs finance
 sign-off (`fathom/constraints/`).
 
+## Failure drills
+
+```bash
+EDP_DRILL_ODOO_STOP="scripts/odoo-local.sh stop" EDP_DRILL_ODOO_START="scripts/odoo-local.sh start" \
+  .venv/bin/python -m edp.drills
+```
+
+Breaks the pipeline five ways on purpose (Odoo down, overlapping runs, a
+custom field added then deleted, rows lost from the warehouse, three hours
+with no load) and checks each one is caught and recovered from. The result is
+in `drills/report.json`. Run them on the demo stack only, never against a
+client's Odoo: the schema drill creates and deletes a field there. CI runs
+them on every push.
+
 ## Known limits
 
 - Some Odoo fields are computed, not stored (an order's invoice list, a
@@ -86,4 +138,5 @@ sign-off (`fathom/constraints/`).
   catches up.
 - Aging is as of the `as_of` date in `dbt/dbt_project.yml`. For a live
   system, set it to the run date.
-- It has not run on a schedule or against a production Odoo yet.
+- It has run on a schedule and through the drills only against the demo
+  Odoo, never a production one.

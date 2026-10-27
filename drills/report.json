@@ -1,5 +1,5 @@
 {
-  "ran_at": "2026-10-27T09:13:35+00:00",
+  "ran_at": "2026-10-27T09:23:00+00:00",
   "drills": {
     "odoo_outage": {
       "passed": true,
@@ -16,8 +16,8 @@
       },
       "after_restart": {
         "exit": 0,
-        "seconds": 4.6,
-        "new_versions_loaded": 26
+        "seconds": 3.7,
+        "new_versions_loaded": 13
       }
     },
     "overlapping_runs": {
@@ -47,28 +47,28 @@
     "lost_records": {
       "passed": true,
       "rows_deleted_for_invoices": [
-        179,
-        180,
-        181
+        162,
+        163,
+        164
       ],
       "detected": {
         "status": "fail",
-        "message": "billed: Odoo 1,529,745.41, warehouse 1,505,635.41; open: Odoo 375,151.89, warehouse 351,041.89. Run `edp extract --full`, then rebuild."
+        "message": "billed: Odoo 1,409,175.41, warehouse 1,385,065.41; open: Odoo 361,011.89, warehouse 336,901.89. Run `edp extract --full`, then rebuild."
       },
       "repair": {
         "command": "edp extract --full",
         "exit": 0,
-        "seconds": 0.8
+        "seconds": 0.9
       },
       "after_repair": {
         "status": "ok",
-        "message": "warehouse matches Odoo: billed 1,529,745.41, open 375,151.89"
+        "message": "warehouse matches Odoo: billed 1,409,175.41, open 361,011.89"
       }
     },
     "stale_data": {
       "passed": true,
-      "checked_as_if": "2026-10-27T12:14+00:00",
-      "monitor": "FAIL data through 2026-10-27 09:14 UTC (3.0 h old, limit 2 h)"
+      "checked_as_if": "2026-10-27T12:23+00:00",
+      "monitor": "FAIL data through 2026-10-27 09:23 UTC (3.0 h old, limit 2 h)"
     }
   }
 }

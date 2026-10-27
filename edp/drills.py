@@ -12,7 +12,7 @@ never on a client's systems:
 4. lost_records     Rows go missing from the warehouse (a bad manual fix, a restore gone wrong).
 5. stale_data       Nothing has loaded for three hours.
 
-The report is written to drills/report.json and drills/REPORT.md. A drill
+The report is written to drills/report.json. A drill
 passes when the pipeline caught the problem and recovered without data loss.
 """
 

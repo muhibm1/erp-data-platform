@@ -1,4 +1,4 @@
-deal_to_cash:
+erp_data_platform:
   target: local
   outputs:
     local:

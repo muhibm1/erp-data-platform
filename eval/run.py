@@ -1,11 +1,13 @@
 """Ask a model the question set, then grade the answers against SQL.
 
-  python eval/run.py ask --split test --provider claude-code   # claude -p, on a Claude subscription
-  python eval/run.py ask --split test --provider stub          # answers 0 / [] (the floor)
+  python eval/run.py ask --split dev --provider claude-code --variant plain   # claude -p, tools off
+  python eval/run.py ask --split test --provider stub                         # answers 0 / [] (the floor)
+  python eval/run.py batch --split test --variant hints > prompts.jsonl       # prompts for any other runner
   python eval/run.py grade --split test --answers eval/runs/<file>.json
 
-Grading is code: an amount is right within one cent; a list of invoices is
-right only when it is exactly the right set. No model grades another model.
+Grading is code: an amount is right within one cent, a count must be exact,
+and a list of invoices is right only when it is exactly the right set. No
+model grades another model.
 """
 
 import argparse
@@ -41,9 +43,10 @@ def parse(raw: str):
 
 
 def correct(row, got) -> bool:
-    if row["answer_type"] == "money":
+    if row["answer_type"] in ("money", "count"):
         try:
-            return abs(float(got) - float(row["answer"])) <= 0.01
+            tolerance = 0.01 if row["answer_type"] == "money" else 0
+            return abs(float(got) - float(row["answer"])) <= tolerance
         except (TypeError, ValueError):
             return False
     return isinstance(got, list) and sorted(map(str, got)) == sorted(row["answer"])
@@ -70,6 +73,10 @@ def main():
     a.add_argument("--split", default="test")
     a.add_argument("--provider", choices=["claude-code", "stub"], default="stub")
     a.add_argument("--model", default="sonnet")
+    a.add_argument("--variant", choices=["hints", "plain"], default="hints")
+    b = sub.add_parser("batch")
+    b.add_argument("--split", default="test")
+    b.add_argument("--variant", choices=["hints", "plain"], default="hints")
     g = sub.add_parser("grade")
     g.add_argument("--split", default="test")
     g.add_argument("--answers", required=True)
@@ -80,11 +87,15 @@ def main():
             if args.provider == "stub":
                 answers[r["id"]] = [] if r["answer_type"] == "set" else 0
             else:
-                answers[r["id"]] = parse(ask_claude_code(prompt(r), args.model))
+                answers[r["id"]] = parse(ask_claude_code(prompt(r, args.variant == "hints"), args.model))
         (HERE / "runs").mkdir(exist_ok=True)
-        out = HERE / "runs" / f"{args.split}-{args.provider}-{dt.datetime.now():%Y%m%dT%H%M%S}.json"
+        out = HERE / "runs" / (f"{args.split}-{args.provider}-{args.variant}-"
+                               f"{dt.datetime.now():%Y%m%dT%H%M%S}.json")
         out.write_text(json.dumps(answers, indent=1))
         print(out)
+    elif args.cmd == "batch":
+        for r in load(args.split):
+            print(json.dumps({"id": r["id"], "prompt": prompt(r, args.variant == "hints")}))
     else:
         print(json.dumps(grade(args.split, json.loads(Path(args.answers).read_text())), indent=2))
 
