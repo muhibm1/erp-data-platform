@@ -48,6 +48,132 @@ def test_privacy_blanks_small_groups_only():
     assert out["rows"][1]["country"] == "IS" and out["suppressed"] == 1
 
 
+ADS_RULE = {"min_count": 50, "count_columns": ["installs", "taps"]}
+ADS_COLUMNS = {
+    "reporting.audience_daily": [("day", "date"), ("campaign_id", "integer"), ("age_band", "text"),
+                                 ("gender", "text"), ("impressions", "integer"), ("taps", "integer"),
+                                 ("installs", "integer")],
+}
+
+
+@pytest.mark.parametrize("query,rows", [
+    # Renaming the count used to skip the check: it is traced to installs, whatever its name.
+    ("select age_band, sum(installs) as n from reporting.audience_daily group by 1",
+     [{"age_band": "65+", "n": 12}]),
+    ("select age_band, sum(installs) installs_total from reporting.audience_daily group by 1",
+     [{"age_band": "65+", "installs_total": 12}]),
+    ("select age_band, taps from reporting.audience_daily", [{"age_band": "65+", "taps": 3}]),
+    ("with a as (select age_band, sum(installs) as x from reporting.audience_daily group by 1) "
+     "select age_band, x as hidden from a", [{"age_band": "65+", "hidden": 12}]),
+    ("select * from reporting.audience_daily",
+     [{"day": "2026-10-01", "campaign_id": 1, "age_band": "65+", "gender": "f", "impressions": 900,
+       "taps": 30, "installs": 9}]),
+    ("select age_band, sum(installs) n from reporting.audience_daily group by 1 "
+     "union all select gender, sum(taps) from reporting.audience_daily group by 1",
+     [{"age_band": "f", "n": 7}]),
+    ("select sum(installs) - sum(installs) filter (where age_band <> '65+') as rest, "
+     "sum(installs) as n from reporting.audience_daily", [{"rest": 12, "n": 9000}]),
+])
+def test_privacy_blanks_a_small_count_whatever_it_is_called(query, rows):
+    out = sql.apply_privacy({"ok": True, "rows": rows}, ADS_RULE, query, ADS_COLUMNS)
+    assert out["suppressed"] == 1
+    assert all(v is None for v in out["rows"][0].values() if isinstance(v, (int, type(None))))
+
+
+@pytest.mark.parametrize("query", [
+    "select sum(installs) total, sum(installs * 100) older from reporting.audience_daily",
+    "select sum(installs) total, sum(case when age_band = '65+' then installs * 100 end) older "
+    "from reporting.audience_daily",
+    "select sum(installs) total, (select sum(installs) from reporting.audience_daily "
+    "where age_band = '65+') older from reporting.audience_daily",
+])
+def test_privacy_refuses_people_figures_it_could_not_check(query):
+    ok, _ = sql.privacy_check(query, ADS_RULE)
+    assert not ok
+
+
+def test_privacy_checks_the_counts_behind_a_rate():
+    query = ("select age_band, round(sum(installs)::numeric / sum(taps), 2) as cvr, "
+             "sum(installs) filter (where gender = 'f') as women from reporting.audience_daily group by 1")
+    assert sql.privacy_check(query, ADS_RULE)[0]
+    augmented = sql.with_helpers(query, ADS_RULE, ADS_COLUMNS)
+    assert "SUM(taps) AS __people_a0" in augmented and "SUM(installs) AS __people_a1" in augmented
+    out = sql.apply_privacy({"ok": True, "rows": [
+        {"age_band": "18-24", "cvr": 0.4, "women": 400, "__people_a0": 2000, "__people_a1": 900},
+        {"age_band": "65+", "cvr": 0.4, "women": 400, "__people_a0": 30, "__people_a1": 12},
+    ]}, ADS_RULE, augmented, ADS_COLUMNS)
+    assert out["rows"][0] == {"age_band": "18-24", "cvr": 0.4, "women": 400}
+    assert out["rows"][1]["cvr"] is None and out["suppressed"] == 1
+
+
+def test_privacy_asks_for_the_count_beside_a_rate_it_cannot_check():
+    query = ("with r as (select installs::numeric / taps as rate from reporting.audience_daily) "
+             "select rate from r")
+    out = sql.apply_privacy({"ok": True, "rows": [{"rate": 0.4}]}, ADS_RULE, query, ADS_COLUMNS)
+    assert out["rows"][0]["rate"] is None and "plain count" in out["needs_count"]
+
+
+def test_privacy_probes_groups_inside_a_cte():
+    query = ("with v as (select age_band, sum(installs)::numeric / sum(taps) p from reporting.audience_daily "
+             "group by age_band) select max(p) - min(p) from v")
+    probes = sql.inner_group_probes(query, ADS_RULE)
+    assert len(probes) == 1 and "LEAST(" in probes[0] and "SUM(taps)" in probes[0] and "GROUP BY age_band" in probes[0]
+
+
+def test_privacy_leaves_figures_that_count_no_people():
+    query = "select campaign_id, sum(impressions) as seen, count(*) as days from reporting.audience_daily group by 1"
+    out = sql.apply_privacy({"ok": True, "rows": [{"campaign_id": 1, "seen": 40, "days": 3}]},
+                            ADS_RULE, query, ADS_COLUMNS)
+    assert out["suppressed"] == 0 and "needs_count" not in out
+
+
+@pytest.fixture(scope="module")
+def ads():
+    dom = domains.load("ads")
+    try:
+        conn = dom.connect()
+        domains.read_columns(dom, conn)
+        sql.prepare(dom, conn)
+    except psycopg.OperationalError:
+        pytest.skip("ads demo database not reachable (python -m analyst.ads.simulate)")
+    yield dom, conn
+    conn.close()
+
+
+SMALL = ("age_band = '55+' and gender = 'female' and day = date '2026-09-09' "
+         "and campaign_id = (select min(campaign_id) from reporting.campaigns)")
+
+
+@pytest.mark.parametrize("query", [
+    f"select sum(installs) as n from reporting.audience_daily where {SMALL}",
+    f"select sum(installs) total, sum(case when {SMALL} then installs end) older from reporting.audience_daily",
+    f"select sum(installs) total, sum(installs) filter (where {SMALL}) older from reporting.audience_daily",
+    f"select sum(installs) - sum(installs) filter (where not ({SMALL})) as rest, sum(installs) n "
+    f"from reporting.audience_daily",
+    f"select round(sum(installs)::numeric / sum(taps), 3) as cvr from reporting.audience_daily where {SMALL}",
+    f"with s as (select sum(installs)::numeric / sum(taps) r from reporting.audience_daily where {SMALL}) "
+    f"select round(r, 3) from s",
+])
+def test_ads_tool_never_returns_a_small_group(ads, query):
+    dom, conn = ads
+    out = sql.run(dom, conn, query)
+    assert not out["ok"] or (out["suppressed"] == len(out["rows"]) and all(
+        v is None for row in out["rows"] for v in row.values() if not isinstance(v, str)))
+
+
+def test_ads_tool_still_answers_the_eval_gold_queries(ads):
+    import json
+    from pathlib import Path
+    dom, conn = ads
+    data = Path(__file__).resolve().parent.parent / "eval" / "data"
+    for name in ("ads-dev.jsonl", "ads-test.jsonl"):
+        for line in (data / name).read_text().splitlines():
+            q = json.loads(line).get("answer_sql")
+            if q:
+                out = sql.run(dom, conn, q)
+                assert out["ok"] and not out["suppressed"], (q, out)
+
+
 def test_keyword_retrieval_finds_the_aging_table():
     docs = [
         {"kind": "table", "key": "marts.receivables_aging", "text": "TABLE aging: owed by days past due late_over_90"},

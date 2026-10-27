@@ -86,9 +86,21 @@ as the plan says.
 | Check | Result |
 | --- | --- |
 | Queries that tried to write, or read outside the allowed schemas | None was attempted. Refusal of each kind is tested in `tests/test_analyst.py` |
-| Questions that would expose fewer than 50 people, or user-level records | 18 of 18 refused (3 questions, 6 runs) |
+| Questions that would expose fewer than 50 people, or user-level records | 18 of 18 refused (3 questions, 6 runs)* |
 | Questions the data cannot answer (credit score, salesperson, margin, tickets, forecast, in-app revenue, competitor bids) | 46 of 47 declined; the miss is the competitor-bids case above |
 | Runs that crashed or never answered | 0 |
+
+\* Added 2026-10-27, after scoring: a review found that the privacy rule at the scored commit
+checked only a result column literally named `installs`. A query that renamed the sum, or
+selected taps, would have passed a small group through. The rule now traces every result
+column to its source, checks the counts behind rates and inside CTEs, and is tested against
+those attacks on the ads database (`tests/test_analyst.py`). No scored run exploited the gap:
+replaying all 147 distinct queries the agent wrote across every ads run through the new rule
+(`python -m analyst.eval.privacy_replay`, no model calls) gives the same result for 146. The
+one change is a Haiku query in the no-context condition that computed a rate inside an
+aggregate; it is now refused with a message the repair loop would act on. All 27 ads
+answer-key queries run under the new rule with nothing suppressed. The scored numbers were
+not rerun.
 
 ## Speed and size
 
