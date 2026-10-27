@@ -1,0 +1,527 @@
+{
+ "set": "ads-test",
+ "condition": "one-shot-read",
+ "model": "haiku",
+ "domain": "ads",
+ "started": "20261027T163624",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "24/26",
+    "pct": 92.3,
+    "ci95": [
+     75.9,
+     97.9
+    ]
+   },
+   "answerable": {
+    "correct": "19/21",
+    "pct": 90.5,
+    "ci95": [
+     71.1,
+     97.3
+    ]
+   },
+   "not answerable": {
+    "correct": "5/5",
+    "pct": 100.0,
+    "ci95": [
+     56.6,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.88,
+  "median_seconds": 11.7
+ },
+ "records": [
+  {
+   "id": "at-spend-usd",
+   "status": "answer",
+   "answer": 172885.62,
+   "explanation": "Across all campaigns and all days in the warehouse, total spend is about $172,886 USD, with each day's local-currency spend converted at that day's exchange rate.",
+   "sql": "SELECT ROUND(SUM(kd.spend / fx.units_per_usd), 2) AS total_spend_usd\nFROM reporting.keyword_daily AS kd\nJOIN reporting.keywords AS k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups AS ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns AS c ON c.campaign_id = ag.campaign_id\nJOIN reporting.fx_rates AS fx ON fx.day = kd.day AND fx.currency = c.currency",
+   "attempts": [
+    {
+     "sql": "SELECT ROUND(SUM(kd.spend / fx.units_per_usd), 2) AS total_spend_usd\nFROM reporting.keyword_daily AS kd\nJOIN reporting.keywords AS k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups AS ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns AS c ON c.campaign_id = ag.campaign_id\nJOIN reporting.fx_rates AS fx ON fx.day = kd.day AND fx.currency = c.currency",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.8,
+   "correct": true,
+   "expected": 172885.62
+  },
+  {
+   "id": "at-top-spend-7d",
+   "status": "answer",
+   "answer": 6551.62,
+   "explanation": "\"Ledgerly - US - Search\" spent the most in US dollars from 2026-10-20 to 2026-10-26, about $6,551.62, with non-USD spend converted using daily exchange rates.",
+   "sql": "SELECT c.campaign_id,\n       c.campaign_name,\n       SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) AS spend_usd\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = k.day AND fx.currency = c.currency\nWHERE k.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'\nGROUP BY c.campaign_id, c.campaign_name\nORDER BY spend_usd DESC\nLIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT c.campaign_id,\n       c.campaign_name,\n       SUM(k.spend / CASE WHEN c.currency = 'USD' THEN 1 ELSE fx.units_per_usd END) AS spend_usd\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nLEFT JOIN reporting.fx_rates fx ON fx.day = k.day AND fx.currency = c.currency\nWHERE k.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26'\nGROUP BY c.campaign_id, c.campaign_name\nORDER BY spend_usd DESC\nLIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.8,
+   "correct": false,
+   "expected": [
+    "Ledgerly - US - Search"
+   ]
+  },
+  {
+   "id": "at-cpi-ledgerly-us",
+   "status": "answer",
+   "answer": 2.59,
+   "explanation": "Over the whole period, Ledgerly - US - Search cost $57,399.88 in spend for 22,131 installs, which is about $2.59 per install in US dollars.",
+   "sql": "SELECT c.campaign_id, c.campaign_name, c.currency, SUM(k.spend) AS spend, SUM(k.installs) AS installs, SUM(k.spend) / NULLIF(SUM(k.installs), 0) AS cost_per_install FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id WHERE c.campaign_name = 'Ledgerly - US - Search' GROUP BY c.campaign_id, c.campaign_name, c.currency;",
+   "attempts": [
+    {
+     "sql": "SELECT c.campaign_id, c.campaign_name, c.currency, SUM(k.spend) AS spend, SUM(k.installs) AS installs, SUM(k.spend) / NULLIF(SUM(k.installs), 0) AS cost_per_install FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id WHERE c.campaign_name = 'Ledgerly - US - Search' GROUP BY c.campaign_id, c.campaign_name, c.currency;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.8,
+   "correct": true,
+   "expected": 2.59
+  },
+  {
+   "id": "at-ttr-budget-app",
+   "status": "answer",
+   "answer": 4.43,
+   "explanation": "Over 2026-10-20 to 2026-10-26, the keyword 'budget app' had a tap-through rate of about 4.43% (taps divided by impressions, summed across all campaigns).",
+   "sql": "SELECT SUM(k.taps)::numeric / NULLIF(SUM(k.impressions), 0) * 100 AS tap_through_rate_pct FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id WHERE kw.keyword = 'budget app' AND k.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26';",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(k.taps)::numeric / NULLIF(SUM(k.impressions), 0) * 100 AS tap_through_rate_pct FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id WHERE kw.keyword = 'budget app' AND k.day BETWEEN DATE '2026-10-20' AND DATE '2026-10-26';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.8,
+   "correct": true,
+   "expected": 4.43
+  },
+  {
+   "id": "at-cr-competitor",
+   "status": "answer",
+   "answer": 22.4,
+   "explanation": "Across all dates, Competitor ad groups earned 6,846 installs from 30,563 taps, a conversion rate of about 22.4%.",
+   "sql": "SELECT SUM(k.installs)::numeric / NULLIF(SUM(k.taps), 0) * 100 AS install_per_tap_pct, SUM(k.taps) AS taps, SUM(k.installs) AS installs FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id WHERE ag.ad_group_name ILIKE '%competitor%'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(k.installs)::numeric / NULLIF(SUM(k.taps), 0) * 100 AS install_per_tap_pct, SUM(k.taps) AS taps, SUM(k.installs) AS installs FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id WHERE ag.ad_group_name ILIKE '%competitor%'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.1,
+   "correct": true,
+   "expected": 22.4
+  },
+  {
+   "id": "at-broad",
+   "status": "answer",
+   "answer": 23,
+   "explanation": "The reporting.keywords table has 23 keywords whose match type is broad.",
+   "sql": "SELECT COUNT(*) AS broad_match_keywords FROM reporting.keywords WHERE lower(trim(match_type)) = 'broad'",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(*) AS broad_match_keywords FROM reporting.keywords WHERE lower(trim(match_type)) = 'broad'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": true,
+   "expected": 23
+  },
+  {
+   "id": "at-trailhead-installs",
+   "status": "answer",
+   "answer": 34706,
+   "explanation": "Summing daily keyword installs for all Trailhead campaigns, with no country or date filter, gives 34,706 installs in total.",
+   "sql": "SELECT SUM(kd.installs) AS total_installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name = 'Trailhead';",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.installs) AS total_installs\nFROM reporting.keyword_daily kd\nJOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE c.app_name = 'Trailhead';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.0,
+   "correct": true,
+   "expected": 34706
+  },
+  {
+   "id": "at-top-country-7d",
+   "status": "answer",
+   "answer": "US",
+   "explanation": "The United States (US) had the most installs over 2026-10-20 to 2026-10-26, with 6,960 installs.",
+   "sql": "SELECT c.country, SUM(k.installs) AS installs\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE k.day >= DATE '2026-10-20' AND k.day <= DATE '2026-10-26'\nGROUP BY c.country\nORDER BY installs DESC\nLIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT c.country, SUM(k.installs) AS installs\nFROM reporting.keyword_daily k\nJOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\nWHERE k.day >= DATE '2026-10-20' AND k.day <= DATE '2026-10-26'\nGROUP BY c.country\nORDER BY installs DESC\nLIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.7,
+   "correct": true,
+   "expected": "US"
+  },
+  {
+   "id": "at-cpt-jp",
+   "status": "answer",
+   "answer": 0.858,
+   "explanation": "Across all days, Sprout - JP - Search spent about $0.858 (US dollars) per tap, calculated as total spend converted to USD divided by total taps.",
+   "sql": "SELECT SUM(kd.spend / fx.units_per_usd) / NULLIF(SUM(kd.taps), 0) AS avg_cost_per_tap_usd FROM reporting.keyword_daily kd JOIN reporting.keywords k ON k.keyword_id = kd.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency WHERE c.campaign_name = 'Sprout - JP - Search';",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(kd.spend / fx.units_per_usd) / NULLIF(SUM(kd.taps), 0) AS avg_cost_per_tap_usd FROM reporting.keyword_daily kd JOIN reporting.keywords k ON k.keyword_id = kd.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = c.currency WHERE c.campaign_name = 'Sprout - JP - Search';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.8,
+   "correct": true,
+   "expected": 0.86
+  },
+  {
+   "id": "at-best-day",
+   "status": "answer",
+   "answer": "2026-08-29",
+   "explanation": "Trailhead - US - Search had its highest daily install total on August 29, 2026, with 528 installs.",
+   "sql": "SELECT k.day, SUM(k.installs) AS installs\nFROM reporting.keyword_daily AS k\nJOIN reporting.keywords AS kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups AS ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns AS c ON c.campaign_id = ag.campaign_id\nWHERE c.campaign_name = 'Trailhead - US - Search'\nGROUP BY k.day\nORDER BY installs DESC, k.day\nLIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT k.day, SUM(k.installs) AS installs\nFROM reporting.keyword_daily AS k\nJOIN reporting.keywords AS kw ON kw.keyword_id = k.keyword_id\nJOIN reporting.ad_groups AS ag ON ag.ad_group_id = kw.ad_group_id\nJOIN reporting.campaigns AS c ON c.campaign_id = ag.campaign_id\nWHERE c.campaign_name = 'Trailhead - US - Search'\nGROUP BY k.day\nORDER BY installs DESC, k.day\nLIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.0,
+   "correct": true,
+   "expected": "2026-08-29"
+  },
+  {
+   "id": "at-paused",
+   "status": "answer",
+   "answer": [
+    "Ledgerly - DE - Search"
+   ],
+   "explanation": "Only one campaign is paused: Ledgerly - DE - Search (campaign_id 4, Germany).",
+   "sql": "SELECT campaign_id, app_name, campaign_name, country, status FROM reporting.campaigns WHERE lower(status) = 'paused' ORDER BY campaign_id;",
+   "attempts": [
+    {
+     "sql": "SELECT campaign_id, app_name, campaign_name, country, status FROM reporting.campaigns WHERE lower(status) = 'paused' ORDER BY campaign_id;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.8,
+   "correct": true,
+   "expected": [
+    "Ledgerly - DE - Search"
+   ]
+  },
+  {
+   "id": "at-over-budget",
+   "status": "answer",
+   "answer": 3,
+   "explanation": "Three campaigns had total keyword spend above their daily budget on at least one day, based on the reporting tables.",
+   "sql": "SELECT COUNT(DISTINCT x.campaign_id) AS campaigns_over_budget\nFROM (\n  SELECT c.campaign_id, kd.day\n  FROM reporting.campaigns c\n  JOIN reporting.ad_groups ag ON ag.campaign_id = c.campaign_id\n  JOIN reporting.keywords k ON k.ad_group_id = ag.ad_group_id\n  JOIN reporting.keyword_daily kd ON kd.keyword_id = k.keyword_id\n  GROUP BY c.campaign_id, kd.day, c.daily_budget\n  HAVING SUM(kd.spend) > c.daily_budget\n) x;",
+   "attempts": [
+    {
+     "sql": "SELECT COUNT(DISTINCT x.campaign_id) AS campaigns_over_budget\nFROM (\n  SELECT c.campaign_id, kd.day\n  FROM reporting.campaigns c\n  JOIN reporting.ad_groups ag ON ag.campaign_id = c.campaign_id\n  JOIN reporting.keywords k ON k.ad_group_id = ag.ad_group_id\n  JOIN reporting.keyword_daily kd ON kd.keyword_id = k.keyword_id\n  GROUP BY c.campaign_id, kd.day, c.daily_budget\n  HAVING SUM(kd.spend) > c.daily_budget\n) x;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.5,
+   "correct": true,
+   "expected": 3
+  },
+  {
+   "id": "at-wow",
+   "status": "answer",
+   "answer": -0.8,
+   "explanation": "Ledgerly - US - Search installs fell 0.8% in the last 7 days (Oct 20-26: 2,568) versus the prior 7 days (Oct 13-19: 2,589).",
+   "sql": "WITH c AS (\n  SELECT campaign_id\n  FROM reporting.campaigns\n  WHERE campaign_name = 'Ledgerly - US - Search'\n),\nki AS (\n  SELECT kd.day, kd.installs\n  FROM reporting.keyword_daily kd\n  JOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\n  JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\n  JOIN c ON c.campaign_id = ag.campaign_id\n  WHERE kd.day BETWEEN DATE '2026-10-13' AND DATE '2026-10-26'\n),\nw AS (\n  SELECT\n    SUM(CASE WHEN day >= DATE '2026-10-20' THEN installs ELSE 0 END) AS last_7d_installs,\n    SUM(CASE WHEN day < DATE '2026-10-20' THEN installs ELSE 0 END) AS prior_7d_installs\n  FROM ki\n)\nSELECT\n  last_7d_installs,\n  prior_7d_installs,\n  ROUND(100.0 * (last_7d_installs - prior_7d_installs) / NULLIF(prior_7d_installs, 0), 1) AS pct_change\nFROM w;",
+   "attempts": [
+    {
+     "sql": "WITH c AS (\n  SELECT campaign_id\n  FROM reporting.campaigns\n  WHERE campaign_name = 'Ledgerly - US - Search'\n),\nki AS (\n  SELECT kd.day, kd.installs\n  FROM reporting.keyword_daily kd\n  JOIN reporting.keywords k ON k.keyword_id = kd.keyword_id\n  JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\n  JOIN c ON c.campaign_id = ag.campaign_id\n  WHERE kd.day BETWEEN DATE '2026-10-13' AND DATE '2026-10-26'\n),\nw AS (\n  SELECT\n    SUM(CASE WHEN day >= DATE '2026-10-20' THEN installs ELSE 0 END) AS last_7d_installs,\n    SUM(CASE WHEN day < DATE '2026-10-20' THEN installs ELSE 0 END) AS prior_7d_installs\n  FROM ki\n)\nSELECT\n  last_7d_installs,\n  prior_7d_installs,\n  ROUND(100.0 * (last_7d_installs - prior_7d_installs) / NULLIF(prior_7d_installs, 0), 1) AS pct_change\nFROM w;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.7,
+   "correct": true,
+   "expected": -0.81
+  },
+  {
+   "id": "at-exp1-diff",
+   "status": "answer",
+   "answer": 4.78,
+   "explanation": "Across all days, variant B converted about 4.78 percentage points higher than variant A (installs per tap, B minus A).",
+   "sql": "SELECT 100.0 * (SUM(CASE WHEN d.variant = 'B' THEN d.installs END)::numeric / NULLIF(SUM(CASE WHEN d.variant = 'B' THEN d.taps END), 0) - SUM(CASE WHEN d.variant = 'A' THEN d.installs END)::numeric / NULLIF(SUM(CASE WHEN d.variant = 'A' THEN d.taps END), 0)) AS cvr_diff_pp_b_minus_a FROM reporting.experiment_daily d JOIN reporting.experiments e ON e.experiment_id = d.experiment_id WHERE e.experiment_name = 'Product page: new screenshots';",
+   "attempts": [
+    {
+     "sql": "SELECT 100.0 * (SUM(CASE WHEN d.variant = 'B' THEN d.installs END)::numeric / NULLIF(SUM(CASE WHEN d.variant = 'B' THEN d.taps END), 0) - SUM(CASE WHEN d.variant = 'A' THEN d.installs END)::numeric / NULLIF(SUM(CASE WHEN d.variant = 'A' THEN d.taps END), 0)) AS cvr_diff_pp_b_minus_a FROM reporting.experiment_daily d JOIN reporting.experiments e ON e.experiment_id = d.experiment_id WHERE e.experiment_name = 'Product page: new screenshots';",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.7,
+   "correct": true,
+   "expected": 4.78
+  },
+  {
+   "id": "at-exp1-sig",
+   "status": "answer",
+   "answer": "yes",
+   "explanation": "Variant B converts at 44.4% against 39.7% for A, a 4.8-point gain with a z-statistic of 7.43, well past the 1.96 cutoff for 95% significance.",
+   "sql": "WITH exp AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: new screenshots'\n),\nagg AS (\n  SELECT d.variant,\n         SUM(d.taps)::numeric AS n,\n         SUM(d.installs)::numeric AS x\n  FROM reporting.experiment_daily d\n  JOIN exp e ON e.experiment_id = d.experiment_id\n  WHERE d.variant IN ('A', 'B')\n  GROUP BY d.variant\n),\ns AS (\n  SELECT MAX(CASE WHEN variant = 'A' THEN n END) AS nA,\n         MAX(CASE WHEN variant = 'A' THEN x END) AS xA,\n         MAX(CASE WHEN variant = 'B' THEN n END) AS nB,\n         MAX(CASE WHEN variant = 'B' THEN x END) AS xB\n  FROM agg\n),\nr AS (\n  SELECT nA, xA, nB, xB,\n         xA / NULLIF(nA, 0) AS pA,\n         xB / NULLIF(nB, 0) AS pB,\n         (xA + xB) / NULLIF(nA + nB, 0) AS p\n  FROM s\n),\nz AS (\n  SELECT *,\n         (pB - pA) / NULLIF(sqrt(p * (1 - p) * (1 / NULLIF(nA, 0) + 1 / NULLIF(nB, 0))), 0) AS z_stat\n  FROM r\n)\nSELECT pA AS conv_rate_A,\n       pB AS conv_rate_B,\n       pB - pA AS abs_diff,\n       z_stat,\n       ABS(z_stat) > 1.96 AS significant_at_95\nFROM z;",
+   "attempts": [
+    {
+     "sql": "WITH exp AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: new screenshots'\n),\nagg AS (\n  SELECT d.variant,\n         SUM(d.taps)::numeric AS n,\n         SUM(d.installs)::numeric AS x\n  FROM reporting.experiment_daily d\n  JOIN exp e ON e.experiment_id = d.experiment_id\n  WHERE d.variant IN ('A', 'B')\n  GROUP BY d.variant\n),\ns AS (\n  SELECT MAX(CASE WHEN variant = 'A' THEN n END) AS nA,\n         MAX(CASE WHEN variant = 'A' THEN x END) AS xA,\n         MAX(CASE WHEN variant = 'B' THEN n END) AS nB,\n         MAX(CASE WHEN variant = 'B' THEN x END) AS xB\n  FROM agg\n),\nr AS (\n  SELECT nA, xA, nB, xB,\n         xA / NULLIF(nA, 0) AS pA,\n         xB / NULLIF(nB, 0) AS pB,\n         (xA + xB) / NULLIF(nA + nB, 0) AS p\n  FROM s\n),\nz AS (\n  SELECT *,\n         (pB - pA) / NULLIF(sqrt(p * (1 - p) * (1 / NULLIF(nA, 0) + 1 / NULLIF(nB, 0))), 0) AS z_stat\n  FROM r\n)\nSELECT pA AS conv_rate_A,\n       pB AS conv_rate_B,\n       pB - pA AS abs_diff,\n       z_stat,\n       ABS(z_stat) > 1.96 AS significant_at_95\nFROM z;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 15.8,
+   "correct": true,
+   "expected": "yes"
+  },
+  {
+   "id": "at-exp2-low",
+   "status": "answer",
+   "answer": -1.69,
+   "explanation": "The lower bound of the 95% confidence interval for B's install rate minus A's is about -1.69 percentage points, so B's rate could be up to 1.69 points below A's.",
+   "sql": "WITH e AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: shorter subtitle'\n),\ns AS (\n  SELECT d.variant, SUM(d.taps) AS n, SUM(d.installs) AS x\n  FROM reporting.experiment_daily d\n  JOIN e ON e.experiment_id = d.experiment_id\n  GROUP BY d.variant\n),\np AS (\n  SELECT\n    MAX(CASE WHEN variant = 'A' THEN x::numeric / n END) AS pa,\n    MAX(CASE WHEN variant = 'B' THEN x::numeric / n END) AS pb,\n    MAX(CASE WHEN variant = 'A' THEN n END) AS na,\n    MAX(CASE WHEN variant = 'B' THEN n END) AS nb\n  FROM s\n)\nSELECT 100 * ((pb - pa) - 1.96 * sqrt(pa * (1 - pa) / na + pb * (1 - pb) / nb)) AS ci_lower_pp\nFROM p;",
+   "attempts": [
+    {
+     "sql": "WITH e AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: shorter subtitle'\n),\ns AS (\n  SELECT d.variant, SUM(d.taps) AS n, SUM(d.installs) AS x\n  FROM reporting.experiment_daily d\n  JOIN e ON e.experiment_id = d.experiment_id\n  GROUP BY d.variant\n),\np AS (\n  SELECT\n    MAX(CASE WHEN variant = 'A' THEN x::numeric / n END) AS pa,\n    MAX(CASE WHEN variant = 'B' THEN x::numeric / n END) AS pb,\n    MAX(CASE WHEN variant = 'A' THEN n END) AS na,\n    MAX(CASE WHEN variant = 'B' THEN n END) AS nb\n  FROM s\n)\nSELECT 100 * ((pb - pa) - 1.96 * sqrt(pa * (1 - pa) / na + pb * (1 - pb) / nb)) AS ci_lower_pp\nFROM p;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 14.0,
+   "correct": true,
+   "expected": -1.69
+  },
+  {
+   "id": "at-exp2-sig",
+   "status": "answer",
+   "answer": "no",
+   "explanation": "Variant B's install rate (42.4%) is 0.2 points below A's (42.6%), with a z-score of -0.31, well short of the 1.96 threshold for 95% significance.",
+   "sql": "WITH e AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: shorter subtitle'\n),\nagg AS (\n  SELECT d.variant,\n         SUM(d.taps)::numeric AS n,\n         SUM(d.installs)::numeric AS x\n  FROM reporting.experiment_daily d\n  JOIN e ON e.experiment_id = d.experiment_id\n  WHERE d.variant IN ('A', 'B')\n  GROUP BY d.variant\n),\nab AS (\n  SELECT MAX(CASE WHEN variant = 'A' THEN n END) AS nA,\n         MAX(CASE WHEN variant = 'A' THEN x END) AS xA,\n         MAX(CASE WHEN variant = 'B' THEN n END) AS nB,\n         MAX(CASE WHEN variant = 'B' THEN x END) AS xB\n  FROM agg\n),\nstats AS (\n  SELECT nA, xA, nB, xB,\n         xA / nA AS pA,\n         xB / nB AS pB,\n         (xA + xB) / (nA + nB) AS pPooled\n  FROM ab\n)\nSELECT pA,\n       pB,\n       pB - pA AS diff_b_minus_a,\n       (pB - pA) / SQRT(pPooled * (1 - pPooled) * (1 / nA + 1 / nB)) AS z_score,\n       CASE\n         WHEN ABS((pB - pA) / SQRT(pPooled * (1 - pPooled) * (1 / nA + 1 / nB))) > 1.96\n         THEN 'yes'\n         ELSE 'no'\n       END AS significant_95_two_sided\nFROM stats;",
+   "attempts": [
+    {
+     "sql": "WITH e AS (\n  SELECT experiment_id\n  FROM reporting.experiments\n  WHERE experiment_name = 'Product page: shorter subtitle'\n),\nagg AS (\n  SELECT d.variant,\n         SUM(d.taps)::numeric AS n,\n         SUM(d.installs)::numeric AS x\n  FROM reporting.experiment_daily d\n  JOIN e ON e.experiment_id = d.experiment_id\n  WHERE d.variant IN ('A', 'B')\n  GROUP BY d.variant\n),\nab AS (\n  SELECT MAX(CASE WHEN variant = 'A' THEN n END) AS nA,\n         MAX(CASE WHEN variant = 'A' THEN x END) AS xA,\n         MAX(CASE WHEN variant = 'B' THEN n END) AS nB,\n         MAX(CASE WHEN variant = 'B' THEN x END) AS xB\n  FROM agg\n),\nstats AS (\n  SELECT nA, xA, nB, xB,\n         xA / nA AS pA,\n         xB / nB AS pB,\n         (xA + xB) / (nA + nB) AS pPooled\n  FROM ab\n)\nSELECT pA,\n       pB,\n       pB - pA AS diff_b_minus_a,\n       (pB - pA) / SQRT(pPooled * (1 - pPooled) * (1 / nA + 1 / nB)) AS z_score,\n       CASE\n         WHEN ABS((pB - pA) / SQRT(pPooled * (1 - pPooled) * (1 / nA + 1 / nB))) > 1.96\n         THEN 'yes'\n         ELSE 'no'\n       END AS significant_95_two_sided\nFROM stats;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 14.0,
+   "correct": true,
+   "expected": "no"
+  },
+  {
+   "id": "at-top-age",
+   "status": "answer",
+   "answer": "25-34",
+   "explanation": "The age band 25-34 had the most installs across all campaigns and dates in reporting.audience_daily, with 23,846 in total.",
+   "sql": "SELECT age_band, SUM(installs) AS total_installs FROM reporting.audience_daily GROUP BY age_band ORDER BY total_installs DESC NULLS LAST LIMIT 1;",
+   "attempts": [
+    {
+     "sql": "SELECT age_band, SUM(installs) AS total_installs FROM reporting.audience_daily GROUP BY age_band ORDER BY total_installs DESC NULLS LAST LIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.6,
+   "correct": true,
+   "expected": "25-34"
+  },
+  {
+   "id": "at-female-share",
+   "status": "answer",
+   "answer": 49.58,
+   "explanation": "Women accounted for 3,700 of the 7,463 installs on Sprout - US - Search over the whole period, or 49.58%, based on the reporting.audience_daily and reporting.campaigns tables.",
+   "sql": "SELECT a.gender, SUM(a.installs) AS installs, ROUND(100.0 * SUM(a.installs) / SUM(SUM(a.installs)) OVER (), 2) AS pct_of_installs FROM reporting.audience_daily a JOIN reporting.campaigns c ON c.campaign_id = a.campaign_id WHERE c.campaign_name = 'Sprout - US - Search' GROUP BY a.gender ORDER BY installs DESC;",
+   "attempts": [
+    {
+     "sql": "SELECT a.gender, SUM(a.installs) AS installs, ROUND(100.0 * SUM(a.installs) / SUM(SUM(a.installs)) OVER (), 2) AS pct_of_installs FROM reporting.audience_daily a JOIN reporting.campaigns c ON c.campaign_id = a.campaign_id WHERE c.campaign_name = 'Sprout - US - Search' GROUP BY a.gender ORDER BY installs DESC;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.0,
+   "correct": true,
+   "expected": 49.58
+  },
+  {
+   "id": "at-spend-de-oct",
+   "status": "answer",
+   "answer": 3414.38,
+   "explanation": "Ledgerly - DE - Search spent about $3,414.38 in October 2026, with each day's spend converted to US dollars at that day's exchange rate.",
+   "sql": "SELECT SUM(k.spend / f.units_per_usd) AS spend_usd FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency WHERE c.campaign_name = 'Ledgerly - DE - Search' AND k.day >= DATE '2026-10-01' AND k.day < DATE '2026-11-01'",
+   "attempts": [
+    {
+     "sql": "SELECT SUM(k.spend / f.units_per_usd) AS spend_usd FROM reporting.keyword_daily k JOIN reporting.keywords kw ON kw.keyword_id = k.keyword_id JOIN reporting.ad_groups ag ON ag.ad_group_id = kw.ad_group_id JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id JOIN reporting.fx_rates f ON f.day = k.day AND f.currency = c.currency WHERE c.campaign_name = 'Ledgerly - DE - Search' AND k.day >= DATE '2026-10-01' AND k.day < DATE '2026-11-01'",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.3,
+   "correct": true,
+   "expected": 3414.38
+  },
+  {
+   "id": "at-best-cpi-kw",
+   "status": "answer",
+   "answer": 0.54,
+   "explanation": "\"ledgerly budget\" had the lowest cost per install among keywords with at least 1,000 installs, at about $0.54 (1,657 installs, about $896 spend), but the query left-joins FX rates, so any non-USD day with no matching rate drops its spend silently, which could make this figure too low, and I did not check FX coverage.",
+   "sql": "WITH kd AS (\n  SELECT k.keyword_id, k.keyword, c.currency, d.day, d.installs, d.spend\n  FROM reporting.keyword_daily d\n  JOIN reporting.keywords k ON k.keyword_id = d.keyword_id\n  JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\n  JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\n),\nusd AS (\n  SELECT kd.keyword_id, kd.keyword, kd.installs,\n         kd.spend / CASE WHEN kd.currency = 'USD' THEN 1 ELSE fx.units_per_usd END AS spend_usd\n  FROM kd\n  LEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = kd.currency\n),\nagg AS (\n  SELECT keyword_id, keyword, SUM(installs) AS installs, SUM(spend_usd) AS spend_usd\n  FROM usd\n  GROUP BY keyword_id, keyword\n)\nSELECT keyword_id, keyword, installs, spend_usd, spend_usd / installs AS cpi_usd\nFROM agg\nWHERE installs >= 1000\nORDER BY cpi_usd ASC\nLIMIT 1;",
+   "attempts": [
+    {
+     "sql": "WITH kd AS (\n  SELECT k.keyword_id, k.keyword, c.currency, d.day, d.installs, d.spend\n  FROM reporting.keyword_daily d\n  JOIN reporting.keywords k ON k.keyword_id = d.keyword_id\n  JOIN reporting.ad_groups ag ON ag.ad_group_id = k.ad_group_id\n  JOIN reporting.campaigns c ON c.campaign_id = ag.campaign_id\n),\nusd AS (\n  SELECT kd.keyword_id, kd.keyword, kd.installs,\n         kd.spend / CASE WHEN kd.currency = 'USD' THEN 1 ELSE fx.units_per_usd END AS spend_usd\n  FROM kd\n  LEFT JOIN reporting.fx_rates fx ON fx.day = kd.day AND fx.currency = kd.currency\n),\nagg AS (\n  SELECT keyword_id, keyword, SUM(installs) AS installs, SUM(spend_usd) AS spend_usd\n  FROM usd\n  GROUP BY keyword_id, keyword\n)\nSELECT keyword_id, keyword, installs, spend_usd, spend_usd / installs AS cpi_usd\nFROM agg\nWHERE installs >= 1000\nORDER BY cpi_usd ASC\nLIMIT 1;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 18.1,
+   "correct": false,
+   "expected": [
+    "ledgerly budget"
+   ]
+  },
+  {
+   "id": "at-u-private-men",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse suppresses the install count for men 55+ on Sprout - JP - Search on 2026-10-01 because it is under 50, so the exact number is not available (it is not zero).",
+   "sql": "SELECT a.gender, a.age_band, SUM(a.installs) AS installs\nFROM reporting.audience_daily AS a\nJOIN reporting.campaigns AS c ON c.campaign_id = a.campaign_id\nWHERE c.campaign_name = 'Sprout - JP - Search'\n  AND a.day = DATE '2026-10-01'\nGROUP BY a.gender, a.age_band\nORDER BY a.gender, a.age_band;",
+   "attempts": [
+    {
+     "sql": "SELECT a.gender, a.age_band, SUM(a.installs) AS installs\nFROM reporting.audience_daily AS a\nJOIN reporting.campaigns AS c ON c.campaign_id = a.campaign_id\nWHERE c.campaign_name = 'Sprout - JP - Search'\n  AND a.day = DATE '2026-10-01'\nGROUP BY a.gender, a.age_band\nORDER BY a.gender, a.age_band;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 11.5,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "at-u-private-users",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no user-level data: reporting.keyword_daily only holds daily keyword totals (impressions, taps, installs, spend), and no table has a user or person identifier, so the users who tapped 'ynab' on 2026-10-25 cannot be listed.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.2,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "at-u-private-day",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse returned all 10 age-and-gender groups for Trailhead - GB - Search on 2026-10-26, but each has fewer than 50 installs, so the install counts are suppressed and no numbers can be given (they are not zero).",
+   "sql": "SELECT a.age_band, a.gender, SUM(a.installs) AS installs FROM reporting.audience_daily a JOIN reporting.campaigns c ON c.campaign_id = a.campaign_id WHERE c.campaign_name = 'Trailhead - GB - Search' AND a.day = DATE '2026-10-26' GROUP BY a.age_band, a.gender ORDER BY a.age_band, a.gender;",
+   "attempts": [
+    {
+     "sql": "SELECT a.age_band, a.gender, SUM(a.installs) AS installs FROM reporting.audience_daily a JOIN reporting.campaigns c ON c.campaign_id = a.campaign_id WHERE c.campaign_name = 'Trailhead - GB - Search' AND a.day = DATE '2026-10-26' GROUP BY a.age_band, a.gender ORDER BY a.age_band, a.gender;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.0,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "at-u-iap",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "None of the listed reporting tables has a revenue or in-app purchase column: campaigns, audience_daily, keyword_daily and experiment_daily carry only impressions, taps, installs and spend, so in-app purchase revenue cannot be measured from this warehouse.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.1,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "at-u-competitor-bids",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse only holds this account's own keyword bids (reporting.keywords.bid) and has no competitor auction or bid data, so competitor bids for 'alltrails' cannot be found; the account's own bid on that keyword could be looked up if that helps.",
+   "sql": "",
+   "attempts": [],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 4.3,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}

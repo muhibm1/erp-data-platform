@@ -70,7 +70,8 @@ class Retriever:
         self.vectors = embed([d["text"] for d in docs]) if embed else None
 
     def rank(self, question: str) -> list[int]:
-        rankings = [sorted(range(len(self.docs)), key=lambda i, s=self.bm25.scores(question): -s[i])]
+        keyword = self.bm25.scores(question)
+        rankings = [sorted(range(len(self.docs)), key=lambda i: -keyword[i])]
         if self.vectors is not None:
             q = self.embed([question])[0]
             sims = [_cos(q, v) for v in self.vectors]

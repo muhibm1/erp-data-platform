@@ -1,0 +1,4 @@
+{"t": 1793118651.4, "model": "haiku", "input": 7321, "output": 1630, "ms": 7985}
+{"t": 1793118652.6, "model": "haiku", "input": 7328, "output": 1891, "ms": 9200}
+{"t": 1793118655.1, "model": "haiku", "input": 6670, "output": 380, "ms": 2429}
+{"t": 1793118656.4, "model": "haiku", "input": 6721, "output": 398, "ms": 2645}

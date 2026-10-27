@@ -1,0 +1,15 @@
+{"t": 1793117342.5, "model": "sonnet", "input": 8076, "output": 178, "ms": 2383}
+{"t": 1793117342.6, "model": "sonnet", "input": 8193, "output": 196, "ms": 2489}
+{"t": 1793117342.9, "model": "sonnet", "input": 7939, "output": 184, "ms": 2697}
+{"t": 1793117343.3, "model": "sonnet", "input": 8132, "output": 274, "ms": 3139}
+{"t": 1793117346.2, "model": "sonnet", "input": 6673, "output": 172, "ms": 2319}
+{"t": 1793117346.4, "model": "sonnet", "input": 6628, "output": 127, "ms": 2495}
+{"t": 1793117346.4, "model": "sonnet", "input": 6627, "output": 125, "ms": 2048}
+{"t": 1793117347.0, "model": "sonnet", "input": 6602, "output": 130, "ms": 2248}
+{"t": 1793117350.3, "model": "sonnet", "input": 8083, "output": 151, "ms": 2404}
+{"t": 1793117350.4, "model": "sonnet", "input": 8202, "output": 169, "ms": 2252}
+{"t": 1793117350.5, "model": "sonnet", "input": 8190, "output": 175, "ms": 2392}
+{"t": 1793117350.8, "model": "sonnet", "input": 7873, "output": 142, "ms": 2308}
+{"t": 1793117354.2, "model": "sonnet", "input": 6573, "output": 209, "ms": 2697}
+{"t": 1793117355.1, "model": "sonnet", "input": 6631, "output": 254, "ms": 3491}
+{"t": 1793117355.5, "model": "sonnet", "input": 6622, "output": 334, "ms": 3627}

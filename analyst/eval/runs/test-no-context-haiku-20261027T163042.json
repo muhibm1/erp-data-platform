@@ -1,0 +1,78 @@
+{
+ "set": "test",
+ "condition": "no-context",
+ "model": "haiku",
+ "domain": "finance",
+ "started": "20261027T163042",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "1/2",
+    "pct": 50.0,
+    "ci95": [
+     9.5,
+     90.5
+    ]
+   },
+   "billed": {
+    "correct": "0/1",
+    "pct": 0.0,
+    "ci95": [
+     0.0,
+     79.3
+    ]
+   },
+   "owed": {
+    "correct": "1/1",
+    "pct": 100.0,
+    "ci95": [
+     20.7,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 1.0,
+  "median_seconds": 14.3
+ },
+ "records": [
+  {
+   "id": "billed-14",
+   "status": "answer",
+   "answer": 73025,
+   "explanation": "Azure Interior's invoices less credit notes in intermediate.int_invoices total 73,025 USD across 3 documents, and all of its billing is in USD.",
+   "sql": "SELECT currency, SUM(CASE WHEN move_type = 'out_refund' THEN -amount ELSE amount END) AS net_billed, COUNT(*) AS documents FROM intermediate.int_invoices WHERE customer_name ILIKE '%azure interior%' AND move_type IN ('out_invoice', 'out_refund') GROUP BY currency ORDER BY currency;",
+   "attempts": [
+    {
+     "sql": "SELECT currency, SUM(CASE WHEN move_type = 'out_refund' THEN -amount ELSE amount END) AS net_billed, COUNT(*) AS documents FROM intermediate.int_invoices WHERE customer_name ILIKE '%azure interior%' AND move_type IN ('out_invoice', 'out_refund') GROUP BY currency ORDER BY currency;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 14.3,
+   "correct": false,
+   "expected": 0.0
+  },
+  {
+   "id": "owed-14",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "Azure Interior has one currency on record, USD, and its open invoice balance in intermediate.int_invoices sums to zero, so it owes nothing right now.",
+   "sql": "SELECT customer_name, currency, SUM(amount_open) AS still_owed FROM intermediate.int_invoices WHERE customer_name ILIKE '%Azure Interior%' GROUP BY customer_name, currency ORDER BY currency;",
+   "attempts": [
+    {
+     "sql": "SELECT customer_name, currency, SUM(amount_open) AS still_owed FROM intermediate.int_invoices WHERE customer_name ILIKE '%Azure Interior%' GROUP BY customer_name, currency ORDER BY currency;",
+     "error": null
+    }
+   ],
+   "retrieved": [],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.0,
+   "correct": true,
+   "expected": 0.0
+  }
+ ]
+}

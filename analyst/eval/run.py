@@ -102,6 +102,8 @@ def run_one(dom, model, condition, retriever, row) -> dict:
             out = ask(app, row["question"], thread=row["id"])
     except ModelError as exc:
         out = {"status": "failed", "answer": None, "explanation": str(exc)}
+    except Exception as exc:  # a crash is scored as a wrong answer and kept, never dropped
+        out = {"status": "failed", "answer": None, "explanation": f"{type(exc).__name__}: {exc}"[:500]}
     rec = {"id": row["id"], "status": out.get("status"), "answer": out.get("answer"),
            "explanation": out.get("explanation"), "sql": out.get("sql"),
            "attempts": out.get("attempts", []), "retrieved": out.get("retrieved", []),

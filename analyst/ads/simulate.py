@@ -24,6 +24,7 @@ import datetime as dt
 import hashlib
 import math
 import random
+from pathlib import Path
 
 import psycopg
 
@@ -92,11 +93,11 @@ def build(admin_dsn: str, db: str = "adsdemo", seed: int = 2026) -> dict:
         admin.execute(f"create database {db}")
     dsn = admin_dsn.replace("dbname=postgres", f"dbname={db}") if "dbname=" in admin_dsn else f"{admin_dsn} dbname={db}"
     with psycopg.connect(dsn, autocommit=True) as c:
-        c.execute(open(__file__.replace("simulate.py", "schema.sql")).read())
+        c.execute(Path(__file__).with_name("schema.sql").read_text())
         rates = {}
         for i in range(DAYS):
             day = FIRST_DAY + dt.timedelta(days=i)
-            for code, (cur, base) in COUNTRIES.items():
+            for cur, base in COUNTRIES.values():
                 rate = round(base * (1 + rng.gauss(0, 0.004)), 4) if cur != "USD" else 1.0
                 rates[(day, cur)] = rate
                 c.execute("insert into reporting.fx_rates values (%s, %s, %s)", (day, cur, rate))

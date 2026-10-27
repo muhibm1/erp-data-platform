@@ -1,0 +1,8 @@
+{"t": 1793117383.1, "model": "sonnet", "input": 7311, "output": 264, "ms": 3005}
+{"t": 1793117383.4, "model": "sonnet", "input": 7297, "output": 377, "ms": 3509}
+{"t": 1793117384.0, "model": "sonnet", "input": 7300, "output": 394, "ms": 3816}
+{"t": 1793117384.4, "model": "sonnet", "input": 7315, "output": 480, "ms": 4203}
+{"t": 1793117388.2, "model": "sonnet", "input": 7297, "output": 154, "ms": 2281}
+{"t": 1793117388.2, "model": "sonnet", "input": 7303, "output": 437, "ms": 3755}
+{"t": 1793117390.0, "model": "sonnet", "input": 7306, "output": 540, "ms": 4598}
+{"t": 1793117391.3, "model": "sonnet", "input": 7313, "output": 745, "ms": 6404}

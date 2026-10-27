@@ -7,6 +7,7 @@
 
 import argparse
 import json
+from pathlib import Path
 
 from langgraph.checkpoint.sqlite import SqliteSaver
 
@@ -21,7 +22,7 @@ def main():
     p.add_argument("--domain", default="finance")
     p.add_argument("--thread", default="cli")
     p.add_argument("--model", default="sonnet")
-    p.add_argument("--memory", default=".analyst-threads.sqlite", help="where conversations are saved")
+    p.add_argument("--memory", default=str(Path(__file__).parent / ".threads.sqlite"), help="where conversations are saved")
     a = p.parse_args()
     dom = domains.load(a.domain)
     with dom.connect() as conn:

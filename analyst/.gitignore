@@ -1,2 +1,1 @@
-.analyst-threads.sqlite*
-eval/runs/*.usage.jsonl
+.threads.sqlite*
