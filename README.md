@@ -53,6 +53,7 @@ Billed in total: $1,379,155.41. Still owed: $362,891.89, of which $118,375.00 is
 | Traceability | Every customer and every won deal traces to records that add up (`tests/test_warehouse.py`) |
 | A real bug the checks caught | Partners with no email were being merged into one customer; recorded as `fathom/incidents/INC-001.md` |
 | Model on the question set | Claude Sonnet: 47 of 47 on test with or without being told how the records are messy; answering 0 to everything gets 23 ([details](eval/RESULTS.md)) |
+| Hand-off test | A fresh agent given only the docs fixed a broken morning (a failed run plus two invoices lost from the warehouse) in seven commands; its six complaints about the runbook were fixed ([write-up](docs/handoff-test.md)) |
 | CI | Every push builds Odoo from source, simulates the year, loads it, runs every check, test and drill, and rebuilds the dataset |
 
 ## Run it

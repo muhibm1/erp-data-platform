@@ -36,11 +36,23 @@ to move it) and, when `EDP_ALERT_WEBHOOK` is set, posted to that URL as
 .venv/bin/python -m edp.cli monitor     # the monitors on their own; exit 1 on a failure
 ```
 
+## Connect to the warehouse
+
+```bash
+psql -h /tmp -U odoo warehouse        # the demo defaults; production uses its own host and role
+```
+
+The pipeline reads the same settings from `EDP_DSN` (a libpq connection
+string). Every query below runs in this session.
+
 ## Check that the data is fresh
 
 ```sql
-select run_id, started_at, status, detail from raw.load_runs order by started_at desc limit 5;
+select run_id, started_at, status, detail::text from raw.load_runs order by started_at desc limit 5;
 ```
+
+`detail` is JSON (counts per model, or the error), so cast it to text before
+cutting it short.
 
 The newest run's `started_at` is the "data through" time. Most "the number is
 wrong" reports are a load that failed or did not run. A failed run has
@@ -63,11 +75,29 @@ known gap, such as a weekend outage.
 
 | Monitor | What it means | Do this |
 |---|---|---|
-| `last_run` | The newest load failed or is stuck. The error is in the message. | If Odoo was down, wait for it and run again; the client already retried with backoff. |
+| `last_run` | The newest load failed or is stuck. The error is in the message. | If Odoo was down, wait for it and `edp run` again; the client already retried with backoff. The next successful run clears this monitor and catches up on everything changed meanwhile. |
 | `freshness` | Nothing has loaded successfully for longer than the limit. | Check the scheduler is running, then `edp run`. |
 | `volume` | A model lost more than 20% of its records between loads. | Ask the Odoo admin whether records were archived or deleted on purpose before anyone uses the tables. |
 | `schema` | Fields were added to or removed from Odoo. A fail means a field the load reads is gone. | Warn: nothing to do. Fail: update `edp/sources.py` and the staging model. |
-| `source_totals` | The warehouse bills a different total than Odoo itself. | `edp extract --full`, then `edp run`. If it still fails, `trace` the biggest customers. |
+| `source_totals` | The warehouse bills a different total than Odoo itself. | `edp extract --full`, then `edp run` (it rebuilds every model and re-runs the monitors; no separate `dbt build` is needed). If it still fails, `trace` the biggest customers. |
+
+`edp monitor` exits 0 when nothing failed (warnings included) and 1 when
+anything failed.
+
+**Which records were missing.** A repair stores only what was missing, tagged
+with its run, so this lists them once `extract --full` has run:
+
+```sql
+select odoo_id, payload->>'name' as record, payload->'partner_id'->>1 as customer,
+       payload->>'amount_total_signed' as amount_usd
+from raw.account_move
+where run_id = (select run_id from raw.load_runs where mode = 'full' order by started_at desc limit 1);
+```
+
+A gap in dollars can be large from few rows: two missing invoices of $40,000
+each make an $80,000 gap. Rows go missing from the warehouse only when someone
+deletes them there (a manual fix, a restore from an old backup); the loader
+never deletes. Ask who had write access before closing the incident.
 
 Every failure the drills produced, and what was done, is written up in
 `fathom/incidents/`.
