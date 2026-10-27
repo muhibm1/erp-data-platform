@@ -89,8 +89,14 @@ class Company:
         """Order lines that add up to roughly the deal's expected revenue."""
         picks = self.rng.sample(range(len(PRODUCTS)), self.rng.randint(1, 3))
         share = target * self.rng.uniform(0.85, 1.2) / len(picks)
-        return [(0, 0, {"product_id": self.products[i],
-                        "product_uom_qty": max(1, round(share / PRODUCTS[i][1]))}) for i in picks]
+        lines = []
+        for i in picks:
+            qty = max(1, round(share / PRODUCTS[i][1]))
+            # A negotiated price near list, so the order lands near the deal value.
+            # US services, so no sales tax line.
+            lines.append((0, 0, {"product_id": self.products[i], "product_uom_qty": qty,
+                                 "price_unit": round(share / qty, -1), "tax_id": [(6, 0, [])]}))
+        return lines
 
     def deal(self, partner, revenue, opened: dt.date):
         return self.o.execute("crm.lead", "create", {
@@ -135,8 +141,8 @@ class Company:
     def direct_invoice(self, partner, currency, amount, day: dt.date, post=True):
         inv = self.o.execute("account.move", "create", {
             "move_type": "out_invoice", "partner_id": partner, "currency_id": currency,
-            "invoice_line_ids": [(0, 0, {"name": "Consulting, billed directly",
-                                         "quantity": 1, "price_unit": amount})]})
+            "invoice_line_ids": [(0, 0, {"name": "Consulting, billed directly", "quantity": 1,
+                                         "price_unit": amount, "tax_ids": [(6, 0, [])]})]})
         return self.post(inv, day) if post else inv
 
 
