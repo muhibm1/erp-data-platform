@@ -1,0 +1,8 @@
+version: 2
+models:
+  - name: int_customers
+    description: One customer per real company. The matching rule decides which Odoo partners are the same customer.
+    meta: { owner: team/data-platform, tier: 1 }
+  - name: int_invoices
+    description: Posted customer invoices and credit notes with customer, order, deal and exact source version.
+    meta: { owner: team/data-platform, tier: 1 }

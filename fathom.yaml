@@ -1,0 +1,15 @@
+# Fathom: lineage, owners, rules and incident history for this warehouse.
+db: .fathom/graph.duckdb
+constraints: fathom/constraints
+adapters:
+  dbt:
+    project: dbt
+  git:
+    paths: [dbt, fathom]
+    max_commits: 200
+  incidents:
+    dir: fathom/incidents
+retrieval:
+  ranker: bm25
+review:
+  provider: stub

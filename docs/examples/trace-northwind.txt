@@ -1,0 +1,19 @@
+Northwind Logistics: billed 49,490.00, paid 22,655.00, open 26,835.00 (USD)
+  merged from Odoo partners [41, 71]
+
+Invoices
+  invoice         dated       due         currency  in_currency  usd        paid       open       order   deal          source_ref                          
+  --------------  ----------  ----------  --------  -----------  ---------  ---------  ---------  ------  ------------  ------------------------------------
+  INV/2026/00036  2026-05-24  2026-06-23  USD       9,900.00     9,900.00   2,475.00   7,425.00   S00052  Deal Apr 422  account.move/83@2026-10-27T08:33:00 
+  INV/2026/00050  2026-07-31  2026-08-30  USD       20,180.00    20,180.00  20,180.00  0.00       S00066  Deal Jun 346  account.move/109@2026-10-27T08:33:00
+  INV/2026/00077  2026-09-22  2026-10-22  USD       19,410.00    19,410.00  0.00       19,410.00  S00095  Deal Sep 210  account.move/156@2026-10-27T08:33:02
+
+Payments
+  payment           dated       currency  usd        invoice_ids  source_ref                            
+  ----------------  ----------  --------  ---------  -----------  --------------------------------------
+  PBNK1/2026/00028  2026-07-06  USD       2,475.00   83           account.payment/28@2026-10-27T08:31:38
+  PBNK1/2026/00040  2026-08-31  USD       20,180.00  109          account.payment/40@2026-10-27T08:32:08
+
+  billed: 49,490.00 = sum of the records above (49,490.00) OK
+  open: 26,835.00 = sum of the records above (26,835.00) OK
+  paid: 22,655.00 = sum of the records above (22,655.00) OK

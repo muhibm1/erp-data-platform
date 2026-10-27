@@ -1,0 +1,11 @@
+id: CON-102
+scope:
+  assets: [model:int_customers]
+rule:
+  kind: requires_approval
+  approvers: [team/finance]
+severity: warn
+reason: The customer matching rule decides whose invoices are added together. A wrong merge moves money between customers in every finance table.
+source: INC-001
+approvers: [team/finance]
+expires: null

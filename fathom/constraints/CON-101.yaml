@@ -1,0 +1,12 @@
+id: CON-101
+scope:
+  assets: [model:revenue_by_customer, model:receivables_aging]
+  columns: "*"
+rule:
+  kind: columns_locked
+  allow: [add]
+severity: block
+reason: Month-end close and the collections queue read these columns. Adding one is fine; removing or renaming one needs finance sign-off.
+source: null
+approvers: [team/finance]
+expires: null

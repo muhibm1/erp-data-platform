@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: revenue_by_customer
+    meta: { owner: team/finance, tier: 1, contract: true }
     description: Billed, paid and still open per customer, in USD. One row per real customer after duplicates are merged.
     columns:
       - name: customer_key
@@ -11,11 +12,13 @@ models:
         description: The Odoo invoice ids behind this row. `d2c trace` expands them.
         tests: [not_null]
   - name: receivables_aging
+    meta: { owner: team/finance, tier: 1, contract: true }
     description: Money still owed per customer, by days past due on the as_of date.
     columns:
       - name: customer_key
         tests: [unique, not_null]
   - name: deal_to_cash
+    meta: { owner: team/revenue-ops, tier: 1 }
     description: Every won deal, followed through order, invoice and payment.
     columns:
       - name: deal_id
@@ -24,3 +27,16 @@ models:
         tests:
           - accepted_values:
               values: ['won, no order', 'ordered, not invoiced', 'invoiced, unpaid', 'partly paid', 'paid']
+exposures:
+  - name: month_end_close
+    type: analysis
+    owner: {name: Finance, email: finance@example.com}
+    description: Month-end close reads billed, paid and open per customer, and the aging buckets for the bad-debt reserve.
+    depends_on: [ref('revenue_by_customer'), ref('receivables_aging')]
+    meta: { tier: 1 }
+  - name: collections_queue
+    type: application
+    owner: {name: Revenue ops, email: revops@example.com}
+    description: The weekly list of late customers the collections team calls.
+    depends_on: [ref('receivables_aging'), ref('deal_to_cash')]
+    meta: { tier: 1 }
