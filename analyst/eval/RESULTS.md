@@ -90,12 +90,9 @@ as the plan says.
 | Questions the data cannot answer (credit score, salesperson, margin, tickets, forecast, in-app revenue, competitor bids) | 46 of 47 declined; the miss is the competitor-bids case above |
 | Runs that crashed or never answered | 0 |
 
-## Cost and speed
+## Speed and size
 
-$0 of API credit. Every model call went through a Claude subscription, one
-headless call per step, with API keys removed from the call's environment.
-
-Per question, the full agent made about 2 model calls of about 14,000 input
+Every model call is one headless `claude -p` call per step. Per question, the full agent made about 2 model calls of about 14,000 input
 tokens, most of it the retrieved notes. The median answer took 8 seconds with
 Sonnet and 9 with Haiku, with up to four questions in flight. Retrieval itself
 takes milliseconds once the local embedding model is loaded.
