@@ -153,6 +153,13 @@ ordinary LangChain call that LangSmith traces. Use `--route langchain` on the ev
 `analyst.ask`. Tests cover it with a stand-in model. The scored runs above used the `claude -p`
 route, so version 2's numbers do not depend on the new route.
 
+One live check ran on this route after the scoring: version 2 on the 5 loose-name dev questions,
+Claude Sonnet through `ChatAnthropic`. It answered all 5, including the declined question about a
+keyword that does not exist, in 15 model calls (28,500 input and 4,800 output tokens), with a
+median of 10 seconds. The check found one real bug first: the client refuses any `temperature`
+setting on the 5.5 models, so `ChatModel` now leaves it at the default. The run file is
+`runs/explore-dev-full-v2-sonnet-*` with `"route": "langchain"`.
+
 ## Speed and size
 
 Every model call is one headless `claude -p` call per step. Per question, the full agent made about 2 model calls of about 14,000 input

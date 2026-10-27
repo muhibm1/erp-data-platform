@@ -1,0 +1,225 @@
+{
+ "set": "explore-dev",
+ "condition": "full-v2",
+ "model": "sonnet",
+ "route": "langchain",
+ "domain": "ads",
+ "started": "20261027T222830",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "5/5",
+    "pct": 100.0,
+    "ci95": [
+     56.6,
+     100.0
+    ]
+   },
+   "answerable": {
+    "correct": "4/4",
+    "pct": 100.0,
+    "ci95": [
+     51.0,
+     100.0
+    ]
+   },
+   "not answerable": {
+    "correct": "1/1",
+    "pct": 100.0,
+    "ci95": [
+     20.7,
+     100.0
+    ]
+   }
+  },
+  "repaired": 0,
+  "queries_per_question": 0.8,
+  "median_seconds": 10.4
+ },
+ "records": [
+  {
+   "id": "xd-komoot-gb",
+   "status": "answer",
+   "answer": "97",
+   "explanation": "The 'komoot' keyword in the Trailhead - GB - Search campaign recorded 97 installs from 2026-08-28 to 2026-10-26.",
+   "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - GB - Search' and k.keyword = 'komoot' and d.day between '2026-08-28' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - GB - Search' and k.keyword = 'komoot' and d.day between '2026-08-28' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [
+    {
+     "sql": "select distinct c.campaign_id, c.campaign_name, c.country, c.app_name, k.keyword, k.match_type from reporting.keywords k join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where lower(k.keyword) like '%komoot%' or lower(c.app_name) like '%trailhead%'",
+     "found": "[{\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"alltrails\", \"match_type\": \"exact\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"gaia gps\", \"match_type\": \"exact\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"hiking app\", \"match_type\": \"broad\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"hiking trails near me\", \"match_type\": \"broad\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"komoot\", \"match_type\": \"exact\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"offline maps\", \"match_type\": \"broad\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"trail maps\", \"match_type\": \"broad\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead\", \"match_type\": \"exact\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead app\", \"match_type\": \"exact\"}, {\"campaign_id\": 1, \"campaign_name\": \"Trailhead - US - Search\", \"country\": \"US\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead maps\", \"match_type\": \"exact\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"alltrails\", \"match_type\": \"broad\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"gaia gps\", \"match_type\": \"broad\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"hiking app\", \"match_type\": \"broad\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"hiking trails near me\", \"match_type\": \"exact\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"komoot\", \"match_type\": \"broad\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"offline maps\", \"match_type\": \"exact\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"trail maps\", \"match_type\": \"broad\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead\", \"match_type\": \"exact\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead app\", \"match_type\": \"exact\"}, {\"campaign_id\": 2, \"campaign_name\": \"Trailhead - GB - Search\", \"country\": \"GB\", \"app_name\": \"Trailhead\", \"keyword\": \"trailhead maps\", \"match_type\": \"exact\"}]"
+    }
+   ],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.campaigns",
+    "reporting.keyword_daily",
+    "example-0",
+    "reporting.audience_daily",
+    "reporting.keywords",
+    "conversion rate",
+    "whole period",
+    "example-1",
+    "over budget",
+    "cost per install"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.4,
+   "correct": true,
+   "expected": 97
+  },
+  {
+   "id": "xd-shots-taps",
+   "status": "answer",
+   "answer": "23521",
+   "explanation": "The screenshots experiment (experiment_id 1) recorded 23,521 taps in total across all its days. I did not run a lookup to confirm that ID 1 is the screenshots experiment, so that match is assumed.",
+   "sql": "select sum(taps) from reporting.experiment_daily where experiment_id = 1",
+   "attempts": [
+    {
+     "sql": "select sum(taps) from reporting.experiment_daily where experiment_id = 1",
+     "error": null
+    }
+   ],
+   "lookups": [
+    {
+     "sql": "select distinct experiment_id, experiment_name from reporting.experiments where lower(experiment_name) like '%screenshot%'",
+     "found": "[{\"experiment_id\": 1, \"experiment_name\": \"Product page: new screenshots\"}]"
+    }
+   ],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.experiment_daily",
+    "reporting.experiments",
+    "reporting.keyword_daily",
+    "conversion rate",
+    "cost per tap",
+    "statistically significant",
+    "tap-through rate",
+    "reporting.audience_daily",
+    "example-0",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.7,
+   "correct": true,
+   "expected": 23521
+  },
+  {
+   "id": "xd-plant-id-spend",
+   "status": "answer",
+   "answer": "3061.4",
+   "explanation": "Spend on the \"plant identifier\" keyword across all campaigns, converted to US dollars at each day's exchange rate, came to about $3,061.40 for the period 2026-08-28 to 2026-10-26.",
+   "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where k.keyword = 'plant identifier' and d.day between '2026-08-28' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where k.keyword = 'plant identifier' and d.day between '2026-08-28' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [
+    {
+     "sql": "select distinct keyword from reporting.keywords where lower(keyword) like '%plant%' order by 1",
+     "found": "[{\"keyword\": \"greg plant app\"}, {\"keyword\": \"plant care\"}, {\"keyword\": \"plant identifier\"}, {\"keyword\": \"planta\"}, {\"keyword\": \"sprout plants\"}]"
+    }
+   ],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keywords",
+    "example-0",
+    "reporting.campaigns",
+    "spend in dollars",
+    "reporting.keyword_daily",
+    "whole period",
+    "over budget",
+    "cost per tap",
+    "reporting.fx_rates",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 10.5,
+   "correct": true,
+   "expected": 3061.4
+  },
+  {
+   "id": "xd-german-last",
+   "status": "answer",
+   "answer": "2026-10-14",
+   "explanation": "The German campaign (Ledgerly - DE - Search) last had spend above zero on 2026-10-14.",
+   "sql": "select to_char(max(d.day), 'YYYY-MM-DD') as last_spend_day from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Ledgerly - DE - Search' and d.spend > 0",
+   "attempts": [
+    {
+     "sql": "select to_char(max(d.day), 'YYYY-MM-DD') as last_spend_day from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Ledgerly - DE - Search' and d.spend > 0",
+     "error": null
+    }
+   ],
+   "lookups": [
+    {
+     "sql": "select distinct campaign_id, campaign_name, country, currency, status from reporting.campaigns where lower(country) like '%de%' or lower(campaign_name) like '%de%' or lower(campaign_name) like '%germ%'",
+     "found": "[{\"campaign_id\": 4, \"campaign_name\": \"Ledgerly - DE - Search\", \"country\": \"DE\", \"currency\": \"EUR\", \"status\": \"paused\"}]"
+    }
+   ],
+   "redrafts": 0,
+   "retrieved": [
+    "example-0",
+    "over budget",
+    "reporting.campaigns",
+    "reporting.fx_rates",
+    "reporting.keyword_daily",
+    "reporting.experiments",
+    "last 7 days",
+    "spend in dollars",
+    "example-1",
+    "whole period"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.4,
+   "correct": true,
+   "expected": "2026-10-14"
+  },
+  {
+   "id": "xd-none-habit",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "Lookups on reporting.keywords for 'habit' and 'hab'/'track' found no 'habit tracker' keyword; the only close matches are 'expense tracker' keywords, which are different keywords.",
+   "sql": "",
+   "attempts": [],
+   "lookups": [
+    {
+     "sql": "select * from reporting.keywords k where lower(k::text) like '%habit%'",
+     "found": "[]"
+    },
+    {
+     "sql": "select * from reporting.keywords k where lower(k::text) like '%track%' or lower(k::text) like '%hab%'",
+     "found": "[{\"keyword_id\": 24, \"ad_group_id\": 31, \"keyword\": \"expense tracker\", \"match_type\": \"broad\", \"bid\": 1.97}, {\"keyword_id\": 33, \"ad_group_id\": 41, \"keyword\": \"expense tracker\", \"match_type\": \"exact\", \"bid\": 1.49}]"
+    }
+   ],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keyword_daily",
+    "reporting.audience_daily",
+    "conversion rate",
+    "reporting.experiment_daily",
+    "example-1",
+    "example-0",
+    "reporting.ad_groups",
+    "privacy",
+    "cost per install",
+    "last 7 days"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 13.6,
+   "correct": true,
+   "expected": null
+  }
+ ]
+}
