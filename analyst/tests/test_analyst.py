@@ -267,3 +267,87 @@ def test_cites_rows_that_carry_a_source(finance):
 def test_one_shot_takes_the_query_result_as_the_answer(finance):
     model = FakeModel([{"decision": "query", "sql": "select count(*) from marts.deal_to_cash", "reason": "x"}])
     assert one_shot(finance, model, "How many won deals?")["answer"] == 79
+
+
+def test_looks_a_name_up_before_the_final_query(ads):
+    dom, _ = ads
+    model = FakeModel([
+        {"decision": "lookup", "reason": "how is Mint spelled",
+         "sql": "select distinct keyword from reporting.keywords where lower(keyword) like '%mint%'"},
+        {"decision": "query", "reason": "the exact keyword",
+         "sql": "select sum(d.installs) as installs from reporting.keyword_daily d "
+                "join reporting.keywords k using (keyword_id) where k.keyword = 'mint budget'"},
+        {"status": "answer", "answer": 1, "explanation": "x"},
+    ])
+    out = ask(build(dom, model, context=False), "How many installs did the Mint keyword get?", "t-lookup")
+    assert out["status"] == "answer"
+    assert out["lookups"][0]["found"] == '[{"keyword": "mint budget"}]'
+    assert "mint budget" in model.prompts[1] and "1 more lookup" in model.prompts[1]
+
+
+def test_lookups_are_capped(ads):
+    dom, _ = ads
+    look = {"decision": "lookup", "reason": "x", "sql": "select distinct keyword from reporting.keywords limit 1"}
+    model = FakeModel([look, look, {"decision": "not_answerable", "sql": "", "reason": "no such keyword"}])
+    out = ask(build(dom, model, context=False, max_lookups=2), "Installs for 'notion'?", "t-cap")
+    assert out["status"] == "not_answerable" and len(out["lookups"]) == 2
+    assert "No lookups are left" in model.prompts[2]
+
+
+def test_a_declined_reading_goes_back_to_draft_once(ads):
+    dom, _ = ads
+    q = {"decision": "query", "reason": "x", "sql": "select count(*) as n from reporting.campaigns"}
+    decline = {"status": "not_answerable", "answer": None, "explanation": "That counts campaigns, not keywords."}
+    model = FakeModel([q, decline, q, decline])
+    out = ask(build(dom, model, context=False), "How many keywords?", "t-redraft")
+    assert out["status"] == "not_answerable" and out["redrafts"] == 1
+    assert "counts campaigns, not keywords" in model.prompts[2]
+
+
+def test_the_first_scored_agent_has_no_lookups_or_redraft(ads):
+    dom, _ = ads
+    q = {"decision": "query", "reason": "x", "sql": "select count(*) as n from reporting.campaigns"}
+    model = FakeModel([q, {"status": "not_answerable", "answer": None, "explanation": "wrong query"}])
+    out = ask(build(dom, model, context=False, max_lookups=0, max_redrafts=0), "How many keywords?", "t-v1")
+    assert out["status"] == "not_answerable" and len(model.prompts) == 2
+    assert "lookup" not in model.prompts[0].lower()
+
+
+class _StructuredStub:
+    """A chat model's structured-output surface, enough for ChatModel: records what it was asked."""
+
+    def __init__(self, reply):
+        self.reply, self.schemas, self.messages = reply, [], []
+
+    def with_structured_output(self, schema, include_raw=False):
+        from langchain_core.messages import AIMessage
+        from langchain_core.runnables import RunnableLambda
+
+        self.schemas.append(schema)
+
+        def answer(messages):
+            self.messages.append(messages)
+            raw = AIMessage(content="", usage_metadata={"input_tokens": 10, "output_tokens": 3, "total_tokens": 13})
+            return {"parsed": self.reply, "raw": raw, "parsing_error": None}
+
+        return RunnableLambda(answer)
+
+
+def test_chat_model_route_asks_for_the_step_schema(tmp_path):
+    from analyst.graph import DRAFT_SCHEMA
+    from analyst.model import ChatModel
+
+    stub = _StructuredStub({"decision": "query", "sql": "select 1", "reason": "x"})
+    model = ChatModel(llm=stub, model="sonnet", usage_log=tmp_path / "u.jsonl")
+    assert model("SYSTEM", "PROMPT", DRAFT_SCHEMA)["decision"] == "query"
+    assert stub.schemas[0]["properties"] == DRAFT_SCHEMA["properties"] and stub.schemas[0]["title"]
+    assert [m.content for m in stub.messages[0]] == ["SYSTEM", "PROMPT"]
+    assert model.model == "claude-sonnet-5-5"
+    assert '"input": 10' in (tmp_path / "u.jsonl").read_text()
+
+
+def test_chat_model_route_turns_a_bad_reply_into_a_model_error():
+    from analyst.model import ChatModel, ModelError
+
+    with pytest.raises(ModelError):
+        ChatModel(llm=_StructuredStub(None))("s", "p", {"type": "object", "properties": {}})

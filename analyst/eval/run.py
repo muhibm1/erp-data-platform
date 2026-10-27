@@ -21,7 +21,7 @@ from pathlib import Path
 
 from .. import domain as domains
 from ..graph import ask, build, one_shot
-from ..model import ModelError, CommandLineModel
+from ..model import ChatModel, CommandLineModel, ModelError
 from ..retrieve import Retriever
 
 HERE = Path(__file__).resolve().parent
@@ -33,8 +33,13 @@ SETS = {
     "hard-test": ("finance", HERE / "data" / "hard-test.jsonl"),
     "ads-dev": ("ads", HERE / "data" / "ads-dev.jsonl"),
     "ads-test": ("ads", HERE / "data" / "ads-test.jsonl"),
+    "explore-dev": ("ads", HERE / "data" / "explore-dev.jsonl"),
+    "explore-test": ("ads", HERE / "data" / "explore-test.jsonl"),
 }
-CONDITIONS = ("one-shot", "one-shot-read", "no-context", "full")
+# full is the agent as first scored (no lookups, no redraft); full-v2 adds lookups and the
+# redraft after a declined reading. Saved runs keep the condition they were scored under.
+CONDITIONS = ("one-shot", "one-shot-read", "no-context", "full", "full-v2")
+FULL = ("full", "full-v2")
 
 
 def load(name: str) -> tuple[str, list[dict]]:
@@ -97,8 +102,10 @@ def run_one(dom, model, condition, retriever, row) -> dict:
             out["attempts"] = [{"sql": out.get("sql"),
                                 "error": out.get("explanation") if out["status"] == "failed" else None}]
         else:
-            app = build(dom, model, context=condition == "full", retriever=retriever,
-                        max_tries=1 if condition == "one-shot-read" else 3)
+            v2 = condition == "full-v2"
+            app = build(dom, model, context=condition in FULL, retriever=retriever,
+                        max_tries=1 if condition == "one-shot-read" else 3,
+                        max_lookups=2 if v2 else 0, max_redrafts=1 if v2 else 0)
             out = ask(app, row["question"], thread=row["id"])
     except ModelError as exc:
         out = {"status": "failed", "answer": None, "explanation": str(exc)}
@@ -106,7 +113,8 @@ def run_one(dom, model, condition, retriever, row) -> dict:
         out = {"status": "failed", "answer": None, "explanation": f"{type(exc).__name__}: {exc}"[:500]}
     rec = {"id": row["id"], "status": out.get("status"), "answer": out.get("answer"),
            "explanation": out.get("explanation"), "sql": out.get("sql"),
-           "attempts": out.get("attempts", []), "retrieved": out.get("retrieved", []),
+           "attempts": out.get("attempts", []), "lookups": out.get("lookups", []),
+           "redrafts": out.get("redrafts", 0), "retrieved": out.get("retrieved", []),
            "sources": out.get("sources", []), "citations_ok": (out.get("citations") or {}).get("all_ok"),
            "seconds": round(time.time() - t, 1)}
     rec["correct"] = correct(row, rec)
@@ -130,7 +138,8 @@ def summarise(rows: list[dict], records: list[dict]) -> dict:
     }
 
 
-def run(set_name: str, condition: str, model_name: str, out_dir: Path, limit: int | None, parallel: int) -> Path:
+def run(set_name: str, condition: str, model_name: str, out_dir: Path, limit: int | None, parallel: int,
+        route: str = "cli") -> Path:
     dom_name, rows = load(set_name)
     rows = rows[:limit] if limit else rows
     dom = domains.load(dom_name)
@@ -138,11 +147,14 @@ def run(set_name: str, condition: str, model_name: str, out_dir: Path, limit: in
         domains.read_columns(dom, conn)
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%S")
     path = out_dir / f"{set_name}-{condition}-{model_name}-{stamp}.json"
-    model = CommandLineModel(model_name, usage_log=path.with_suffix(".usage.jsonl"))
-    retriever = Retriever(domains.documents(dom)) if condition == "full" else None
+    usage = path.with_suffix(".usage.jsonl")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    model = (ChatModel(model=model_name, usage_log=usage) if route == "langchain"
+             else CommandLineModel(model_name, usage_log=usage))
+    retriever = Retriever(domains.documents(dom)) if condition in FULL else None
     with cf.ThreadPoolExecutor(parallel) as pool:
         records = list(pool.map(lambda r: run_one(dom, model, condition, retriever, r), rows))
-    report = {"set": set_name, "condition": condition, "model": model_name, "domain": dom_name,
+    report = {"set": set_name, "condition": condition, "model": model_name, "route": route, "domain": dom_name,
               "started": stamp, "summary": summarise(rows, records), "records": records}
     out_dir.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=1, default=str) + "\n")
@@ -189,6 +201,8 @@ def main():
     p.add_argument("--set", choices=sorted(SETS), default="dev")
     p.add_argument("--condition", choices=CONDITIONS, default="full")
     p.add_argument("--model", default="sonnet")
+    p.add_argument("--route", choices=("cli", "langchain"), default="cli",
+                   help="cli: one `claude -p` call per step; langchain: ChatAnthropic, needs an Anthropic key")
     p.add_argument("--limit", type=int)
     p.add_argument("--parallel", type=int, default=4)
     p.add_argument("--out", default=str(HERE / "runs"))
@@ -196,7 +210,7 @@ def main():
     if a.cmd == "compare":
         print(json.dumps(compare(a.a, a.b), indent=2))
         return
-    path = run(a.set, a.condition, a.model, Path(a.out), a.limit, a.parallel)
+    path = run(a.set, a.condition, a.model, Path(a.out), a.limit, a.parallel, a.route)
     print(path)
     print(json.dumps(json.loads(path.read_text())["summary"], indent=2))
 

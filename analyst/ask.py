@@ -13,7 +13,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 from . import domain as domains
 from .graph import ask, build
-from .model import CommandLineModel
+from .model import ChatModel, CommandLineModel
 
 
 def main():
@@ -22,13 +22,16 @@ def main():
     p.add_argument("--domain", default="finance")
     p.add_argument("--thread", default="cli")
     p.add_argument("--model", default="sonnet")
+    p.add_argument("--route", choices=("cli", "langchain"), default="cli",
+                   help="cli: the claude command line; langchain: ChatAnthropic with an Anthropic key")
     p.add_argument("--memory", default=str(Path(__file__).parent / ".threads.sqlite"), help="where conversations are saved")
     a = p.parse_args()
     dom = domains.load(a.domain)
     with dom.connect() as conn:
         domains.read_columns(dom, conn)
     with SqliteSaver.from_conn_string(a.memory) as saver:
-        app = build(dom, CommandLineModel(a.model), checkpointer=saver)
+        model = ChatModel(model=a.model) if a.route == "langchain" else CommandLineModel(a.model)
+        app = build(dom, model, checkpointer=saver)
         out = ask(app, a.question, a.thread)
     print(json.dumps({k: out.get(k) for k in ("status", "answer", "explanation", "sql", "sources")},
                      indent=2, default=str))
