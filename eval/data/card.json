@@ -1,0 +1,29 @@
+{
+  "built_at": "2026-10-27T08:35:18+00:00",
+  "as_of": "2026-10-27",
+  "warehouse_load_runs": [
+    "20261027T083259-aeb3d8",
+    "20261027T083305-2aa124",
+    "20261027T083305-61bdae"
+  ],
+  "questions": {
+    "dev": 92,
+    "test": 32
+  },
+  "customers": {
+    "dev": 23,
+    "test": 8,
+    "in_both": 0
+  },
+  "templates": [
+    "billed",
+    "owed",
+    "late30",
+    "unpaid_refs"
+  ],
+  "sha256": {
+    "dev.chat.jsonl": "34c10f6332fb9221b5927ccd068ad084b20e9b93c0193523f67ee005c02548cf",
+    "dev.jsonl": "062846c54ae7e4cf7e4d9ef7b0a8f9ab1094b05b23825ac05114013de1e75219",
+    "test.jsonl": "268b5d7f9bcd12deebbb6cc110df855cb949713ff024f17d2532a23bc1714db7"
+  }
+}
