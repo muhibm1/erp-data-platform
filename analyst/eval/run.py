@@ -21,7 +21,7 @@ from pathlib import Path
 
 from .. import domain as domains
 from ..graph import ask, build, one_shot
-from ..model import ModelError, SubscriptionModel
+from ..model import ModelError, CommandLineModel
 from ..retrieve import Retriever
 
 HERE = Path(__file__).resolve().parent
@@ -138,7 +138,7 @@ def run(set_name: str, condition: str, model_name: str, out_dir: Path, limit: in
         domains.read_columns(dom, conn)
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%S")
     path = out_dir / f"{set_name}-{condition}-{model_name}-{stamp}.json"
-    model = SubscriptionModel(model_name, usage_log=path.with_suffix(".usage.jsonl"))
+    model = CommandLineModel(model_name, usage_log=path.with_suffix(".usage.jsonl"))
     retriever = Retriever(domains.documents(dom)) if condition == "full" else None
     with cf.ThreadPoolExecutor(parallel) as pool:
         records = list(pool.map(lambda r: run_one(dom, model, condition, retriever, r), rows))
