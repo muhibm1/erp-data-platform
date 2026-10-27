@@ -9,7 +9,7 @@ models:
       - name: invoiced
         tests: [not_null]
       - name: source_invoice_ids
-        description: The Odoo invoice ids behind this row. `d2c trace` expands them.
+        description: The Odoo invoice ids behind this row. `edp trace` expands them.
         tests: [not_null]
   - name: receivables_aging
     meta: { owner: team/finance, tier: 1, contract: true }

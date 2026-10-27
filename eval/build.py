@@ -173,5 +173,5 @@ def prompt(row: dict) -> str:
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--dsn", default=os.environ.get("D2C_DSN", "host=/tmp dbname=warehouse user=odoo"))
+    p.add_argument("--dsn", default=os.environ.get("EDP_DSN", "host=/tmp dbname=warehouse user=odoo"))
     print(json.dumps(build(p.parse_args().dsn), indent=2))

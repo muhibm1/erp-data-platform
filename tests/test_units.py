@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "eval"))
 from build import split_of  # noqa: E402
 from run import correct, parse  # noqa: E402
 
-from d2c.sources import DOMAINS, SOURCES, table_name
+from edp.sources import DOMAINS, SOURCES, table_name
 
 
 def test_table_names():

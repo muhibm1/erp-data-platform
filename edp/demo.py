@@ -22,7 +22,7 @@ from .odoo import Odoo
 def main():
     odoo = Odoo(os.environ.get("ODOO_URL", "http://localhost:8069"), os.environ.get("ODOO_DB", "acme"),
                 os.environ.get("ODOO_USER", "admin"), os.environ.get("ODOO_PASSWORD", "admin"))
-    dsn = os.environ.get("D2C_DSN", "host=/tmp dbname=warehouse user=odoo")
+    dsn = os.environ.get("EDP_DSN", "host=/tmp dbname=warehouse user=odoo")
     with psycopg.connect(dsn) as conn:
         print("year:", json.dumps(simulate.year(simulate.Company(odoo, random.Random(2026)))))
         print("load 1:", json.dumps(extract(odoo, conn)))

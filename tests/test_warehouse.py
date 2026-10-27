@@ -1,13 +1,13 @@
-"""Checks against a built warehouse. Skipped when there is none (run d2c.demo first)."""
+"""Checks against a built warehouse. Skipped when there is none (run edp.demo first)."""
 
 import os
 
 import psycopg
 import pytest
 
-from d2c.trace import trace
+from edp.trace import trace
 
-DSN = os.environ.get("D2C_DSN", "host=/tmp dbname=warehouse user=odoo")
+DSN = os.environ.get("EDP_DSN", "host=/tmp dbname=warehouse user=odoo")
 
 
 @pytest.fixture(scope="module")

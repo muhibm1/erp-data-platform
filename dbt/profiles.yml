@@ -3,10 +3,10 @@ deal_to_cash:
   outputs:
     local:
       type: postgres
-      host: "{{ env_var('D2C_PGHOST', '/tmp') }}"
+      host: "{{ env_var('EDP_PGHOST', '/tmp') }}"
       port: 5432
-      user: "{{ env_var('D2C_PGUSER', 'odoo') }}"
-      password: "{{ env_var('D2C_PGPASSWORD', '') }}"
-      dbname: "{{ env_var('D2C_PGDATABASE', 'warehouse') }}"
+      user: "{{ env_var('EDP_PGUSER', 'odoo') }}"
+      password: "{{ env_var('EDP_PGPASSWORD', '') }}"
+      dbname: "{{ env_var('EDP_PGDATABASE', 'warehouse') }}"
       schema: dbt
       threads: 4

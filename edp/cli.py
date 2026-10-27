@@ -1,4 +1,4 @@
-"""d2c: extract from Odoo, and trace a number back to its records."""
+"""edp: extract from Odoo, and trace a number back to its records."""
 
 import argparse
 import json
@@ -8,7 +8,7 @@ import psycopg
 
 
 def _conn():
-    return psycopg.connect(os.environ.get("D2C_DSN", "host=/tmp dbname=warehouse user=odoo"))
+    return psycopg.connect(os.environ.get("EDP_DSN", "host=/tmp dbname=warehouse user=odoo"))
 
 
 def _odoo():
@@ -21,7 +21,7 @@ def _odoo():
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(prog="d2c")
+    p = argparse.ArgumentParser(prog="edp")
     sub = p.add_subparsers(dest="cmd", required=True)
     e = sub.add_parser("extract", help="pull new and changed Odoo records into raw")
     e.add_argument("--full", action="store_true", help="ignore the watermark")

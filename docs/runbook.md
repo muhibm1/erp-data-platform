@@ -5,7 +5,7 @@ For the team that runs this after hand-off. Each section says what to do, then w
 ## Run a load
 
 ```bash
-.venv/bin/python -m d2c.cli extract
+.venv/bin/python -m edp.cli extract
 .venv/bin/dbt build --project-dir dbt --profiles-dir dbt
 ```
 
@@ -27,7 +27,7 @@ each model's records commit together.
 ## Reload from scratch
 
 ```bash
-.venv/bin/python -m d2c.cli extract --full
+.venv/bin/python -m edp.cli extract --full
 ```
 
 Re-reads every record. Versions already stored are skipped, so this adds only
@@ -37,9 +37,9 @@ nothing was missed.
 ## Explain a number
 
 ```bash
-.venv/bin/python -m d2c.cli trace revenue_by_customer "northwind"
-.venv/bin/python -m d2c.cli trace receivables_aging "harbor freight"
-.venv/bin/python -m d2c.cli trace deal_to_cash 129
+.venv/bin/python -m edp.cli trace revenue_by_customer "northwind"
+.venv/bin/python -m edp.cli trace receivables_aging "harbor freight"
+.venv/bin/python -m edp.cli trace deal_to_cash 129
 ```
 
 Lists every invoice, payment and order behind the number, with the Odoo id
@@ -61,7 +61,7 @@ See `docs/checks.md` for every check. In short:
 
 - **A field the load needs is gone or renamed.** The load stops before it
   writes anything and names the field: `crm.lead is missing fields [...]; the
-  source changed`. Update `d2c/sources.py`, then the staging model that reads it.
+  source changed`. Update `edp/sources.py`, then the staging model that reads it.
 - **Someone adds a custom field** (`x_...`). It is loaded automatically into
   the record's `payload`. Nothing breaks; add it to a staging model when it is needed.
 - **Records are deleted.** The load notices (`raw.deleted`) and the models leave them out.
