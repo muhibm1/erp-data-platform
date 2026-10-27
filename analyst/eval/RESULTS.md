@@ -102,6 +102,57 @@ aggregate; it is now refused with a message the repair loop would act on. All 27
 answer-key queries run under the new rule with nothing suppressed. The scored numbers were
 not rerun.
 
+## Version 2: questions that name things loosely
+
+**In short.** Real users don't know how the data spells things. They ask about "the Mint
+keyword" when the data says `mint budget`, or "the German campaign" when it says
+`Ledgerly - DE - Search`. Version 1 wrote one query from the question as asked. When the name
+didn't match, the query returned no rows and the agent reported 0. That is a confident wrong
+answer. Version 2 can look a name up first and send a self-declined answer back for another
+try. On a new set of 16 questions written for this, it answered 15. Version 1 answered 9,
+and a single query from the bare schema answered 10.
+
+**The set.** `explore_questions.py` holds 21 ads questions phrased the way a marketer would
+ask them: 5 for development and 16 for test. Three of them name something that does not
+exist, such as a Canadian campaign, an app-icon test or a "notion" keyword. The right reply
+to those is "not answerable", not 0. The questions and their gold SQL were committed
+(`69d0058`) before any agent ran on them. The agent was frozen at `745b65f` before the test
+set was scored once, on Claude Sonnet.
+
+| Explore test (16) | Correct | 95% interval |
+| --- | --- | --- |
+| Version 2: lookups, and another try after a declined reading | **15** | 72-99% |
+| Version 1: the agent scored above | 9 | 33-77% |
+| One query from the bare schema, read by the model | 10 | 39-82% |
+
+- **What changed.** Before the final query, draft may run up to two lookups. A lookup is a
+  small `SELECT DISTINCT` that finds how the data spells what the question names. If a lookup
+  finds nothing, the question is not answerable. Separately, when the reading step judges that
+  its own query was the wrong one, the reason goes back to draft once instead of ending the turn.
+- **Where it gained.** Version 2 gained six questions on version 1 and lost none (exact sign
+  test p = 0.03). It got four names right that version 1 matched exactly and missed: `mint
+  budget`, `gaia gps`, `copilot money` and the two hiking keywords. It also declined two
+  questions where version 1 answered 0 for something that does not exist.
+- **The miss was in the privacy tool, not the model.** On `xt-alltrails-7d`, both lookups
+  were refused. A query over the keywords table with a whole-row reference (`k::text`) could
+  not be traced, so the privacy rule failed closed, although that table holds no people
+  counts. The rule now skips any query whose tables hold no count of people
+  (`sql.reads_people`), with a test. The scored run was not repeated. Replaying the 147
+  recorded ads queries gives the same result as before.
+- **What it costs.** About one extra model call per question: 3.0 calls and 24,000 input
+  tokens per question, against 2.3 and 17,500. The median answer takes 16 seconds instead of 9.
+- **Caveats.** It is one run of 16 questions, with one author writing both the questions and
+  the agent. The sign test says version 2 is better on this kind of question. It does not say
+  by how much.
+
+## A LangChain chat-model route
+
+`model.ChatModel` wraps a LangChain chat model (`ChatAnthropic` by default). It asks for each
+step's reply through `with_structured_output`. Under the graph's run, each step is then an
+ordinary LangChain call that LangSmith traces. Use `--route langchain` on the eval and on
+`analyst.ask`. Tests cover it with a stand-in model. The scored runs above used the `claude -p`
+route, so version 2's numbers do not depend on the new route.
+
 ## Speed and size
 
 Every model call is one headless `claude -p` call per step. Per question, the full agent made about 2 model calls of about 14,000 input

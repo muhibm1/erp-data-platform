@@ -4,3 +4,4 @@ sqlglot==25.24.5         # MIT, parses each query before it runs
 pyyaml==6.0.2            # MIT, the domain files
 fastembed==0.4.2         # Apache-2.0, local embeddings for context retrieval (ONNX, no GPU)
 langgraph-checkpoint-sqlite==3.1.1  # MIT, saves conversations so follow-up questions work
+langchain-anthropic==1.7.5  # MIT, the LangChain chat-model route (ChatModel); the CLI route needs none of it

@@ -1,0 +1,587 @@
+{
+ "set": "explore-test",
+ "condition": "full",
+ "model": "sonnet",
+ "route": "cli",
+ "domain": "ads",
+ "started": "20261027T215622",
+ "summary": {
+  "scores": {
+   "all": {
+    "correct": "9/16",
+    "pct": 56.2,
+    "ci95": [
+     33.2,
+     76.9
+    ]
+   },
+   "answerable": {
+    "correct": "8/13",
+    "pct": 61.5,
+    "ci95": [
+     35.5,
+     82.3
+    ]
+   },
+   "not answerable": {
+    "correct": "1/3",
+    "pct": 33.3,
+    "ci95": [
+     6.1,
+     79.2
+    ]
+   }
+  },
+  "repaired": 2,
+  "queries_per_question": 1.38,
+  "median_seconds": 9.1
+ },
+ "records": [
+  {
+   "id": "xt-ynab-7d",
+   "status": "answer",
+   "answer": 131,
+   "explanation": "The YNAB keywords got 131 installs across all campaigns from 2026-10-20 to 2026-10-26, the last 7 days.",
+   "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where k.keyword ilike '%ynab%' and d.day between '2026-10-20' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where k.keyword ilike '%ynab%' and d.day between '2026-10-20' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "example-0",
+    "reporting.audience_daily",
+    "last 7 days",
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "reporting.keywords",
+    "spend in dollars",
+    "privacy",
+    "conversion rate",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.1,
+   "correct": true,
+   "expected": 131
+  },
+  {
+   "id": "xt-mint-spend",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query returned no matching spend for the Mint keyword over the period, so the total is 0 dollars.",
+   "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where lower(k.keyword) = 'mint' and d.day between '2026-08-28' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where lower(k.keyword) = 'mint' and d.day between '2026-08-28' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "example-0",
+    "reporting.fx_rates",
+    "spend in dollars",
+    "reporting.keyword_daily",
+    "cost per tap",
+    "over budget",
+    "reporting.keywords",
+    "whole period",
+    "reporting.campaigns",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 14.7,
+   "correct": false,
+   "expected": 11156.21
+  },
+  {
+   "id": "xt-gaia-cpi",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no Gaia keyword data for the US Trailhead campaign, so the cost per install comes back as 0.",
+   "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - US - Search' and lower(k.keyword) = 'gaia'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - US - Search' and lower(k.keyword) = 'gaia'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "example-0",
+    "reporting.keywords",
+    "cost per install",
+    "reporting.fx_rates",
+    "cost per tap",
+    "over budget",
+    "spend in dollars",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 20.1,
+   "correct": false,
+   "expected": 7.41
+  },
+  {
+   "id": "xt-hiking-gb-cpt",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query returned no matching taps for hiking keywords in the UK Trailhead campaign, so the cost per tap is reported as 0.",
+   "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.taps), 0) as cpt_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - UK - Search' and k.keyword ilike '%hiking%'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.taps), 0) as cpt_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.campaign_name = 'Trailhead - UK - Search' and k.keyword ilike '%hiking%'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "reporting.keywords",
+    "cost per tap",
+    "example-0",
+    "reporting.fx_rates",
+    "over budget",
+    "example-1",
+    "cost per install",
+    "spend in dollars"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 9.1,
+   "correct": false,
+   "expected": 1.36
+  },
+  {
+   "id": "xt-copilot-ttr",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no Copilot keyword data in the US Ledgerly campaign, so the tap-through rate comes back as 0%.",
+   "sql": "select 100.0 * sum(d.taps) / sum(d.impressions) as ttr_pct from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.app_name = 'Ledgerly' and c.country = 'US' and lower(k.keyword) = 'copilot'",
+   "attempts": [
+    {
+     "sql": "select 100.0 * sum(d.taps) / sum(d.impressions) as ttr_pct from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.app_name = 'Ledgerly' and c.country = 'US' and lower(k.keyword) = 'copilot'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "example-1",
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "tap-through rate",
+    "cost per tap",
+    "reporting.keywords",
+    "example-0",
+    "over budget",
+    "conversion rate",
+    "reporting.fx_rates"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.5,
+   "correct": false,
+   "expected": 2.37
+  },
+  {
+   "id": "xt-jp-broad",
+   "status": "answer",
+   "answer": [
+    "plant identifier",
+    "watering reminder"
+   ],
+   "explanation": "Two keywords in the Sprout campaign for Japan are broad match: \"plant identifier\" and \"watering reminder\", both in the Category ad group.",
+   "sql": "select distinct k.keyword_id, k.keyword, g.ad_group_name, k.bid from reporting.keywords k join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.app_name = 'Sprout' and c.country = 'JP' and k.match_type = 'broad' order by g.ad_group_name, k.keyword",
+   "attempts": [
+    {
+     "sql": "select distinct k.keyword_id, k.keyword, g.ad_group_name, k.bid from reporting.keywords k join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.app_name = 'Sprout' and c.country = 'JP' and k.match_type = 'broad' order by g.ad_group_name, k.keyword",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keywords",
+    "example-0",
+    "reporting.campaigns",
+    "over budget",
+    "reporting.keyword_daily",
+    "reporting.ad_groups",
+    "example-1",
+    "spend in dollars",
+    "cost per tap",
+    "whole period"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.2,
+   "correct": true,
+   "expected": [
+    "watering reminder",
+    "plant identifier"
+   ]
+  },
+  {
+   "id": "xt-alltrails-7d",
+   "status": "failed",
+   "answer": null,
+   "explanation": "every row with a figure derived from installs/taps must also select the plain count for the same group, such as sum(installs); rows under 50 are then blanked",
+   "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - US - Search' and to_jsonb(k)::text ilike '%\"alltrails\"%' and d.day between '2026-10-20' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - US - Search' and lower(k.keyword_text) = 'alltrails' and d.day between '2026-10-20' and '2026-10-26'",
+     "error": "UndefinedColumn: column k.keyword_text does not exist"
+    },
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - US - Search' and exists (select 1 from jsonb_each_text(to_jsonb(k)) e where lower(e.value) = 'alltrails') and d.day between '2026-10-20' and '2026-10-26'",
+     "error": "name the schema for table  (one of ['reporting'])"
+    },
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.campaign_name = 'Trailhead - US - Search' and to_jsonb(k)::text ilike '%\"alltrails\"%' and d.day between '2026-10-20' and '2026-10-26'",
+     "error": "every row with a figure derived from installs/taps must also select the plain count for the same group, such as sum(installs); rows under 50 are then blanked"
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "last 7 days",
+    "example-0",
+    "reporting.keyword_daily",
+    "reporting.audience_daily",
+    "reporting.campaigns",
+    "cost per install",
+    "conversion rate",
+    "reporting.experiment_daily",
+    "tap-through rate",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 26.5,
+   "correct": false,
+   "expected": 78
+  },
+  {
+   "id": "xt-subtitle-sig",
+   "status": "answer",
+   "answer": "no",
+   "explanation": "The subtitle test's install-rate difference between variants (about 0.23 percentage points) is well inside the 95% margin of error (about 1.46 points), so it is not statistically significant.",
+   "sql": "with v as (select e.experiment_id, d.variant, sum(d.taps) as n, sum(d.installs)::numeric / sum(d.taps) as p from reporting.experiments e join reporting.experiment_daily d on d.experiment_id = e.experiment_id where e.experiment_name ilike '%subtitle%' group by e.experiment_id, d.variant), c as (select a.experiment_id, abs(b.p - a.p) as diff, 1.96 * sqrt(a.p * (1 - a.p) / a.n + b.p * (1 - b.p) / b.n) as margin from v a join v b on a.experiment_id = b.experiment_id and a.variant < b.variant) select experiment_id, diff, margin, case when diff > margin then 'yes' else 'no' end as significant from c",
+   "attempts": [
+    {
+     "sql": "with v as (select e.experiment_id, d.variant, sum(d.taps) as n, sum(d.installs)::numeric / sum(d.taps) as p from reporting.experiments e join reporting.experiment_daily d on d.experiment_id = e.experiment_id where e.experiment_name ilike '%subtitle%' group by 1, 2) select a.experiment_id, abs(b.p - a.p) as diff, 1.96 * sqrt(a.p*(1-a.p)/a.n + b.p*(1-b.p)/b.n) as margin, case when abs(b.p - a.p) > 1.96 * sqrt(a.p*(1-a.p)/a.n + b.p*(1-b.p)/b.n) then 'yes' else 'no' end as significant from v a join v b on a.experiment_id = b.experiment_id and a.variant < b.variant",
+     "error": "the size of a group inside this query could not be checked; write it without a correlated subquery over people counts"
+    },
+    {
+     "sql": "with v as (select e.experiment_id, d.variant, sum(d.taps) as n, sum(d.installs)::numeric / sum(d.taps) as p from reporting.experiments e join reporting.experiment_daily d on d.experiment_id = e.experiment_id where e.experiment_name ilike '%subtitle%' group by e.experiment_id, d.variant), c as (select a.experiment_id, abs(b.p - a.p) as diff, 1.96 * sqrt(a.p * (1 - a.p) / a.n + b.p * (1 - b.p) / b.n) as margin from v a join v b on a.experiment_id = b.experiment_id and a.variant < b.variant) select experiment_id, diff, margin, case when diff > margin then 'yes' else 'no' end as significant from c",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "statistically significant",
+    "reporting.audience_daily",
+    "reporting.keyword_daily",
+    "reporting.keywords",
+    "reporting.experiments",
+    "example-1",
+    "over budget",
+    "percentage points",
+    "example-0",
+    "tap-through rate"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 16.3,
+   "correct": true,
+   "expected": "no"
+  },
+  {
+   "id": "xt-shots-b-cr",
+   "status": "answer",
+   "answer": 44.44,
+   "explanation": "Variant B of the screenshots test turned 44.44% of taps into installs (total installs divided by total taps across the test).",
+   "sql": "select 100.0 * sum(d.installs) / sum(d.taps) as conversion_rate_pct from reporting.experiment_daily d join reporting.experiments e using (experiment_id) where e.experiment_name ilike '%screenshot%' and d.variant = 'B'",
+   "attempts": [
+    {
+     "sql": "select 100.0 * sum(d.installs) / sum(d.taps) as conversion_rate_pct from reporting.experiment_daily d join reporting.experiments e using (experiment_id) where e.experiment_name ilike '%screenshot%' and d.variant = 'B'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "statistically significant",
+    "reporting.experiment_daily",
+    "example-1",
+    "conversion rate",
+    "reporting.experiments",
+    "percentage points",
+    "reporting.keyword_daily",
+    "tap-through rate",
+    "reporting.campaigns",
+    "example-0"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.4,
+   "correct": true,
+   "expected": 44.44
+  },
+  {
+   "id": "xt-de-brand-cpi",
+   "status": "answer",
+   "answer": 0.5962,
+   "explanation": "Ledgerly's brand ad groups in Germany cost about $0.60 per install, found by converting daily spend to US dollars at each day's exchange rate and dividing by total installs.",
+   "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.app_name = 'Ledgerly' and c.country = 'DE' and g.ad_group_name ilike '%brand%'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) / nullif(sum(d.installs), 0) as cpi_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.app_name = 'Ledgerly' and c.country = 'DE' and g.ad_group_name ilike '%brand%'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "cost per install",
+    "example-0",
+    "reporting.keywords",
+    "cost per tap",
+    "reporting.keyword_daily",
+    "reporting.campaigns",
+    "reporting.fx_rates",
+    "conversion rate",
+    "spend in dollars",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 8.5,
+   "correct": true,
+   "expected": 0.6
+  },
+  {
+   "id": "xt-plant-care-jp",
+   "status": "answer",
+   "answer": 315775,
+   "explanation": "The \"plant care\" keyword spent a total of 315,775 yen in Japan across all dates in the data.",
+   "sql": "select sum(d.spend) as spend_jpy from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where k.keyword = 'plant care' and c.country = 'JP' and c.currency = 'JPY'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend) as spend_jpy from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where k.keyword = 'plant care' and c.country = 'JP' and c.currency = 'JPY'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "example-0",
+    "reporting.fx_rates",
+    "spend in dollars",
+    "over budget",
+    "cost per tap",
+    "reporting.keyword_daily",
+    "whole period",
+    "reporting.campaigns",
+    "reporting.keywords",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.9,
+   "correct": true,
+   "expected": 315775.0
+  },
+  {
+   "id": "xt-not-running",
+   "status": "answer",
+   "answer": [
+    "Ledgerly - DE - Search"
+   ],
+   "explanation": "Only one campaign, Ledgerly - DE - Search (Ledgerly app, Germany), has a paused status, so it is the only one not running.",
+   "sql": "select campaign_id, campaign_name, app_name, country, status from reporting.campaigns where status = 'paused' order by campaign_name",
+   "attempts": [
+    {
+     "sql": "select campaign_id, campaign_name, app_name, country, status from reporting.campaigns where status = 'paused' order by campaign_name",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.campaigns",
+    "privacy",
+    "reporting.ad_groups",
+    "over budget",
+    "reporting.fx_rates",
+    "example-1",
+    "reporting.keyword_daily",
+    "spend in dollars",
+    "percentage points",
+    "example-0"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 7.0,
+   "correct": true,
+   "expected": [
+    "Ledgerly - DE - Search"
+   ]
+  },
+  {
+   "id": "xt-offline-match",
+   "status": "answer",
+   "answer": "exact",
+   "explanation": "In the UK campaign \"Trailhead - GB - Search\", the \"offline maps\" keyword (ad group \"Category\") is set to exact match.",
+   "sql": "select c.campaign_name, g.ad_group_name, k.keyword, k.match_type from reporting.keywords k join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.country = 'GB' and lower(k.keyword) like '%offline maps%'",
+   "attempts": [
+    {
+     "sql": "select c.campaign_name, g.ad_group_name, k.keyword, k.match_type from reporting.keywords k join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) where c.country = 'GB' and lower(k.keyword) like '%offline maps%'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keywords",
+    "reporting.campaigns",
+    "reporting.keyword_daily",
+    "over budget",
+    "reporting.ad_groups",
+    "example-0",
+    "example-1",
+    "statistically significant",
+    "last 7 days",
+    "spend in dollars"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 6.4,
+   "correct": true,
+   "expected": "exact"
+  },
+  {
+   "id": "xt-none-notion",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query returned no install rows for the 'notion' keyword between 2026-10-20 and 2026-10-26, so it got 0 installs in that period. I read \"last week\" as those 7 days ending 2026-10-26, not Monday to Sunday.",
+   "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where k.keyword = 'notion' and d.day between '2026-10-20' and '2026-10-26'",
+   "attempts": [
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where k.keyword_text = 'notion' and d.day between '2026-10-20' and '2026-10-26'",
+     "error": "UndefinedColumn: column k.keyword_text does not exist"
+    },
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where 'notion' in (select value from jsonb_each_text(to_jsonb(k))) and d.day between '2026-10-20' and '2026-10-26'",
+     "error": "name the schema for table  (one of ['reporting'])"
+    },
+    {
+     "sql": "select sum(d.installs) as installs from reporting.keyword_daily d join reporting.keywords k using (keyword_id) where k.keyword = 'notion' and d.day between '2026-10-20' and '2026-10-26'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.keyword_daily",
+    "example-0",
+    "last 7 days",
+    "reporting.experiment_daily",
+    "conversion rate",
+    "reporting.audience_daily",
+    "reporting.ad_groups",
+    "example-1",
+    "privacy",
+    "cost per install"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 22.4,
+   "correct": false,
+   "expected": null
+  },
+  {
+   "id": "xt-none-icon",
+   "status": "not_answerable",
+   "answer": null,
+   "explanation": "The warehouse has no experiment with \"icon\" in its name, so I can't say whether a new icon beat the old one.",
+   "sql": "select experiment_id, experiment_name, taps_a, installs_a, round(100*p_a,3) as cvr_a_pct, taps_b, installs_b, round(100*p_b,3) as cvr_b_pct, round(100*(p_b-p_a),3) as diff_pct_pts, round(100*margin,3) as margin_pct_pts, abs(p_b-p_a) > margin as significant_95 from (select experiment_id, experiment_name, taps_a, installs_a, taps_b, installs_b, installs_a::numeric/taps_a as p_a, installs_b::numeric/taps_b as p_b, 1.96*sqrt((installs_a::numeric/taps_a)*(1-installs_a::numeric/taps_a)/taps_a + (installs_b::numeric/taps_b)*(1-installs_b::numeric/taps_b)/taps_b) as margin from (select e.experiment_id, e.experiment_name, sum(d.taps) filter (where d.variant='A') as taps_a, sum(d.installs) filter (where d.variant='A') as installs_a, sum(d.taps) filter (where d.variant='B') as taps_b, sum(d.installs) filter (where d.variant='B') as installs_b from reporting.experiments e join reporting.experiment_daily d on d.experiment_id = e.experiment_id where e.experiment_name ilike '%icon%' group by e.experiment_id, e.experiment_name) t) u order by experiment_id",
+   "attempts": [
+    {
+     "sql": "with t as (select e.experiment_id, e.experiment_name, d.variant, sum(d.taps) as taps, sum(d.installs) as installs from reporting.experiments e join reporting.experiment_daily d using (experiment_id) where e.experiment_name ilike '%icon%' group by 1,2,3), w as (select a.experiment_id, a.experiment_name, a.taps as taps_a, a.installs as installs_a, b.taps as taps_b, b.installs as installs_b, a.installs::numeric/a.taps as p_a, b.installs::numeric/b.taps as p_b from t a join t b on a.experiment_id = b.experiment_id and a.variant = 'A' and b.variant = 'B') select experiment_id, experiment_name, taps_a, installs_a, round(100*p_a,3) as cvr_a_pct, taps_b, installs_b, round(100*p_b,3) as cvr_b_pct, round(100*(p_b-p_a),3) as diff_pct_pts, round(100*(1.96*sqrt(p_a*(1-p_a)/taps_a + p_b*(1-p_b)/taps_b)),3) as margin_pct_pts, abs(p_b-p_a) > 1.96*sqrt(p_a*(1-p_a)/taps_a + p_b*(1-p_b)/taps_b) as significant_95 from w order by experiment_id",
+     "error": "the size of a group inside this query could not be checked; write it without a correlated subquery over people counts"
+    },
+    {
+     "sql": "select experiment_id, experiment_name, taps_a, installs_a, round(100*p_a,3) as cvr_a_pct, taps_b, installs_b, round(100*p_b,3) as cvr_b_pct, round(100*(p_b-p_a),3) as diff_pct_pts, round(100*margin,3) as margin_pct_pts, abs(p_b-p_a) > margin as significant_95 from (select experiment_id, experiment_name, taps_a, installs_a, taps_b, installs_b, installs_a::numeric/taps_a as p_a, installs_b::numeric/taps_b as p_b, 1.96*sqrt((installs_a::numeric/taps_a)*(1-installs_a::numeric/taps_a)/taps_a + (installs_b::numeric/taps_b)*(1-installs_b::numeric/taps_b)/taps_b) as margin from (select e.experiment_id, e.experiment_name, sum(d.taps) filter (where d.variant='A') as taps_a, sum(d.installs) filter (where d.variant='A') as installs_a, sum(d.taps) filter (where d.variant='B') as taps_b, sum(d.installs) filter (where d.variant='B') as installs_b from reporting.experiments e join reporting.experiment_daily d on d.experiment_id = e.experiment_id where e.experiment_name ilike '%icon%' group by e.experiment_id, e.experiment_name) t) u order by experiment_id",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "reporting.experiment_daily",
+    "reporting.experiments",
+    "reporting.campaigns",
+    "reporting.keyword_daily",
+    "example-0",
+    "statistically significant",
+    "tap-through rate",
+    "last 7 days",
+    "example-1",
+    "conversion rate"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 20.9,
+   "correct": true,
+   "expected": null
+  },
+  {
+   "id": "xt-none-canada",
+   "status": "answer",
+   "answer": 0,
+   "explanation": "The query found no spend rows for the Trailhead campaign in Canada, so the total is 0 US dollars.",
+   "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.app_name = 'Trailhead' and c.country = 'CA'",
+   "attempts": [
+    {
+     "sql": "select sum(d.spend / fx.units_per_usd) as spend_usd from reporting.keyword_daily d join reporting.keywords k using (keyword_id) join reporting.ad_groups g using (ad_group_id) join reporting.campaigns c using (campaign_id) join reporting.fx_rates fx on fx.day = d.day and fx.currency = c.currency where c.app_name = 'Trailhead' and c.country = 'CA'",
+     "error": null
+    }
+   ],
+   "lookups": [],
+   "redrafts": 0,
+   "retrieved": [
+    "example-0",
+    "reporting.campaigns",
+    "cost per tap",
+    "reporting.fx_rates",
+    "over budget",
+    "spend in dollars",
+    "cost per install",
+    "reporting.keyword_daily",
+    "reporting.audience_daily",
+    "example-1"
+   ],
+   "sources": [],
+   "citations_ok": null,
+   "seconds": 12.5,
+   "correct": false,
+   "expected": null
+  }
+ ]
+}

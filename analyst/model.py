@@ -1,9 +1,13 @@
-"""The language model behind the agent, reached through the `claude` command line.
+"""The language model behind the agent. The graph needs only `model(system, prompt, schema) -> dict`.
 
-Each step that needs judgement (write a query, read its result) is one call to
-`claude -p` with tools off and a JSON schema for the reply, so the agent gets
-structured output from a signed-in command line. API key variables are removed
-from the child process, so every call uses that sign-in.
+Two routes satisfy that:
+
+- `ChatModel` wraps any LangChain chat model (`ChatAnthropic` by default) and asks for the
+  reply through `with_structured_output`, so each step is an ordinary LangChain call that
+  LangSmith traces under the graph's run.
+- `CommandLineModel` makes one `claude -p` call per step, with tools off and a JSON schema
+  for the reply. API key variables are removed from the child process, so every call uses
+  the command line's own sign-in. The scored runs in `eval/RESULTS.md` used this route.
 
 `FakeModel` replays scripted replies, so the graph is tested without a model.
 """
@@ -27,6 +31,47 @@ _log_lock = threading.Lock()
 
 class ModelError(RuntimeError):
     """A model call failed after every attempt."""
+
+
+# The command line's short names, as model ids for the API.
+MODEL_IDS = {"sonnet": "claude-sonnet-5-5", "haiku": "claude-haiku-5-5", "opus": "claude-opus-5-5"}
+
+
+class ChatModel:
+    """One LangChain chat-model call per step, its reply shaped by the step's JSON schema."""
+
+    def __init__(self, llm=None, model: str = "sonnet", usage_log: str | Path | None = None):
+        model = MODEL_IDS.get(model, model)
+        if llm is None:
+            from langchain_anthropic import ChatAnthropic  # imported here: the CLI route needs no SDK
+            llm = ChatAnthropic(model=model, temperature=0, max_tokens=2048, max_retries=ATTEMPTS)
+        self.llm = llm
+        self.model = model
+        self.usage_log = Path(usage_log) if usage_log else None
+
+    def __call__(self, system: str, prompt: str, schema: dict) -> dict:
+        from langchain_core.messages import HumanMessage, SystemMessage
+
+        titled = {"title": "reply", "description": "The reply for this step.", **schema}
+        chain = self.llm.with_structured_output(titled, include_raw=True)
+        try:
+            out = chain.invoke([SystemMessage(system), HumanMessage(prompt)])
+        except Exception as exc:  # any provider error ends this step as a failed call, never a crash
+            raise ModelError(f"model call failed: {type(exc).__name__}: {str(exc)[:200]}") from exc
+        parsed = out.get("parsed")
+        if not isinstance(parsed, dict):
+            raise ModelError(f"model reply did not fit the schema: {out.get('parsing_error')}")
+        self._log(out.get("raw"))
+        return parsed
+
+    def _log(self, raw) -> None:
+        if not self.usage_log or raw is None:
+            return
+        u = getattr(raw, "usage_metadata", None) or {}
+        row = {"t": round(time.time(), 1), "model": self.model, "input": u.get("input_tokens", 0),
+               "output": u.get("output_tokens", 0), "route": "langchain"}
+        with _log_lock, self.usage_log.open("a") as f:
+            f.write(json.dumps(row) + "\n")
 
 
 class CommandLineModel:
