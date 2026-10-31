@@ -1,0 +1,30 @@
+{
+  "tool": "customer_summary",
+  "args": {
+    "customer_key": 41
+  },
+  "result": {
+    "found": true,
+    "customer_key": 41,
+    "customer_name": "Northwind Logistics",
+    "billed_usd": 49490.0,
+    "paid_usd": 22655.0,
+    "owed_usd": 26835.0,
+    "aging_usd": {
+      "not_yet_due": null,
+      "late_1_30": 19410.0,
+      "late_31_60": null,
+      "late_61_90": null,
+      "late_over_90": 7425.0,
+      "total_open": 26835.0
+    },
+    "aged_as_of": "2026-10-27",
+    "sources": [
+      "account.move/83@2026-10-31T10:22:36",
+      "account.move/109@2026-10-31T10:22:36",
+      "account.move/156@2026-10-31T10:22:38",
+      "account.payment/28@2026-10-31T10:20:44",
+      "account.payment/40@2026-10-31T10:21:26"
+    ]
+  }
+}

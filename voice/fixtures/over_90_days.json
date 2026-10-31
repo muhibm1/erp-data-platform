@@ -1,0 +1,42 @@
+{
+  "tool": "query",
+  "args": {
+    "sql": "select customer_name, late_over_90, total_open from marts.receivables_aging where late_over_90 > 0 order by late_over_90 desc"
+  },
+  "result": {
+    "ok": true,
+    "rows": [
+      {
+        "customer_name": "Maple Street Bakery",
+        "late_over_90": 50485.0,
+        "total_open": 91095.0
+      },
+      {
+        "customer_name": "Harbor Freight Partners",
+        "late_over_90": 24140.0,
+        "total_open": 24140.0
+      },
+      {
+        "customer_name": "Quarry Lane Fitness",
+        "late_over_90": 16520.0,
+        "total_open": 16520.0
+      },
+      {
+        "customer_name": "Nimbus Print",
+        "late_over_90": 12100.0,
+        "total_open": 12100.0
+      },
+      {
+        "customer_name": "Oakhurst Dental",
+        "late_over_90": 7705.0,
+        "total_open": 7705.0
+      },
+      {
+        "customer_name": "Northwind Logistics",
+        "late_over_90": 7425.0,
+        "total_open": 26835.0
+      }
+    ],
+    "truncated": false
+  }
+}

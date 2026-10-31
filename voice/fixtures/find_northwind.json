@@ -1,0 +1,19 @@
+{
+  "tool": "find_customers",
+  "args": {
+    "name": "northwind"
+  },
+  "result": {
+    "customers": [
+      {
+        "customer_key": 41,
+        "customer_name": "Northwind Logistics",
+        "odoo_partners": [
+          "41: Northwind Logistics",
+          "71: Northwind Logistics Inc."
+        ]
+      }
+    ],
+    "note": "A customer can be several Odoo partners merged into one; always use customer_key."
+  }
+}

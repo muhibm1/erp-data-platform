@@ -1,0 +1,3 @@
+# Exact pins. Licences in comments. Only needed to deploy the agent or talk to it.
+elevenlabs==2.75.0   # MIT, the ElevenLabs SDK (ElevenAgents, client tools)
+pyaudio==0.2.14      # MIT, microphone and speakers for talk.py; needs PortAudio (brew install portaudio)
